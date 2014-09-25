@@ -1,0 +1,20 @@
+Crema README
+9/25/2014
+
+(C) 2014 Assured Information Security, Inc.
+
+## Introduction
+Crema is a LLVM front-end that aims to specifically execute in sub-Turing Complete space.
+Designed to be simple to learn, and practical for the majority of programming tasks needed,
+Crema can restrict the computational complexity of the program to the minimum needed to improve
+security.
+
+## Technical Details
+Crema is developed in C++ in order to natively utilize the LLVM tool-chain and integrate with
+flex/bison to simplify parser generation.
+
+### Building
+Build the Crema tool by running "make", clean the directory by running "make clean"
+
+### Usage
+To compile a Crema program into LLVM IR for JIT execution, simply use the "cremacc" program
