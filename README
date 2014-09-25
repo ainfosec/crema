@@ -1,6 +1,4 @@
-Crema README
-9/25/2014
-
+# Crema README
 (C) 2014 Assured Information Security, Inc.
 
 ## Introduction
@@ -8,6 +6,37 @@ Crema is a LLVM front-end that aims to specifically execute in sub-Turing Comple
 Designed to be simple to learn, and practical for the majority of programming tasks needed,
 Crema can restrict the computational complexity of the program to the minimum needed to improve
 security.
+
+## Crema Syntax
+Crema is designed in the popular procedural paradigm, following a number of C styles while adopting 
+some newer features from more modern languages like Python and Ruby. Below are a few examples of Crema
+programs that demonstrate the "feel" of the language:
+
+### Hellow World
+```
+sdef void main() {
+    hw = "Hello, world!" # Sets variable hw to the string
+    println(hw) # Prints it out
+}
+```
+
+### FizzBuzz
+```
+sdef void fizzbuzz() {
+    range = seq(1, 100)
+    foreach (range as num) {
+    	    if (num % 15 == 0) {
+	      println("FizzBuzz")
+	    } else if (num % 5 == 0) {
+	      println("Buzz")
+	    } else if (num % 3 == 0) {
+	      println("Fizz")
+	    } else {
+	      println(num)
+	    }
+    }
+}
+```
 
 ## Technical Details
 Crema is developed in C++ in order to natively utilize the LLVM tool-chain and integrate with
