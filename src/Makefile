@@ -1,7 +1,7 @@
 all:
-	flex lexer.l
-	bison parser.y
-	g++ crema.cpp
+	bison -d -o parser.cpp parser.y
+	flex -olexer.cpp lexer.l
+	g++ parser.cpp lexer.cpp crema.cpp
 
 clean:
-	-rm *~ *.o cremacc
+	-rm *~ *.o cremacc parser.cpp parser.h lexer.cpp

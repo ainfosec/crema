@@ -1,10 +1,10 @@
 %{
 #include <string>
 #include "ast.h"
-#include "parser.hpp"
+#include "parser.h"
 #define SAVE_VAL yyval.value = new std::string(yytext, yyleng)  
 #define TOK(t) (yyval.token = (t))
-}%
+%}
 
 %option debug
 
@@ -51,7 +51,6 @@
 "{"			      return TOK(TLBRACKET);
 "}"			      return TOK(TRBRACKET);
 ","			      return TOK(TCOMMA);
-
 [ \t]		;
 \n		; // TODO: Keep track of line count to provide more helpful error reporting
 .		printf("Unknown token!\n"); yyterminate();
