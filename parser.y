@@ -8,16 +8,31 @@
 }%
 
 %union {
-
+       NBlock *block;
+       Node *node;
+       int token;
+       NIdentifier *ident;
+       NExpression *expression;
+       NStatement *statement;
+       std::vector<NVariableDeclaration*> *decl_args;
+       std::vector<NExpression*> *call_args;
 }
 
+/* Terminal types */
 %token <string> TIDENTIFIER TNINT TDOUBLE
 %token <token> TRETURN TSDEF TDEF TIF TELSE TFOREACH TAS TCEQ
 %token <token> TCNEQ TCLE TCGE TCLT TCGT TTVOID TTINT TTUINT TTSTR
 %token <token> TTDOUBLE TEQUAL TLPAREN TRPAREN TLBRAC TRBRAC TMOD
 %token <token> TMUL TADD TDIV TSUB TRBRACKET TLBRACKET
 
-%type
+/* Non-terminal types */
+%type <token> type comparison numeric combine def
+%type <ident> identifier
+%type <statement> statement var_decl func_decl assignment return loop conditional
+%type <expression> expression value
+%type <block> block program statements 
+%type <call_args> func_call_arg_list
+%type <decl_args> func_decl_arg_list
 
 %left TADD TMUL TDIV
 %left TMOD TSUB
