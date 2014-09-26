@@ -29,8 +29,8 @@
 "string"		      return TOK(TTSTR);
 "double"		      return TOK(TTDOUBLE);
 [a-zA-Z_][a-zA-Z_0-9]* 	      SAVE_VAL; return TIDENTIFIER;
-[0-9]+\.[0-9]+		      SAVE_VAL; return TNUM;
-[0-9]			      SAVE_VAL; return TNUM;
+[0-9]+\.[0-9]+		      SAVE_VAL; return TDOUBLE;
+[0-9]			      SAVE_VAL; return TINT;
 "="			      return TOK(TEQUAL);
 "=="			      return TOK(TCEQ);
 "!="			      return TOK(TCNEQ);
@@ -42,6 +42,7 @@
 ")"			      return TOK(TRPAREN);
 "["			      return TOK(TLBRAC);
 "]"			      return TOK(TRBRAC);
+"\""			      return TOK(TQUOTE);
 "%"			      return TOK(TMOD);
 "*"			      return TOK(TMUL);
 "/"			      return TOK(TDIV);
@@ -49,6 +50,7 @@
 "-"			      return TOK(TSUB);
 "{"			      return TOK(TLBRACKET);
 "}"			      return TOK(TRBRACKET);
+","			      return TOK(TCOMMA);
 
 [ \t]		;
 \n		; // TODO: Keep track of line count to provide more helpful error reporting
