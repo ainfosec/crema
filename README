@@ -43,7 +43,7 @@ Crema is developed in C++ in order to natively utilize the LLVM tool-chain and i
 flex/bison to simplify parser generation.
 
 ### Building
-Build the Crema tool by running "make", clean the directory by running "make clean"
+Build the Crema tool by running "make" in the src directory, clean the src directory by running "make clean"
 
 ### Usage
 To compile a Crema program into LLVM IR for JIT execution, simply use the "cremacc" program
