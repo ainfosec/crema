@@ -15,6 +15,7 @@
        NIdentifier *ident;
        NExpression *expression;
        NStatement *statement;
+       NVariableDeclaration *var_decl;
        std::vector<NVariableDeclaration*> *decl_args;
        std::vector<NExpression*> *call_args;
        std::string *string;
@@ -43,17 +44,17 @@
 
 %%
 
-program : statements { }
+program : statements { rootBlock = $1; }
 	;
 
-statements : statement { }
-	   | statements statement { }
+statements : statement { $$ = new NBlock(); $$->statements.push_back($<statement>1); }
+	   | statements statement { $1->statements.push_back($<statement>2); }
 	   ;
 
 statement : var_decl { }
 	  | struct_decl { } 
 	  | func_decl { }
-	  | expression { }
+/*	  | expression { } */
 	  | assignment { }
 	  | conditional { }
 	  | loop { }
@@ -65,10 +66,10 @@ conditional : TIF TLPAREN expression TRPAREN block TELSE conditional { $$ = new 
 	    | TIF TLPAREN expression TRPAREN block { $$ = new NIfStatement(*$3, *$5); } /* vanilla if */
 	    ;
 
-return : TRETURN expression { }
+return : TRETURN expression { $$ = new NReturn($2); }
        ;
 
-assignment : identifier TEQUAL expression { }
+assignment : identifier TEQUAL expression { $$ = new NAssignmentStatement(*$1, $3); }
 	   ;
 
 loop : TFOREACH TLPAREN identifier TAS identifier TRPAREN block { }
@@ -81,32 +82,32 @@ var_decls : var_decl { }
 	  | var_decls TCOMMA var_decl { }
 	  ;
 
-var_decl : type identifier { }
-	 | type identifier TEQUAL expression { }
+var_decl : type identifier { $$ = new NVariableDeclaration($1, *$2); }
+	 | type identifier TEQUAL expression { $$ = new NVariableDeclaration($1, *$2, $4); }
 	 ;
 
-func_decl : def type identifier TLPAREN func_decl_arg_list TRPAREN block { }
+func_decl : def type identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration($2, *$3, *$5, $7); }
 	  ;
 
 def : TDEF
     | TSDEF
     ;
 
-block : TLBRACKET statements TRBRACKET { }
-      | TLBRACKET TRBRACKET { }
+block : TLBRACKET statements TRBRACKET { $$ = $2; }
+      | TLBRACKET TRBRACKET { $$ = new NBlock(); }
       ;
 
 func_decl_arg_list : /* Empty */ { }
-		   | var_decl { }
-		   | func_decl_arg_list TCOMMA var_decl { }
+		   | var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
+		   | func_decl_arg_list TCOMMA var_decl { $$->push_back($<var_decl>3); }
 		   ;
 
-expression : expression combine expression { }
+expression : expression combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
 	   | identifier TLPAREN func_call_arg_list TRPAREN { }
 	   | identifier { }
-	   | TLPAREN expression TRPAREN { }
+	   | TLPAREN expression TRPAREN { $$ = $2; }
 	   | value { }
-	   | expression comparison expression { } 
+	   | expression comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
 	   | TSUB expression { } /* negative numbers */
 	   ;
 
@@ -132,7 +133,7 @@ combine : TADD
 
 identifier : TIDENTIFIER TLBRAC expression TRBRAC { } /* Array access */
 	   | TIDENTIFIER TPERIOD TIDENTIFIER { } /* Structure access */
-	   | TIDENTIFIER { }
+	   | TIDENTIFIER { std::string str = $1->c_str(); $$ = new NIdentifier(str); delete $1; }
 	   ;
 
 comparison : TCEQ

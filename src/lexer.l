@@ -12,6 +12,8 @@ extern "C" int yywrap() { }
 
 %%
 
+[ \t]			      ;
+\n			      ; // TODO: Keep track of line count to provide more helpful error reporting
 "return"		      return TOK(TRETURN);
 "sdef"			      return TOK(TSDEF);
 "def"		              return TOK(TDEF);
@@ -56,8 +58,6 @@ extern "C" int yywrap() { }
 ","			      return TOK(TCOMMA);
 "\."			      return TOK(TPERIOD);
 \#.*			      ; // Comment, ignore
-[ \t]		;
-\n		; // TODO: Keep track of line count to provide more helpful error reporting
 .		printf("Unknown token!\n"); yyterminate();
 
 %%

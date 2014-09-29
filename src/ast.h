@@ -27,31 +27,71 @@ public:
 };
 
 class NExpression : public Node {
-public:
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+};
+
+class NStatement : public Node {
 };
 
 class NBlock : public NExpression {
 public:
     StatementList statements;
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    friend std::ostream & operator<<(std::ostream & os, const NBlock & block);
 };
 
-class NStatement : public Node {
+class NAssignmentStatement : public NStatement {
 public:
+    NIdentifier & ident;
+    NExpression * expr;
+NAssignmentStatement(NIdentifier & ident, NExpression * expr) : ident(ident), expr(expr) { }
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
 };
 
 class NIfStatement : public NStatement {
 public:
+    NExpression & condition;
+    NBlock & thenblock;
+    NBlock * elseblock;
+    NStatement * elseif;
+NIfStatement(NExpression & condition, NBlock & thenblock, NBlock * elseblock) : condition(condition), thenblock(thenblock), elseblock(elseblock), elseif(NULL) { }
+NIfStatement(NExpression & condition, NBlock & thenblock, NStatement * elseif) : condition(condition), thenblock(thenblock), elseblock(NULL), elseif(elseif) { }
+NIfStatement(NExpression & condition, NBlock & thenblock) : condition(condition), thenblock(thenblock), elseblock(NULL), elseif(NULL) { }
+    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+};
+
+class NBinaryOperator : public NExpression {
+public:
+    int op;
+    NExpression & lhs;
+    NExpression & rhs;
+NBinaryOperator(NExpression & lhs, int op, NExpression & rhs) : lhs(lhs), op(op), rhs(rhs) { }
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
 };
 
 class NVariableDeclaration : public NStatement {
 public:
+    int & type;
+    NIdentifier & name;
+    NExpression *initializationExpression;
+NVariableDeclaration(int & type, NIdentifier & name) : type(type), name(name) { }
+NVariableDeclaration(int & type, NIdentifier & name, NExpression *initExpr) : type(type), name(name), initializationExpression(initExpr) { }
+    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+};
+
+class NFunctionDeclaration : public NStatement {
+public:
+    VariableList variables;
+    NIdentifier & ident;
     int type;
-    NIdentifier *name;
-NVariableDeclaration(int type, NIdentifier *name) : type(type), name(name) { }
+    NBlock *body;
+NFunctionDeclaration(int type, NIdentifier & ident, VariableList & variables, NBlock *body) : type(type), ident(ident), variables(variables), body(body) { }
+    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+};
+
+class NReturn : public NStatement {
+public:
+    NExpression *retExpr;
+NReturn(NExpression *re) : retExpr(re) { }
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
 };
 
