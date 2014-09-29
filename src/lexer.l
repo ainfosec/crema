@@ -4,6 +4,8 @@
 #include "parser.h"
 #define SAVE_VAL yylval.string = new std::string(yytext, yyleng)
 #define TOK(t) (yylval.token = (t))
+
+extern "C" int yywrap() { }
 %}
 
 %option debug
