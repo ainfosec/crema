@@ -1,5 +1,6 @@
 %{
     #include "ast.h"
+    #include <stdlib.h>
 
     NBlock *rootBlock;
 
@@ -27,10 +28,10 @@
 %token <token> TMUL TADD TDIV TSUB TRBRACKET TLBRACKET TCOMMA TQUOTE
 
 /* Non-terminal types */
-%type <token> type comparison numeric combine def
+%type <token> type comparison combine def
 %type <ident> identifier
 %type <statement> statement struct_decl var_decl func_decl assignment return loop conditional
-%type <expression> expression value
+%type <expression> expression value numeric
 %type <block> block program statements 
 %type <call_args> func_call_arg_list
 %type <decl_args> func_decl_arg_list var_decls
