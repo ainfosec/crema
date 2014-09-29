@@ -13,6 +13,7 @@
 "return"		      return TOK(TRETURN);
 "sdef"			      return TOK(TSDEF);
 "def"		              return TOK(TDEF);
+"struct"		      return TOK(TSTRUCT);
 "if"			      return TOK(TIF);
 "else"		              return TOK(TELSE);
 "foreach"		      return TOK(TFOREACH);
@@ -51,6 +52,7 @@
 "{"			      return TOK(TLBRACKET);
 "}"			      return TOK(TRBRACKET);
 ","			      return TOK(TCOMMA);
+"\."			      return TOK(TPERIOD);
 [ \t]		;
 \n		; // TODO: Keep track of line count to provide more helpful error reporting
 .		printf("Unknown token!\n"); yyterminate();

@@ -22,18 +22,18 @@
 /* Terminal types */
 %token <string> TIDENTIFIER TINT TDOUBLE
 %token <token> TRETURN TSDEF TDEF TIF TELSE TFOREACH TAS TCEQ
-%token <token> TCNEQ TCLE TCGE TCLT TCGT TTVOID TTINT TTUINT TTSTR
-%token <token> TTDOUBLE TEQUAL TLPAREN TRPAREN TLBRAC TRBRAC TMOD
+%token <token> TCNEQ TCLE TCGE TCLT TCGT TTVOID TTINT TTUINT TTSTR TSTRUCT
+%token <token> TTDOUBLE TEQUAL TLPAREN TRPAREN TLBRAC TRBRAC TMOD TPERIOD
 %token <token> TMUL TADD TDIV TSUB TRBRACKET TLBRACKET TCOMMA TQUOTE
 
 /* Non-terminal types */
 %type <token> type comparison numeric combine def
 %type <ident> identifier
-%type <statement> statement var_decl func_decl assignment return loop conditional
+%type <statement> statement struct_decl var_decl func_decl assignment return loop conditional
 %type <expression> expression value
 %type <block> block program statements 
 %type <call_args> func_call_arg_list
-%type <decl_args> func_decl_arg_list
+%type <decl_args> func_decl_arg_list var_decls
 
 %left TADD TMUL TDIV
 %left TMOD TSUB
@@ -50,6 +50,7 @@ statements : statement { }
 	   ;
 
 statement : var_decl { }
+	  | struct_decl { } 
 	  | func_decl { }
 	  | expression { }
 	  | assignment { }
@@ -71,6 +72,13 @@ assignment : identifier TEQUAL expression { }
 
 loop : TFOREACH TLPAREN identifier TAS identifier TRPAREN block { }
      ;
+
+struct_decl : TSTRUCT identifier TLBRACKET var_decls TRBRACKET { }	
+	    ;
+
+var_decls : var_decl { }
+	  | var_decls TCOMMA var_decl { }
+	  ;
 
 var_decl : type identifier { }
 	 | type identifier TEQUAL expression { }
@@ -122,6 +130,7 @@ combine : TADD
 	;
 
 identifier : TIDENTIFIER TLBRAC expression TRBRAC { } /* Array access */
+	   | TIDENTIFIER TPERIOD TIDENTIFIER { } /* Structure access */
 	   | TIDENTIFIER { }
 	   ;
 
