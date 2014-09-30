@@ -1,5 +1,5 @@
 all:
-	bison -d -o parser.cpp parser.y
+	bison -d -o parser.cpp --defines=parser.h parser.y
 	flex -olexer.cpp lexer.l
 	g++ -o cremacc `llvm-config --cppflags` parser.cpp lexer.cpp ast.cpp crema.cpp
 
