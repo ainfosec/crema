@@ -73,7 +73,7 @@ return : TRETURN expression { $$ = new NReturn($2); }
 assignment : identifier TEQUAL expression { $$ = new NAssignmentStatement(*$1, $3); }
 	   ;
 
-loop : TFOREACH TLPAREN identifier TAS identifier TRPAREN block { }
+loop : TFOREACH TLPAREN identifier TAS identifier TRPAREN block { $$ = new NLoopStatement(*$3, *$5, *$7); }
      ;
 
 struct_decl : TSTRUCT identifier TLBRACKET var_decls TRBRACKET { }	
@@ -104,17 +104,17 @@ func_decl_arg_list : /* Empty */ { }
 		   ;
 
 expression : expression combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
-	   | identifier TLPAREN func_call_arg_list TRPAREN { }
+	   | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
 	   | identifier { }
 	   | TLPAREN expression TRPAREN { $$ = $2; }
 	   | value { }
 	   | expression comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
-	   | TSUB expression { } /* negative numbers */
+	   | TSUB expression { NDouble zero(0); $$ = new NBinaryOperator(zero, $1, *$2); } /* negative numbers */
 	   ;
 
 func_call_arg_list : /* Empty */ { }
-		   | expression { }
-		   | func_call_arg_list TCOMMA expression { }
+		   | expression { $$ = new ExpressionList(); $$->push_back($<expression>1); }
+		   | func_call_arg_list TCOMMA expression { $$->push_back($<expression>3); }
 		   ;
 
 numeric : TDOUBLE { $$ = new NDouble(atof($1->c_str())); delete $1; }

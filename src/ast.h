@@ -45,6 +45,16 @@ public:
     NExpression * expr;
 NAssignmentStatement(NIdentifier & ident, NExpression * expr) : ident(ident), expr(expr) { }
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    friend std::ostream & operator<<(std::ostream & os, const NAssignmentStatement & assignment);
+};
+
+class NLoopStatement : public NStatement {
+public:
+    NIdentifier & list;
+    NIdentifier & asVar;
+    NBlock & loopBlock;
+ NLoopStatement(NIdentifier & list, NIdentifier & asVar, NBlock & loopBlock) : list(list), asVar(asVar), loopBlock(loopBlock) { }
+    friend std::ostream & operator<<(std::ostream & os, const NLoopStatement & loop);
 };
 
 class NIfStatement : public NStatement {
@@ -88,6 +98,14 @@ NFunctionDeclaration(int type, NIdentifier & ident, VariableList & variables, NB
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
 };
 
+class NFunctionCall : public NExpression {
+ public:
+  ExpressionList args;
+  NIdentifier & ident;
+ NFunctionCall(NIdentifier & ident, ExpressionList & args) : ident(ident), args(args) { }
+  friend std::ostream & operator<<(std::ostream & os, const NFunctionCall & funcCall);
+};
+
 class NReturn : public NStatement {
 public:
     NExpression *retExpr;
@@ -105,6 +123,7 @@ public:
     double value;
 NDouble(double value) : value(value) { }
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    friend std::ostream & operator<<(std::ostream & os, const NDouble & doubleValue);
 };
 
 class NUInt : public NValue {
@@ -112,6 +131,7 @@ public:
     unsigned long int value;
 NUInt(unsigned long int value) : value(value) { }
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    friend std::ostream & operator<<(std::ostream & os, const NUInt & uintValue);
 };
 
 class NInt : public NValue {
@@ -119,6 +139,7 @@ public:
     long int value;
 NInt(long int value) : value(value) { }
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    friend std::ostream & operator<<(std::ostream & os, const NInt & intValue);
 };
 
 class NString : public NValue {
@@ -126,6 +147,7 @@ public:
     std::string value;
 NString(const std::string & value) : value(value) { }
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    friend std::ostream & operator<<(std::ostream & os, const NString & stringValue);
 };
 
 class NList : public NValue {
@@ -140,6 +162,7 @@ public:
     std::string value;
 NIdentifier(const std::string & value) : value(value) { }
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    friend std::ostream & operator<<(std::ostream & os, const NIdentifier & ident);
 };
 
 
