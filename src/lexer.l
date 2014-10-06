@@ -35,7 +35,7 @@ extern "C" int yywrap() { }
 "double"		      return TOK(TTDOUBLE);
 [a-zA-Z_][a-zA-Z_0-9]* 	      SAVE_VAL; return TIDENTIFIER;
 [0-9]+\.[0-9]+		      SAVE_VAL; return TDOUBLE;
-[0-9]			      SAVE_VAL; return TINT;
+[0-9]+			      SAVE_VAL; return TINT;
 "="			      return TOK(TEQUAL);
 "=="			      return TOK(TCEQ);
 "!="			      return TOK(TCNEQ);
