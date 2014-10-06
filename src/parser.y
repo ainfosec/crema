@@ -9,6 +9,8 @@
     void yyerror(const char *s) { fprintf(stderr, "ERROR: %s\n", s); }
 %}
 
+%define parse.error verbose
+
 %union {
        NBlock *block;
        Node *node;
@@ -55,7 +57,6 @@ statements : statement { $$ = new NBlock(); $$->statements.push_back($<statement
 statement : var_decl { }
 	  | struct_decl { } 
 	  | func_decl { }
-/*	  | expression { } */
 	  | assignment { }
 	  | conditional { }
 	  | loop { }
@@ -67,7 +68,7 @@ conditional : TIF TLPAREN expression TRPAREN block TELSE conditional { $$ = new 
 	    | TIF TLPAREN expression TRPAREN block { $$ = new NIfStatement(*$3, *$5); } /* vanilla if */
 	    ;
 
-return : TRETURN expression { $$ = new NReturn($2); }
+return : TRETURN expression { $$ = new NReturn(*$2); }
        ;
 
 assignment : identifier TEQUAL expression { $$ = new NAssignmentStatement(*$1, $3); }
@@ -98,7 +99,7 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
       | TLBRACKET TRBRACKET { $$ = new NBlock(); }
       ;
 
-func_decl_arg_list : /* Empty */ { }
+func_decl_arg_list : /* Empty */ { $$ = new VariableList(); }
 		   | var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
 		   | func_decl_arg_list TCOMMA var_decl { $$->push_back($<var_decl>3); }
 		   ;
@@ -109,10 +110,10 @@ expression : expression combine expression { $$ = new NBinaryOperator(*$1, $2, *
 	   | TLPAREN expression TRPAREN { $$ = $2; }
 	   | value { }
 	   | expression comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
-	   | TSUB expression { NDouble zero(0); $$ = new NBinaryOperator(zero, $1, *$2); } /* negative numbers */
+	   | TSUB expression { NDouble *zero = new NDouble(0); $$ = new NBinaryOperator(*zero, $1, *$2); } /* negative numbers */
 	   ;
 
-func_call_arg_list : /* Empty */ { }
+func_call_arg_list : /* Empty */ { $$ = new ExpressionList(); }
 		   | expression { $$ = new ExpressionList(); $$->push_back($<expression>1); }
 		   | func_call_arg_list TCOMMA expression { $$->push_back($<expression>3); }
 		   ;
