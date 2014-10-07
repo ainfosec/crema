@@ -1,0 +1,20 @@
+<map id="Node" name="Node">
+<area shape="rect" id="node2" href="$classNExpression.html" title="{NExpression\n||}" alt="" coords="336,175,437,252"/>
+<area shape="rect" id="node12" href="$classNIdentifier.html" title="{NIdentifier\n|+ value\l|+ NIdentifier()\l+ codeGen()\l+ print()\l}" alt="" coords="691,160,801,267"/>
+<area shape="rect" id="node13" href="$classNStatement.html" title="{NStatement\n||}" alt="" coords="1056,175,1157,252"/>
+<area shape="rect" id="node3" href="$classNBinaryOperator.html" title="{NBinaryOperator\n|+ op\l+ lhs\l+ rhs\l|+ NBinaryOperator()\l+ codeGen()\l+ print()\l}" alt="" coords="5,337,159,473"/>
+<area shape="rect" id="node4" href="$classNBlock.html" title="{NBlock\n|+ statements\l|+ codeGen()\l+ print()\l}" alt="" coords="185,359,295,451"/>
+<area shape="rect" id="node5" href="$classNFunctionCall.html" title="{NFunctionCall\n|+ args\l+ ident\l|+ NFunctionCall()\l+ print()\l}" alt="" coords="320,352,453,459"/>
+<area shape="rect" id="node6" href="$classNValue.html" title="{NValue\n||+ codeGen()\l+ print()\l}" alt="" coords="477,359,581,451"/>
+<area shape="rect" id="node7" href="$classNDouble.html" title="{NDouble\n|+ value\l|+ NDouble()\l+ codeGen()\l+ print()\l}" alt="" coords="233,544,337,651"/>
+<area shape="rect" id="node8" href="$classNInt.html" title="{NInt\n|+ value\l|+ NInt()\l+ codeGen()\l+ print()\l}" alt="" coords="361,544,465,651"/>
+<area shape="rect" id="node9" href="$classNList.html" title="{NList\n|+ value\l|+ NList()\l+ NList()\l+ print()\l}" alt="" coords="490,544,568,651"/>
+<area shape="rect" id="node10" href="$classNString.html" title="{NString\n|+ value\l|+ NString()\l+ codeGen()\l+ print()\l}" alt="" coords="593,544,697,651"/>
+<area shape="rect" id="node11" href="$classNUInt.html" title="{NUInt\n|+ value\l|+ NUInt()\l+ codeGen()\l+ print()\l}" alt="" coords="721,544,825,651"/>
+<area shape="rect" id="node14" href="$classNAssignmentStatement.html" title="{NAssignmentStatement\n|+ ident\l+ expr\l|+ NAssignmentStatement()\l+ codeGen()\l+ print()\l}" alt="" coords="605,345,808,466"/>
+<area shape="rect" id="node15" href="$classNFunctionDeclaration.html" title="{NFunctionDeclaration\n|+ variables\l+ ident\l+ type\l+ body\l|+ NFunctionDeclaration()\l+ codeGen()\l+ print()\l}" alt="" coords="833,330,1015,481"/>
+<area shape="rect" id="node16" href="$classNIfStatement.html" title="{NIfStatement\n|+ condition\l+ thenblock\l+ elseblock\l+ elseif\l|+ NIfStatement()\l+ NIfStatement()\l+ NIfStatement()\l+ codeGen()\l+ print()\l}" alt="" coords="1040,315,1173,495"/>
+<area shape="rect" id="node17" href="$classNLoopStatement.html" title="{NLoopStatement\n|+ list\l+ asVar\l+ loopBlock\l|+ NLoopStatement()\l+ print()\l}" alt="" coords="1197,345,1355,466"/>
+<area shape="rect" id="node18" href="$classNReturn.html" title="{NReturn\n|+ retExpr\l|+ NReturn()\l+ codeGen()\l+ print()\l}" alt="" coords="1379,352,1483,459"/>
+<area shape="rect" id="node19" href="$classNVariableDeclaration.html" title="{NVariableDeclaration\n|+ type\l+ name\l+ initializationExpression\l|+ NVariableDeclaration()\l+ NVariableDeclaration()\l+ codeGen()\l+ print()\l}" alt="" coords="1507,330,1688,481"/>
+</map>

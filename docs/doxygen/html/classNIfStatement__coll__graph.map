@@ -1,0 +1,6 @@
+<map id="NIfStatement" name="NIfStatement">
+<area shape="rect" id="node2" href="$classNStatement.html" title="{NStatement\n||}" alt="" coords="5,299,107,376"/>
+<area shape="rect" id="node3" href="$classNode.html" title="{Node\n||+ ~Node()\l+ codeGen()\l+ print()\l}" alt="" coords="40,5,144,112"/>
+<area shape="rect" id="node4" href="$classNExpression.html" title="{NExpression\n||}" alt="" coords="104,163,205,240"/>
+<area shape="rect" id="node5" href="$classNBlock.html" title="{NBlock\n|+ statements\l|+ codeGen()\l+ print()\l}" alt="" coords="253,291,363,383"/>
+</map>
