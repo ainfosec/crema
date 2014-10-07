@@ -1,6 +1,84 @@
 #include "ast.h"
 #include "parser.h"
 
+void SemanticContext::newScope()
+{
+  vars.push_back(new VariableList());
+  funcs.push_back(new FunctionList());
+  currScope++;
+}
+
+void SemanticContext::delScope()
+{
+  vars.pop_back();
+  funcs.pop_back();
+  currScope--;
+}
+
+bool SemanticContext::registerVar(NVariableDeclaration * var)
+{
+  // Search through current scope for variable duplication
+  for (int j = 0; j < (vars[currScope])->size(); j++)
+    {
+      if (var->name.value == vars[currScope]->at(j)->name.value)
+	return false;
+    }
+
+  vars[currScope]->push_back(var);
+  return true;
+}
+
+bool SemanticContext::registerFunc(NFunctionDeclaration * func)
+{
+  // Search through current scope for function duplication
+  for (int j = 0; j < (funcs[currScope])->size(); j++)
+    {
+      if (func->ident.value == funcs[currScope]->at(j)->ident.value)
+	return false;
+    }
+
+  funcs[currScope]->push_back(func);
+  return true;
+}
+
+/*
+  Searches the local, then parent scopes for a variable declaration
+ */
+NVariableDeclaration * SemanticContext::searchVars(NIdentifier & ident) 
+{
+  // Search through stacks in reverse order
+  for (int i = vars.size() - 1; i >= 0; i--)
+    {
+      // Search through current scope for variable
+      for (int j = 0; j < (vars[i])->size(); j++)
+	{
+	  if (ident.value == vars[i]->at(j)->name.value)
+	    return vars[i]->at(j);
+	}
+    }
+
+  return NULL;
+}
+
+/*
+  Searches the local, then parent scopes for a function declaration
+ */
+NFunctionDeclaration * SemanticContext::searchFuncs(NIdentifier & ident) 
+{
+  // Search through stacks in reverse order
+  for (int i = funcs.size() - 1; i >= 0; i--)
+    {
+      // Search through current scope for variable
+      for (int j = 0; j < funcs[i]->size(); j++)
+	{
+	  if (ident.value == funcs[i]->at(j)->ident.value)
+	    return funcs[i]->at(j);
+	}
+    }
+
+  return NULL;
+}
+
 std::ostream & operator<<(std::ostream & os, const Node & node)
 {
   node.print(os);
@@ -16,6 +94,18 @@ std::ostream & NBlock::print(std::ostream & os) const
     }
     os << "}" << std::endl;
     return os;
+}
+
+bool NBlock::semanticAnalysis(SemanticContext * ctx) const
+{
+  ctx->newScope();
+  for (int i = 0; i < statements.size(); i++)
+    {
+      if (!statements[i]->semanticAnalysis(ctx))
+	return false;
+    }
+  ctx->delScope();
+  return true;
 }
 
 std::ostream & NVariableDeclaration::print(std::ostream & os) const
