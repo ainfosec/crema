@@ -47,7 +47,8 @@
 
 %%
 
-program : statements { rootBlock = $1; }
+program : { rootBlock = NULL; } /* Empty program */
+	| statements { rootBlock = $1; }
 	;
 
 statements : statement { $$ = new NBlock(); $$->statements.push_back($<statement>1); }
