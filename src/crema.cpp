@@ -9,7 +9,7 @@ int main(int argc, char **argv)
 {
     yyparse();
     std::cout << *rootBlock << std::endl;
-    if (rootBlock->sxbemanticAnalysis(&ctx))
+    if (rootBlock->semanticAnalysis(&ctx))
       {
 	std::cout << "Passed semantic analysis!" << std::endl;
       }

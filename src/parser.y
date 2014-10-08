@@ -35,7 +35,7 @@
 %type <token> type comparison combine def
 %type <ident> identifier
 %type <statement> statement struct_decl var_decl func_decl assignment return loop conditional
-%type <expression> expression value numeric
+%type <expression> expression value numeric list struct
 %type <block> block program statements 
 %type <call_args> func_call_arg_list
 %type <decl_args> func_decl_arg_list var_decls
@@ -77,11 +77,12 @@ assignment : identifier TEQUAL expression { $$ = new NAssignmentStatement(*$1, $
 loop : TFOREACH TLPAREN identifier TAS identifier TRPAREN block { $$ = new NLoopStatement(*$3, *$5, *$7); }
      ;
 
-struct_decl : TSTRUCT identifier TLBRACKET var_decls TRBRACKET { }	
+struct_decl : TSTRUCT identifier TLBRACKET var_decls TRBRACKET { $$ = new NStructureDeclaration(*$2, *$4); }	
 	    ;
 
-var_decls : var_decl { }
-	  | var_decls TCOMMA var_decl { }
+var_decls : { $$ = new VariableList(); }
+	  | var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
+	  | var_decls TCOMMA var_decl { $$->push_back($<var_decl>3); }
 	  ;
 
 var_decl : type identifier { $$ = new NVariableDeclaration($1, *$2); }
@@ -107,6 +108,8 @@ func_decl_arg_list : /* Empty */ { $$ = new VariableList(); }
 expression : expression combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
 	   | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
 	   | identifier { }
+	   | list { }
+	   | struct { }
 	   | TLPAREN expression TRPAREN { $$ = $2; }
 	   | value { }
 	   | expression comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
@@ -133,9 +136,13 @@ combine : TADD
 	| TDIV
 	;
 
-identifier : TIDENTIFIER TLBRAC expression TRBRAC { } /* Array access */
-	   | TIDENTIFIER TPERIOD TIDENTIFIER { } /* Structure access */
-	   | TIDENTIFIER { std::string str = $1->c_str(); $$ = new NIdentifier(str); delete $1; }
+list : identifier TLBRAC expression TRBRAC { $$ = new NListAccess(*$1, *$3); } /* Array access */
+     ;
+
+struct : identifier TPERIOD identifier { $$ = new NStructureAccess(*$1, *$3); } /* Structure access */
+       ;
+
+identifier : TIDENTIFIER { std::string str = $1->c_str(); $$ = new NIdentifier(str); delete $1; }
 	   ;
 
 comparison : TCEQ

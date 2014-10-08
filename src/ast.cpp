@@ -129,6 +129,18 @@ std::ostream & NFunctionDeclaration::print(std::ostream & os) const
   return os;
 }
 
+std::ostream & NStructureDeclaration::print(std::ostream & os) const
+{
+  os << "Struct decl: " << ident << " {";
+  for (int i = 0; i < members.size(); i++)
+    {
+      os << *(members[i]) << " ";
+    }
+  os << "}" << std::endl;
+  
+  return os;
+}
+
 std::ostream & NAssignmentStatement::print(std::ostream & os) const
 {
   os << "Assignment: " << ident << " = " << expr << std::endl;
@@ -144,6 +156,18 @@ std::ostream & NBinaryOperator::print(std::ostream & os) const
 std::ostream & NIdentifier::print(std::ostream & os) const
 {
   os << "Identifier: " << value;
+  return os;
+}
+
+std::ostream & NListAccess::print(std::ostream & os) const
+{
+  os << "List access: " << ident << "[" << index << "]";
+  return os;
+}
+
+std::ostream & NStructureAccess::print(std::ostream & os) const
+{
+  os << "Struct access: " << ident << "." << member;
   return os;
 }
 

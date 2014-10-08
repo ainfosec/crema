@@ -125,11 +125,36 @@ class NFunctionDeclaration : public NStatement {
   std::ostream & print(std::ostream & os) const;
 };
 
+class NStructureDeclaration : public NStatement {
+ public:
+  VariableList members;
+  NIdentifier & ident;
+ NStructureDeclaration(NIdentifier & ident, VariableList & members) : ident(ident), members(members) { }
+  virtual llvm::Value* codeGen(CodeGenContext & context) { }
+  std::ostream & print(std::ostream & os) const;
+};
+
 class NFunctionCall : public NExpression {
  public:
   ExpressionList args;
   NIdentifier & ident;
  NFunctionCall(NIdentifier & ident, ExpressionList & args) : ident(ident), args(args) { }
+  std::ostream & print(std::ostream & os) const;
+};
+
+class NStructureAccess : public NExpression {
+ public:
+  NIdentifier & member;
+  NIdentifier & ident;
+ NStructureAccess(NIdentifier & ident, NIdentifier & member) : ident(ident), member(member) { }
+  std::ostream & print(std::ostream & os) const;
+};
+
+class NListAccess : public NExpression {
+ public:
+  NExpression & index;
+  NIdentifier & ident;
+ NListAccess(NIdentifier & ident, NExpression & index) : ident(ident), index(index) { }
   std::ostream & print(std::ostream & os) const;
 };
 
