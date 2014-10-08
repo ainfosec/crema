@@ -27,14 +27,15 @@ class SemanticContext {
  public:
   int currScope;
   std::vector<VariableList*> vars;
-  std::vector<FunctionList*> funcs;
-  void newScope();
+  std::vector<int> currType;
+  FunctionList funcs;
+  void newScope(int type);
   void delScope();
   NVariableDeclaration * searchVars(NIdentifier & ident);
   NFunctionDeclaration * searchFuncs(NIdentifier & ident);
   bool registerVar(NVariableDeclaration * var);
   bool registerFunc(NFunctionDeclaration * func);
-  SemanticContext() { newScope(); currScope = 0; }
+  SemanticContext() { newScope(0); currScope = 0; }
 };
 
 class Node {

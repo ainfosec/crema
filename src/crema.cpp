@@ -16,6 +16,7 @@ int main(int argc, char **argv)
     else
       {
 	std::cout << "Failed semantic analysis!" << std::endl;
+	return -1;
       }
     return 0;
 }

@@ -1,17 +1,17 @@
 #include "ast.h"
 #include "parser.h"
 
-void SemanticContext::newScope()
+void SemanticContext::newScope(int type)
 {
   vars.push_back(new VariableList());
-  funcs.push_back(new FunctionList());
+  currType.push_back(type);
   currScope++;
 }
 
 void SemanticContext::delScope()
 {
   vars.pop_back();
-  funcs.pop_back();
+  currType.pop_back();
   currScope--;
 }
 
@@ -31,13 +31,13 @@ bool SemanticContext::registerVar(NVariableDeclaration * var)
 bool SemanticContext::registerFunc(NFunctionDeclaration * func)
 {
   // Search through current scope for function duplication
-  for (int j = 0; j < (funcs[currScope])->size(); j++)
+  for (int j = 0; j < funcs.size(); j++)
     {
-      if (func->ident.value == funcs[currScope]->at(j)->ident.value)
+      if (func->ident.value == funcs[j]->ident.value)
 	return false;
     }
 
-  funcs[currScope]->push_back(func);
+  funcs.push_back(func);
   return true;
 }
 
@@ -66,14 +66,10 @@ NVariableDeclaration * SemanticContext::searchVars(NIdentifier & ident)
 NFunctionDeclaration * SemanticContext::searchFuncs(NIdentifier & ident) 
 {
   // Search through stacks in reverse order
-  for (int i = funcs.size() - 1; i >= 0; i--)
+  for (int i = 0; i < funcs.size(); i++)
     {
-      // Search through current scope for variable
-      for (int j = 0; j < funcs[i]->size(); j++)
-	{
-	  if (ident.value == funcs[i]->at(j)->ident.value)
-	    return funcs[i]->at(j);
-	}
+      if (ident.value == funcs[i]->ident.value)
+	return funcs[i];
     }
 
   return NULL;
@@ -98,7 +94,7 @@ std::ostream & NBlock::print(std::ostream & os) const
 
 bool NBlock::semanticAnalysis(SemanticContext * ctx) const
 {
-  ctx->newScope();
+  ctx->newScope(ctx->currType.back());
   for (int i = 0; i < statements.size(); i++)
     {
       if (!statements[i]->semanticAnalysis(ctx))
