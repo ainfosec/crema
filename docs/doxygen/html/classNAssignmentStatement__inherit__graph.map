@@ -1,4 +1,4 @@
 <map id="NAssignmentStatement" name="NAssignmentStatement">
-<area shape="rect" id="node2" href="$classNStatement.html" title="{NStatement\n||}" alt="" coords="56,160,157,237"/>
-<area shape="rect" id="node3" href="$classNode.html" title="{Node\n||+ ~Node()\l+ codeGen()\l+ print()\l}" alt="" coords="55,5,159,112"/>
+<area shape="rect" id="node2" href="$classNStatement.html" title="{NStatement\n||}" alt="" coords="56,176,157,253"/>
+<area shape="rect" id="node3" href="$classNode.html" title="{Node\n||+ ~Node()\l+ codeGen()\l+ print()\l+ semanticAnalysis()\l}" alt="" coords="27,6,185,127"/>
 </map>

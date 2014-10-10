@@ -1,6 +1,6 @@
 <map id="NVariableDeclaration" name="NVariableDeclaration">
-<area shape="rect" id="node2" href="$classNStatement.html" title="{NStatement\n||}" alt="" coords="5,177,107,255"/>
-<area shape="rect" id="node3" href="$classNode.html" title="{Node\n||+ ~Node()\l+ codeGen()\l+ print()\l}" alt="" coords="135,5,239,112"/>
-<area shape="rect" id="node4" href="$classNIdentifier.html" title="{NIdentifier\n|+ value\l|+ NIdentifier()\l+ codeGen()\l+ print()\l}" alt="" coords="131,163,241,269"/>
-<area shape="rect" id="node5" href="$classNExpression.html" title="{NExpression\n||}" alt="" coords="267,177,368,255"/>
+<area shape="rect" id="node2" href="$classNStatement.html" title="{NStatement\n||}" alt="" coords="5,193,107,271"/>
+<area shape="rect" id="node3" href="$classNode.html" title="{Node\n||+ ~Node()\l+ codeGen()\l+ print()\l+ semanticAnalysis()\l}" alt="" coords="107,6,265,127"/>
+<area shape="rect" id="node4" href="$classNIdentifier.html" title="{NIdentifier\n|+ value\l|+ NIdentifier()\l+ codeGen()\l+ print()\l}" alt="" coords="131,179,241,285"/>
+<area shape="rect" id="node5" href="$classNExpression.html" title="{NExpression\n|+ type\l|}" alt="" coords="267,193,368,271"/>
 </map>

@@ -1,4 +1,4 @@
 <map id="NFunctionDeclaration" name="NFunctionDeclaration">
-<area shape="rect" id="node2" href="$classNStatement.html" title="{NStatement\n||}" alt="" coords="45,160,147,237"/>
-<area shape="rect" id="node3" href="$classNode.html" title="{Node\n||+ ~Node()\l+ codeGen()\l+ print()\l}" alt="" coords="44,5,148,112"/>
+<area shape="rect" id="node2" href="$classNStatement.html" title="{NStatement\n||}" alt="" coords="45,176,147,253"/>
+<area shape="rect" id="node3" href="$classNode.html" title="{Node\n||+ ~Node()\l+ codeGen()\l+ print()\l+ semanticAnalysis()\l}" alt="" coords="17,6,175,127"/>
 </map>

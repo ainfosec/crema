@@ -76,8 +76,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow4" class="tabs3">
     <ul class="tablist">
       <li><a href="#index_c"><span>c</span></a></li>
+      <li><a href="#index_d"><span>d</span></a></li>
       <li><a href="#index_n"><span>n</span></a></li>
       <li><a href="#index_p"><span>p</span></a></li>
+      <li><a href="#index_r"><span>r</span></a></li>
+      <li><a href="#index_s"><span>s</span></a></li>
       <li class="current"><a href="#index_~"><span>~</span></a></li>
     </ul>
   </div>
@@ -87,7 +90,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Macros</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Friends</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -112,9 +115,17 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 , <a class="el" href="classNode.html#aa98b3480ad2e4b41bb2cd35ef2350f8f">Node</a>
 , <a class="el" href="classNReturn.html#aae206161deb72ab15e9e882c9ab54943">NReturn</a>
 , <a class="el" href="classNString.html#abbdda2ae92b0a2d18a86a237ec433679">NString</a>
+, <a class="el" href="classNStructureDeclaration.html#a1862ee9d60f5a6e008e0bcd268841fc8">NStructureDeclaration</a>
 , <a class="el" href="classNUInt.html#a381e2ba40e148d571efbf4fe34aaf2e5">NUInt</a>
 , <a class="el" href="classNValue.html#aea9017630088083783f5b1120f5abc70">NValue</a>
 , <a class="el" href="classNVariableDeclaration.html#a44ba9ac7e1f2cfdb87f672b80326dda2">NVariableDeclaration</a>
+</li>
+</ul>
+
+
+<h3><a class="anchor" id="index_d"></a>- d -</h3><ul>
+<li>delScope()
+: <a class="el" href="classSemanticContext.html#ad771b7aa3d170b7d4bbde42dfa46aa20">SemanticContext</a>
 </li>
 </ul>
 
@@ -129,6 +140,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>NDouble()
 : <a class="el" href="classNDouble.html#aea93c483f25253b92688f228a8d22d9d">NDouble</a>
 </li>
+<li>newScope()
+: <a class="el" href="classSemanticContext.html#a5ef58108c33cd2973e2526811445742e">SemanticContext</a>
+</li>
 <li>NFunctionCall()
 : <a class="el" href="classNFunctionCall.html#a25723c90cba5cc29e5acf6245576aac4">NFunctionCall</a>
 </li>
@@ -139,13 +153,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classNIdentifier.html#ab88c4b04c75877e01a8efe6edc9b9b10">NIdentifier</a>
 </li>
 <li>NIfStatement()
-: <a class="el" href="classNIfStatement.html#a1efbdd0cfd02a3c22dffeae36a0055ef">NIfStatement</a>
+: <a class="el" href="classNIfStatement.html#a13ae4c2a5e56fe62eec7cfca7247e4a1">NIfStatement</a>
 </li>
 <li>NInt()
 : <a class="el" href="classNInt.html#a8b657656f4b810d8db33d9bff33cbbe9">NInt</a>
 </li>
 <li>NList()
 : <a class="el" href="classNList.html#aa0c5b83a19f03e306f4b5f589917d0c6">NList</a>
+</li>
+<li>NListAccess()
+: <a class="el" href="classNListAccess.html#a7c336402aebd99a21464989d72fef9dd">NListAccess</a>
 </li>
 <li>NLoopStatement()
 : <a class="el" href="classNLoopStatement.html#afe4f7c6650a8d676297a746592a01c00">NLoopStatement</a>
@@ -156,11 +173,17 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>NString()
 : <a class="el" href="classNString.html#a4e7e2d0ada7ce96f00298bcdbd418fda">NString</a>
 </li>
+<li>NStructureAccess()
+: <a class="el" href="classNStructureAccess.html#a07c30ae23d64e43027036c379d43621e">NStructureAccess</a>
+</li>
+<li>NStructureDeclaration()
+: <a class="el" href="classNStructureDeclaration.html#a58aad6e5d9ac6c071d2fb36836f5ab8b">NStructureDeclaration</a>
+</li>
 <li>NUInt()
 : <a class="el" href="classNUInt.html#a49b68802460867f9cc059cc5b2052ee8">NUInt</a>
 </li>
 <li>NVariableDeclaration()
-: <a class="el" href="classNVariableDeclaration.html#a4c39e91f397eb5942c25aa765a2b725e">NVariableDeclaration</a>
+: <a class="el" href="classNVariableDeclaration.html#a12668fa47df3301a4e926baaa8bc23c2">NVariableDeclaration</a>
 </li>
 </ul>
 
@@ -177,13 +200,43 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 , <a class="el" href="classNIfStatement.html#a84b02148ca1b6c9682ba91df3259c981">NIfStatement</a>
 , <a class="el" href="classNInt.html#adbcf2d7e0911afd6dcc44acce6171a48">NInt</a>
 , <a class="el" href="classNList.html#a2cc092afbec0bcfffdf6a5407d44da8d">NList</a>
+, <a class="el" href="classNListAccess.html#afd97f5ac37904605a6ee86f08ca40e10">NListAccess</a>
 , <a class="el" href="classNLoopStatement.html#af7ba550d52e9c45d935b8233aa22ebc2">NLoopStatement</a>
 , <a class="el" href="classNode.html#ae43d292e88ad7dcbd743c812578e463d">Node</a>
 , <a class="el" href="classNReturn.html#abb4dfac7e419773fda539877afa318cb">NReturn</a>
 , <a class="el" href="classNString.html#a5d6d7e2a1e1d0682b21b9fac1d611cc1">NString</a>
+, <a class="el" href="classNStructureAccess.html#af954c49e8d289807f875463638314e5a">NStructureAccess</a>
+, <a class="el" href="classNStructureDeclaration.html#a2bfcbc938ccbbcd76fda7ceefbfa2d9f">NStructureDeclaration</a>
 , <a class="el" href="classNUInt.html#a3e8d4e02c1f1788037f0a3ef7ed2007a">NUInt</a>
 , <a class="el" href="classNValue.html#a55415bb7825cb682d5dfc970e9ecd852">NValue</a>
 , <a class="el" href="classNVariableDeclaration.html#aabfd50ced02f5d5bd9b04c2a99ad5c5c">NVariableDeclaration</a>
+</li>
+</ul>
+
+
+<h3><a class="anchor" id="index_r"></a>- r -</h3><ul>
+<li>registerFunc()
+: <a class="el" href="classSemanticContext.html#aa3db8e6316f5ec9ef7ce55825a2679c7">SemanticContext</a>
+</li>
+<li>registerVar()
+: <a class="el" href="classSemanticContext.html#a9a4076a10d5601aa281ddd7c273e8e0b">SemanticContext</a>
+</li>
+</ul>
+
+
+<h3><a class="anchor" id="index_s"></a>- s -</h3><ul>
+<li>searchFuncs()
+: <a class="el" href="classSemanticContext.html#a4305383007a55be507f6b97ee6aaa834">SemanticContext</a>
+</li>
+<li>searchVars()
+: <a class="el" href="classSemanticContext.html#a59d3595bd8e894b78a6c877391791cfe">SemanticContext</a>
+</li>
+<li>semanticAnalysis()
+: <a class="el" href="classNBlock.html#aac9ab05eb16e054bc6a0c190a37eeefb">NBlock</a>
+, <a class="el" href="classNode.html#a8404bc4c0c5089ca41dbf0d9cf079462">Node</a>
+</li>
+<li>SemanticContext()
+: <a class="el" href="classSemanticContext.html#a886244fb5b52995494d18ce767f8069e">SemanticContext</a>
 </li>
 </ul>
 
@@ -196,7 +249,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Oct 7 2014 17:33:20 for Crema by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Oct 10 2014 16:37:58 for Crema by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

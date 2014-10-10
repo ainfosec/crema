@@ -1,4 +1,4 @@
 <map id="NBinaryOperator" name="NBinaryOperator">
-<area shape="rect" id="node2" href="$classNExpression.html" title="{NExpression\n||}" alt="" coords="31,160,132,237"/>
-<area shape="rect" id="node3" href="$classNode.html" title="{Node\n||+ ~Node()\l+ codeGen()\l+ print()\l}" alt="" coords="29,5,133,112"/>
+<area shape="rect" id="node2" href="$classNExpression.html" title="{NExpression\n|+ type\l|}" alt="" coords="33,176,135,253"/>
+<area shape="rect" id="node3" href="$classNode.html" title="{Node\n||+ ~Node()\l+ codeGen()\l+ print()\l+ semanticAnalysis()\l}" alt="" coords="5,6,163,127"/>
 </map>

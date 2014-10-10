@@ -1,9 +1,9 @@
 <map id="NValue" name="NValue">
-<area shape="rect" id="node4" href="$classNDouble.html" title="{NDouble\n|+ value\l|+ NDouble()\l+ codeGen()\l+ print()\l}" alt="" coords="5,427,109,533"/>
-<area shape="rect" id="node5" href="$classNInt.html" title="{NInt\n|+ value\l|+ NInt()\l+ codeGen()\l+ print()\l}" alt="" coords="133,427,237,533"/>
-<area shape="rect" id="node6" href="$classNList.html" title="{NList\n|+ value\l|+ NList()\l+ NList()\l+ print()\l}" alt="" coords="262,427,340,533"/>
-<area shape="rect" id="node7" href="$classNString.html" title="{NString\n|+ value\l|+ NString()\l+ codeGen()\l+ print()\l}" alt="" coords="365,427,469,533"/>
-<area shape="rect" id="node8" href="$classNUInt.html" title="{NUInt\n|+ value\l|+ NUInt()\l+ codeGen()\l+ print()\l}" alt="" coords="493,427,597,533"/>
-<area shape="rect" id="node2" href="$classNExpression.html" title="{NExpression\n||}" alt="" coords="251,160,352,237"/>
-<area shape="rect" id="node3" href="$classNode.html" title="{Node\n||+ ~Node()\l+ codeGen()\l+ print()\l}" alt="" coords="249,5,353,112"/>
+<area shape="rect" id="node4" href="$classNDouble.html" title="{NDouble\n|+ value\l|+ NDouble()\l+ codeGen()\l+ print()\l}" alt="" coords="5,443,109,549"/>
+<area shape="rect" id="node5" href="$classNInt.html" title="{NInt\n|+ value\l|+ NInt()\l+ codeGen()\l+ print()\l}" alt="" coords="133,443,237,549"/>
+<area shape="rect" id="node6" href="$classNList.html" title="{NList\n|+ value\l|+ NList()\l+ NList()\l+ print()\l}" alt="" coords="262,443,340,549"/>
+<area shape="rect" id="node7" href="$classNString.html" title="{NString\n|+ value\l|+ NString()\l+ codeGen()\l+ print()\l}" alt="" coords="365,443,469,549"/>
+<area shape="rect" id="node8" href="$classNUInt.html" title="{NUInt\n|+ value\l|+ NUInt()\l+ codeGen()\l+ print()\l}" alt="" coords="493,443,597,549"/>
+<area shape="rect" id="node2" href="$classNExpression.html" title="{NExpression\n|+ type\l|}" alt="" coords="251,176,352,253"/>
+<area shape="rect" id="node3" href="$classNode.html" title="{Node\n||+ ~Node()\l+ codeGen()\l+ print()\l+ semanticAnalysis()\l}" alt="" coords="222,6,380,127"/>
 </map>

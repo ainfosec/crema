@@ -1,8 +1,5 @@
 var searchData=
 [
-  ['save_5fval',['SAVE_VAL',['../lexer_8cpp.html#a49d21fa58ac31d7efbfbc8f0ad221810',1,'lexer.cpp']]],
-  ['statement',['statement',['../unionYYSTYPE.html#a12ebfa285f6784832e7e41ba507e76ea',1,'YYSTYPE']]],
-  ['statementlist',['StatementList',['../ast_8h.html#a3e56020e3471060218b1d7578e92ed19',1,'ast.h']]],
-  ['statements',['statements',['../classNBlock.html#a17c95c5909c55da9761e58340259f14e',1,'NBlock']]],
-  ['string',['string',['../unionYYSTYPE.html#aa194a6d7eb96a0154e5628da125c97a6',1,'YYSTYPE']]]
+  ['thenblock',['thenblock',['../classNIfStatement.html#a86d17e3046514aa80699748e650ab876',1,'NIfStatement']]],
+  ['type',['type',['../classNExpression.html#a5fa1d344a8f3eb1c090b478fcd94e3a7',1,'NExpression::type()'],['../classNVariableDeclaration.html#a3e956b65a0106309fd93f497bbd6fd44',1,'NVariableDeclaration::type()'],['../classNFunctionDeclaration.html#a376ae06b72ade48137d0140ce44a74c7',1,'NFunctionDeclaration::type()']]]
 ];

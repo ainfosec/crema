@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Macros</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Friends</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -96,14 +96,14 @@ Inheritance diagram for NVariableDeclaration:</div>
 <div class="dyncontent">
 <div class="center"><img src="classNVariableDeclaration__inherit__graph.png" border="0" usemap="#NVariableDeclaration_inherit__map" alt="Inheritance graph"/></div>
 <map name="NVariableDeclaration_inherit__map" id="NVariableDeclaration_inherit__map">
-<area shape="rect" id="node2" href="classNStatement.html" title="{NStatement\n||}" alt="" coords="45,160,147,237"/><area shape="rect" id="node3" href="classNode.html" title="{Node\n||+ ~Node()\l+ codeGen()\l+ print()\l}" alt="" coords="44,5,148,112"/></map>
+<area shape="rect" id="node2" href="classNStatement.html" title="{NStatement\n||}" alt="" coords="45,176,147,253"/><area shape="rect" id="node3" href="classNode.html" title="{Node\n||+ ~Node()\l+ codeGen()\l+ print()\l+ semanticAnalysis()\l}" alt="" coords="17,6,175,127"/></map>
 </div>
 <div class="dynheader">
 Collaboration diagram for NVariableDeclaration:</div>
 <div class="dyncontent">
 <div class="center"><img src="classNVariableDeclaration__coll__graph.png" border="0" usemap="#NVariableDeclaration_coll__map" alt="Collaboration graph"/></div>
 <map name="NVariableDeclaration_coll__map" id="NVariableDeclaration_coll__map">
-<area shape="rect" id="node2" href="classNStatement.html" title="{NStatement\n||}" alt="" coords="5,177,107,255"/><area shape="rect" id="node3" href="classNode.html" title="{Node\n||+ ~Node()\l+ codeGen()\l+ print()\l}" alt="" coords="135,5,239,112"/><area shape="rect" id="node4" href="classNIdentifier.html" title="{NIdentifier\n|+ value\l|+ NIdentifier()\l+ codeGen()\l+ print()\l}" alt="" coords="131,163,241,269"/><area shape="rect" id="node5" href="classNExpression.html" title="{NExpression\n||}" alt="" coords="267,177,368,255"/></map>
+<area shape="rect" id="node2" href="classNStatement.html" title="{NStatement\n||}" alt="" coords="5,193,107,271"/><area shape="rect" id="node3" href="classNode.html" title="{Node\n||+ ~Node()\l+ codeGen()\l+ print()\l+ semanticAnalysis()\l}" alt="" coords="107,6,265,127"/><area shape="rect" id="node4" href="classNIdentifier.html" title="{NIdentifier\n|+ value\l|+ NIdentifier()\l+ codeGen()\l+ print()\l}" alt="" coords="131,179,241,285"/><area shape="rect" id="node5" href="classNExpression.html" title="{NExpression\n|+ type\l|}" alt="" coords="267,193,368,271"/></map>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -119,6 +119,8 @@ Public Member Functions</h2></td></tr>
 <tr class="inherit_header pub_methods_classNode"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classNode')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classNode.html">Node</a></td></tr>
 <tr class="memitem:af5e3fa79300bf5f3f2f3ecae6e795a94 inherit pub_methods_classNode"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNode.html#af5e3fa79300bf5f3f2f3ecae6e795a94">~Node</a> ()</td></tr>
 <tr class="separator:af5e3fa79300bf5f3f2f3ecae6e795a94 inherit pub_methods_classNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8404bc4c0c5089ca41dbf0d9cf079462 inherit pub_methods_classNode"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNode.html#a8404bc4c0c5089ca41dbf0d9cf079462">semanticAnalysis</a> (<a class="el" href="classSemanticContext.html">SemanticContext</a> *<a class="el" href="crema_8cpp.html#a1519e27118ea7acdd83083837890d3fb">ctx</a>) const </td></tr>
+<tr class="separator:a8404bc4c0c5089ca41dbf0d9cf079462 inherit pub_methods_classNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -295,13 +297,13 @@ Public Attributes</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li><a class="el" href="ast_8h_source.html">ast.h</a></li>
-<li><a class="el" href="ast_8cpp.html">ast.cpp</a></li>
+<li>/vagrant/crema/src/<a class="el" href="ast_8h_source.html">ast.h</a></li>
+<li>/vagrant/crema/src/<a class="el" href="ast_8cpp.html">ast.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Oct 7 2014 17:33:20 for Crema by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Oct 10 2014 16:37:57 for Crema by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

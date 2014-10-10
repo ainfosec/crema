@@ -1,6 +1,9 @@
 #include "ast.h"
 #include "parser.h"
 
+/** 
+ *  
+ */
 void SemanticContext::newScope(int type)
 {
   vars.push_back(new VariableList());
@@ -92,8 +95,11 @@ std::ostream & NBlock::print(std::ostream & os) const
     return os;
 }
 
+/** Iterates over the vector and returns 'false' if any of
+ *  semanticAnalysis elements are false. */
 bool NBlock::semanticAnalysis(SemanticContext * ctx) const
 {
+  // Points to the last element in the vector<int> currType.
   ctx->newScope(ctx->currType.back());
   for (int i = 0; i < statements.size(); i++)
     {

@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['lexer_2ecpp',['lexer.cpp',['../lexer_8cpp.html',1,'']]],
-  ['lhs',['lhs',['../classNBinaryOperator.html#a44b73fc66f25fd0a936323905f263ac7',1,'NBinaryOperator']]],
-  ['list',['list',['../classNLoopStatement.html#ae0929cad19300efca8b604cbbf9a6eb9',1,'NLoopStatement']]],
-  ['loopblock',['loopBlock',['../classNLoopStatement.html#a9e51819f07cf5b597d28e31196b631cb',1,'NLoopStatement']]]
+  ['main',['main',['../crema_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627',1,'crema.cpp']]],
+  ['member',['member',['../classNStructureAccess.html#afa4c45a107945e83fc8c5121fdb8d2df',1,'NStructureAccess']]],
+  ['members',['members',['../classNStructureDeclaration.html#afd5cafe404dc98551d0ea4e601081cf3',1,'NStructureDeclaration']]]
 ];

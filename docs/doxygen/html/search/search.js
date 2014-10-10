@@ -7,16 +7,13 @@
 
 var indexSectionsWithContent =
 {
-  0: "_abcdefilmnoprstuvwy~",
-  1: "ny",
-  2: "aclp",
-  3: "cfimnopwy~",
-  4: "abcdeilnorstvy",
-  5: "efsvy",
-  6: "y",
-  7: "t",
-  8: "o",
-  9: "_befirstuy"
+  0: "abcdefilmnoprstvy~",
+  1: "ns",
+  2: "ac",
+  3: "cdmnoprsy~",
+  4: "abcefilmnorstv",
+  5: "efsv",
+  6: "o"
 };
 
 var indexSectionNames =
@@ -27,10 +24,7 @@ var indexSectionNames =
   3: "functions",
   4: "variables",
   5: "typedefs",
-  6: "enums",
-  7: "enumvalues",
-  8: "related",
-  9: "defines"
+  6: "related"
 };
 
 function convertToId(search)

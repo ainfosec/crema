@@ -78,17 +78,17 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="#index_a"><span>a</span></a></li>
       <li><a href="#index_b"><span>b</span></a></li>
       <li><a href="#index_c"><span>c</span></a></li>
-      <li><a href="#index_d"><span>d</span></a></li>
       <li><a href="#index_e"><span>e</span></a></li>
+      <li><a href="#index_f"><span>f</span></a></li>
       <li><a href="#index_i"><span>i</span></a></li>
       <li><a href="#index_l"><span>l</span></a></li>
+      <li><a href="#index_m"><span>m</span></a></li>
       <li><a href="#index_n"><span>n</span></a></li>
       <li><a href="#index_o"><span>o</span></a></li>
       <li><a href="#index_r"><span>r</span></a></li>
       <li><a href="#index_s"><span>s</span></a></li>
       <li><a href="#index_t"><span>t</span></a></li>
-      <li><a href="#index_v"><span>v</span></a></li>
-      <li class="current"><a href="#index_y"><span>y</span></a></li>
+      <li class="current"><a href="#index_v"><span>v</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -97,7 +97,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Macros</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Friends</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -120,9 +120,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <h3><a class="anchor" id="index_b"></a>- b -</h3><ul>
-<li>block
-: <a class="el" href="unionYYSTYPE.html#afb4dbac4c6c4007ddf50b6feb12a8089">YYSTYPE</a>
-</li>
 <li>body
 : <a class="el" href="classNFunctionDeclaration.html#a1d2bbee8d61216298a5604d44b75b2b2">NFunctionDeclaration</a>
 </li>
@@ -130,18 +127,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <h3><a class="anchor" id="index_c"></a>- c -</h3><ul>
-<li>call_args
-: <a class="el" href="unionYYSTYPE.html#adead080e8611bb0374fc75fe1116e4bf">YYSTYPE</a>
-</li>
 <li>condition
 : <a class="el" href="classNIfStatement.html#a6080c46a793e1f80cf2ef1b0f4691196">NIfStatement</a>
 </li>
-</ul>
-
-
-<h3><a class="anchor" id="index_d"></a>- d -</h3><ul>
-<li>decl_args
-: <a class="el" href="unionYYSTYPE.html#a1d8c83f58444e1811f14e5f1342e4f9f">YYSTYPE</a>
+<li>currScope
+: <a class="el" href="classSemanticContext.html#ad45412218fdcdcf9f32bb72a25525fb0">SemanticContext</a>
+</li>
+<li>currType
+: <a class="el" href="classSemanticContext.html#a0587bb7a542d93ea4c6baea913de9b96">SemanticContext</a>
 </li>
 </ul>
 
@@ -156,8 +149,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>expr
 : <a class="el" href="classNAssignmentStatement.html#a88c35bd7c6b272970ff9823bafa455b2">NAssignmentStatement</a>
 </li>
-<li>expression
-: <a class="el" href="unionYYSTYPE.html#ae63d715963a5b37ca952632aba96ec9c">YYSTYPE</a>
+</ul>
+
+
+<h3><a class="anchor" id="index_f"></a>- f -</h3><ul>
+<li>funcs
+: <a class="el" href="classSemanticContext.html#aa6be8e03ef5caeb9b8dce09e7c66488e">SemanticContext</a>
 </li>
 </ul>
 
@@ -167,7 +164,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classNAssignmentStatement.html#a4557b3792012dc6fb907d64dc8839e98">NAssignmentStatement</a>
 , <a class="el" href="classNFunctionCall.html#a1016174f62ea7e1b7639038d74139260">NFunctionCall</a>
 , <a class="el" href="classNFunctionDeclaration.html#a9958e3790d5aaf0275855cd77a15a5c5">NFunctionDeclaration</a>
-, <a class="el" href="unionYYSTYPE.html#a219023e154dd7476e9c8775cd610c13c">YYSTYPE</a>
+, <a class="el" href="classNListAccess.html#a2052a2f6253bcad37c333bab80d777ea">NListAccess</a>
+, <a class="el" href="classNStructureAccess.html#ac3225435bf0e803873ab254436dadbae">NStructureAccess</a>
+, <a class="el" href="classNStructureDeclaration.html#a865193ed7546efd27367d15f4426f1cf">NStructureDeclaration</a>
+</li>
+<li>index
+: <a class="el" href="classNListAccess.html#a952cd238d67e3e92c23c147543f55bee">NListAccess</a>
 </li>
 <li>initializationExpression
 : <a class="el" href="classNVariableDeclaration.html#a2f3325dd655f3ab883ac88b1be045a85">NVariableDeclaration</a>
@@ -188,12 +190,19 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </ul>
 
 
+<h3><a class="anchor" id="index_m"></a>- m -</h3><ul>
+<li>member
+: <a class="el" href="classNStructureAccess.html#afa4c45a107945e83fc8c5121fdb8d2df">NStructureAccess</a>
+</li>
+<li>members
+: <a class="el" href="classNStructureDeclaration.html#afd5cafe404dc98551d0ea4e601081cf3">NStructureDeclaration</a>
+</li>
+</ul>
+
+
 <h3><a class="anchor" id="index_n"></a>- n -</h3><ul>
 <li>name
 : <a class="el" href="classNVariableDeclaration.html#af0276a50d84162dd46aeacc7034a558a">NVariableDeclaration</a>
-</li>
-<li>node
-: <a class="el" href="unionYYSTYPE.html#a81a1c7484bddac02b023595f1e10b3f5">YYSTYPE</a>
 </li>
 </ul>
 
@@ -216,14 +225,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <h3><a class="anchor" id="index_s"></a>- s -</h3><ul>
-<li>statement
-: <a class="el" href="unionYYSTYPE.html#a12ebfa285f6784832e7e41ba507e76ea">YYSTYPE</a>
-</li>
 <li>statements
 : <a class="el" href="classNBlock.html#a17c95c5909c55da9761e58340259f14e">NBlock</a>
-</li>
-<li>string
-: <a class="el" href="unionYYSTYPE.html#aa194a6d7eb96a0154e5628da125c97a6">YYSTYPE</a>
 </li>
 </ul>
 
@@ -232,11 +235,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>thenblock
 : <a class="el" href="classNIfStatement.html#a86d17e3046514aa80699748e650ab876">NIfStatement</a>
 </li>
-<li>token
-: <a class="el" href="unionYYSTYPE.html#a01b79e2c4a8e5ec028cca4892559e802">YYSTYPE</a>
-</li>
 <li>type
-: <a class="el" href="classNFunctionDeclaration.html#a376ae06b72ade48137d0140ce44a74c7">NFunctionDeclaration</a>
+: <a class="el" href="classNExpression.html#a5fa1d344a8f3eb1c090b478fcd94e3a7">NExpression</a>
+, <a class="el" href="classNFunctionDeclaration.html#a376ae06b72ade48137d0140ce44a74c7">NFunctionDeclaration</a>
 , <a class="el" href="classNVariableDeclaration.html#a3e956b65a0106309fd93f497bbd6fd44">NVariableDeclaration</a>
 </li>
 </ul>
@@ -251,69 +252,17 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 , <a class="el" href="classNString.html#a0067b6a8c46863899c43b03146a2beba">NString</a>
 , <a class="el" href="classNUInt.html#a50311819e298351e2335d90f93ed71f2">NUInt</a>
 </li>
-<li>var_decl
-: <a class="el" href="unionYYSTYPE.html#a10aa10b00a4acacb3ba9edec69bd3c35">YYSTYPE</a>
-</li>
 <li>variables
 : <a class="el" href="classNFunctionDeclaration.html#a932355d215041e5f9eac57dcf1925ae0">NFunctionDeclaration</a>
 </li>
-</ul>
-
-
-<h3><a class="anchor" id="index_y"></a>- y -</h3><ul>
-<li>yy_at_bol
-: <a class="el" href="structyy__buffer__state.html#a9d60c60af6e1a6f69de16871fd64f85f">yy_buffer_state</a>
-</li>
-<li>yy_bs_column
-: <a class="el" href="structyy__buffer__state.html#a10c4fcd8be759e6bf11e6d3e8cdb0307">yy_buffer_state</a>
-</li>
-<li>yy_bs_lineno
-: <a class="el" href="structyy__buffer__state.html#a818e94bc9c766e683c60df1e9fd01199">yy_buffer_state</a>
-</li>
-<li>yy_buf_pos
-: <a class="el" href="structyy__buffer__state.html#a58aa927f098b99d99e75da80f9b681ef">yy_buffer_state</a>
-</li>
-<li>yy_buf_size
-: <a class="el" href="structyy__buffer__state.html#a48302f5f3477a9c78bbddf56d356ef54">yy_buffer_state</a>
-</li>
-<li>yy_buffer_status
-: <a class="el" href="structyy__buffer__state.html#a70fd925d37a2f0454fbd0def675d106c">yy_buffer_state</a>
-</li>
-<li>yy_ch_buf
-: <a class="el" href="structyy__buffer__state.html#ad7b8df8d8a4688e57b0b8d3ca75adc85">yy_buffer_state</a>
-</li>
-<li>yy_fill_buffer
-: <a class="el" href="structyy__buffer__state.html#a63d2afbb1d79a3fc63df9e12626f827d">yy_buffer_state</a>
-</li>
-<li>yy_input_file
-: <a class="el" href="structyy__buffer__state.html#a4843d1422e3276b636d475a3095bd948">yy_buffer_state</a>
-</li>
-<li>yy_is_interactive
-: <a class="el" href="structyy__buffer__state.html#abf5c70eea75581b58c0ee7bd31b14490">yy_buffer_state</a>
-</li>
-<li>yy_is_our_buffer
-: <a class="el" href="structyy__buffer__state.html#a80ce2431c70dc4f89ced487f18449465">yy_buffer_state</a>
-</li>
-<li>yy_n_chars
-: <a class="el" href="structyy__buffer__state.html#a06406208824817acfec2183b79080945">yy_buffer_state</a>
-</li>
-<li>yy_nxt
-: <a class="el" href="structyy__trans__info.html#ae0715250c2bef261e596e77e0030f13e">yy_trans_info</a>
-</li>
-<li>yy_verify
-: <a class="el" href="structyy__trans__info.html#a5c9f61e770deef50bd4e697310342fe9">yy_trans_info</a>
-</li>
-<li>yyss_alloc
-: <a class="el" href="unionyyalloc.html#a4800e0520a89a4789afa7b5d82197e65">yyalloc</a>
-</li>
-<li>yyvs_alloc
-: <a class="el" href="unionyyalloc.html#a9326f4fdc6f737a929444427836d8928">yyalloc</a>
+<li>vars
+: <a class="el" href="classSemanticContext.html#a1222f377d6f32891013f0351e84aa4d1">SemanticContext</a>
 </li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Oct 7 2014 17:33:20 for Crema by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Oct 10 2014 16:37:58 for Crema by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

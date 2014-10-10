@@ -23,21 +23,26 @@ typedef std::vector<NVariableDeclaration*> VariableList;
 typedef std::vector<NFunctionDeclaration*> FunctionList;
 typedef std::vector<NValue*> ValueList;
 
+/** 
+ *  Defines the context for a node. */
 class SemanticContext {
  public:
   int currScope;
   std::vector<VariableList*> vars;
   std::vector<int> currType;
   FunctionList funcs;
+  
+  SemanticContext() { newScope(0); currScope = 0; }  
   void newScope(int type);
   void delScope();
   NVariableDeclaration * searchVars(NIdentifier & ident);
   NFunctionDeclaration * searchFuncs(NIdentifier & ident);
   bool registerVar(NVariableDeclaration * var);
   bool registerFunc(NFunctionDeclaration * func);
-  SemanticContext() { newScope(0); currScope = 0; }
 };
 
+/** 
+ *  The base class containing all the language constructs. */
 class Node {
  public:
   virtual ~Node() { }
@@ -47,14 +52,23 @@ class Node {
   friend std::ostream & operator<<(std::ostream & os, const Node & node);  
 };
 
+/**
+ *  An expression is something that evaluates to a value. 
+ *  (Ex. 45*3 % 20)  */
 class NExpression : public Node {
  public:
   int type;
 };
 
+/**
+ *  A statement is a line of code that does something. In other words,
+ *  you can't pass a statement as a parameter. 
+ *  (Ex. if (x==1) print("yes") else print("no")) */
 class NStatement : public Node {
 };
 
+/**
+ *  One or more statements that evaluate to an NExpression value. */
 class NBlock : public Node {
  public:
   StatementList statements;

@@ -1,9 +1,10 @@
 <map id="NStatement" name="NStatement">
-<area shape="rect" id="node3" href="$classNAssignmentStatement.html" title="{NAssignmentStatement\n|+ ident\l+ expr\l|+ NAssignmentStatement()\l+ codeGen()\l+ print()\l}" alt="" coords="5,315,208,437"/>
-<area shape="rect" id="node4" href="$classNFunctionDeclaration.html" title="{NFunctionDeclaration\n|+ variables\l+ ident\l+ type\l+ body\l|+ NFunctionDeclaration()\l+ codeGen()\l+ print()\l}" alt="" coords="233,301,415,451"/>
-<area shape="rect" id="node5" href="$classNIfStatement.html" title="{NIfStatement\n|+ condition\l+ thenblock\l+ elseblock\l+ elseif\l|+ NIfStatement()\l+ NIfStatement()\l+ NIfStatement()\l+ codeGen()\l+ print()\l}" alt="" coords="440,286,573,466"/>
-<area shape="rect" id="node6" href="$classNLoopStatement.html" title="{NLoopStatement\n|+ list\l+ asVar\l+ loopBlock\l|+ NLoopStatement()\l+ print()\l}" alt="" coords="597,315,755,437"/>
-<area shape="rect" id="node7" href="$classNReturn.html" title="{NReturn\n|+ retExpr\l|+ NReturn()\l+ codeGen()\l+ print()\l}" alt="" coords="779,323,883,429"/>
-<area shape="rect" id="node8" href="$classNVariableDeclaration.html" title="{NVariableDeclaration\n|+ type\l+ name\l+ initializationExpression\l|+ NVariableDeclaration()\l+ NVariableDeclaration()\l+ codeGen()\l+ print()\l}" alt="" coords="907,301,1088,451"/>
-<area shape="rect" id="node2" href="$classNode.html" title="{Node\n||+ ~Node()\l+ codeGen()\l+ print()\l}" alt="" coords="539,5,643,112"/>
+<area shape="rect" id="node3" href="$classNAssignmentStatement.html" title="{NAssignmentStatement\n|+ ident\l+ expr\l|+ NAssignmentStatement()\l+ codeGen()\l+ print()\l}" alt="" coords="5,331,208,453"/>
+<area shape="rect" id="node4" href="$classNFunctionDeclaration.html" title="{NFunctionDeclaration\n|+ variables\l+ ident\l+ type\l+ body\l|+ NFunctionDeclaration()\l+ codeGen()\l+ print()\l}" alt="" coords="233,317,415,467"/>
+<area shape="rect" id="node5" href="$classNIfStatement.html" title="{NIfStatement\n|+ condition\l+ thenblock\l+ elseblock\l+ elseif\l|+ NIfStatement()\l+ NIfStatement()\l+ NIfStatement()\l+ codeGen()\l+ print()\l}" alt="" coords="440,302,573,482"/>
+<area shape="rect" id="node6" href="$classNLoopStatement.html" title="{NLoopStatement\n|+ list\l+ asVar\l+ loopBlock\l|+ NLoopStatement()\l+ print()\l}" alt="" coords="597,331,755,453"/>
+<area shape="rect" id="node7" href="$classNReturn.html" title="{NReturn\n|+ retExpr\l|+ NReturn()\l+ codeGen()\l+ print()\l}" alt="" coords="779,339,883,445"/>
+<area shape="rect" id="node8" href="$classNStructureDeclaration.html" title="{NStructureDeclaration\n|+ members\l+ ident\l|+ NStructureDeclaration()\l+ codeGen()\l+ print()\l}" alt="" coords="907,331,1097,453"/>
+<area shape="rect" id="node9" href="$classNVariableDeclaration.html" title="{NVariableDeclaration\n|+ type\l+ name\l+ initializationExpression\l|+ NVariableDeclaration()\l+ NVariableDeclaration()\l+ codeGen()\l+ print()\l}" alt="" coords="1123,317,1304,467"/>
+<area shape="rect" id="node2" href="$classNode.html" title="{Node\n||+ ~Node()\l+ codeGen()\l+ print()\l+ semanticAnalysis()\l}" alt="" coords="597,6,755,127"/>
 </map>
