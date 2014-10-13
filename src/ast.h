@@ -48,7 +48,7 @@ class Node {
   virtual ~Node() { }
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
   virtual std::ostream & print(std::ostream & os) const { };
-  virtual bool semanticAnalysis(SemanticContext *ctx) const { };
+  virtual bool semanticAnalysis(SemanticContext *ctx) { };
   friend std::ostream & operator<<(std::ostream & os, const Node & node);  
 };
 
@@ -74,15 +74,16 @@ class NBlock : public Node {
   StatementList statements;
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
   std::ostream & print(std::ostream & os) const;
-  bool semanticAnalysis(SemanticContext *ctx) const;
+  bool semanticAnalysis(SemanticContext *ctx);
 };
 
 class NAssignmentStatement : public NStatement {
  public:
   NIdentifier & ident;
-  NExpression * expr;
- NAssignmentStatement(NIdentifier & ident, NExpression * expr) : ident(ident), expr(expr) { }
+  NExpression & expr;
+ NAssignmentStatement(NIdentifier & ident, NExpression & expr) : ident(ident), expr(expr) { }
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
+  bool semanticAnalysis(SemanticContext * ctx);
   std::ostream & print(std::ostream & os) const;
 };
 
@@ -127,7 +128,7 @@ class NVariableDeclaration : public NStatement {
  NVariableDeclaration(int type, NIdentifier & name, NExpression *initExpr) : type(type), name(name), initializationExpression(initExpr) { }
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
   std::ostream & print(std::ostream & os) const;
-  bool semanticAnalysis(SemanticContext *ctx) const;
+  bool semanticAnalysis(SemanticContext *ctx);
 };
 
 class NFunctionDeclaration : public NStatement {

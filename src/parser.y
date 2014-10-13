@@ -72,7 +72,7 @@ conditional : TIF TLPAREN expression TRPAREN block TELSE conditional { $$ = new 
 return : TRETURN expression { $$ = new NReturn(*$2); }
        ;
 
-assignment : identifier TEQUAL expression { $$ = new NAssignmentStatement(*$1, $3); }
+assignment : identifier TEQUAL expression { $$ = new NAssignmentStatement(*$1, *$3); }
 	   ;
 
 loop : TFOREACH TLPAREN identifier TAS identifier TRPAREN block { $$ = new NLoopStatement(*$3, *$5, *$7); }
@@ -122,8 +122,8 @@ func_call_arg_list : /* Empty */ { $$ = new ExpressionList(); }
 		   | func_call_arg_list TCOMMA expression { $$->push_back($<expression>3); }
 		   ;
 
-numeric : TDOUBLE { $$ = new NDouble(atof($1->c_str())); delete $1; }
-	| TINT { $$ = new NInt(atoi($1->c_str())); delete $1; }
+numeric : TDOUBLE { $$ = new NDouble(atof($1->c_str())); $$->type = TTDOUBLE; delete $1; }
+	| TINT { $$ = new NInt(atoi($1->c_str())); $$->type = TTINT; delete $1; }
 	;
 
 value : numeric { $$ = $1; }

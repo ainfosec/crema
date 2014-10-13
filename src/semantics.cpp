@@ -80,20 +80,51 @@ NFunctionDeclaration * SemanticContext::searchFuncs(NIdentifier & ident)
 
 /** Iterates over the vector and returns 'false' if any of
  *  semanticAnalysis elements are false. */
-bool NBlock::semanticAnalysis(SemanticContext * ctx) const
+bool NBlock::semanticAnalysis(SemanticContext * ctx)
 {
   // Points to the last element in the vector<int> currType.
   ctx->newScope(ctx->currType.back());
   for (int i = 0; i < statements.size(); i++)
     {
-      if (!statements[i]->semanticAnalysis(ctx))
+      if (!((*(statements[i])).semanticAnalysis(ctx)))
 	return false;
     }
   ctx->delScope();
   return true;
 }
 
-bool NVariableDeclaration::semanticAnalysis(SemanticContext * ctx) const
+bool NAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
 {
-  
+  NVariableDeclaration *var = ctx->searchVars(ident);
+  if (!var)
+    {
+      std::cout << "Assignment to undefined variable " << ident << std::endl;
+      return false;
+    }
+
+  if (var->type != expr.type)
+    {
+      std::cout << "Type mismatch for assignment to " << ident << std::endl;
+      return false;
+    }
+  return true;
+}
+
+bool NVariableDeclaration::semanticAnalysis(SemanticContext * ctx)
+{
+  if (!ctx->registerVar(this)) 
+    {
+      std::cout << "Duplicate var decl for " << name << std::endl;
+      // Variable collision
+      return false;
+    } 
+  if (initializationExpression)
+    {
+      if (initializationExpression->type != type)
+	{
+	  std::cout << "Type mismatch for " << name << std::endl;
+	  return false;
+	}
+    }
+  return true;
 }
