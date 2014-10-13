@@ -127,6 +127,7 @@ class NVariableDeclaration : public NStatement {
  NVariableDeclaration(int type, NIdentifier & name, NExpression *initExpr) : type(type), name(name), initializationExpression(initExpr) { }
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
   std::ostream & print(std::ostream & os) const;
+  bool semanticAnalysis(SemanticContext *ctx) const;
 };
 
 class NFunctionDeclaration : public NStatement {
