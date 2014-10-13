@@ -1,0 +1,4 @@
+def int foo()
+{
+	return 32.3
+}
