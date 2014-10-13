@@ -76,6 +76,12 @@ std::ostream & NListAccess::print(std::ostream & os) const
   return os;
 }
 
+std::ostream & NVariableAccess::print(std::ostream & os) const
+{
+  os << "Var access: " << ident;
+  return os;
+}
+
 std::ostream & NStructureAccess::print(std::ostream & os) const
 {
   os << "Struct access: " << ident << "." << member;

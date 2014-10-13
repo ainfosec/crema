@@ -58,6 +58,7 @@ class Node {
 class NExpression : public Node {
  public:
   int type;
+  virtual int getType(SemanticContext * ctx) const { }
 };
 
 /**
@@ -116,6 +117,8 @@ class NBinaryOperator : public NExpression {
   NExpression & rhs;
  NBinaryOperator(NExpression & lhs, int op, NExpression & rhs) : lhs(lhs), op(op), rhs(rhs) { }
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
+  bool semanticAnalysis(SemanticContext *ctx);
+  int getType(SemanticContext * ctx) const { return lhs.getType(ctx) == rhs.getType(ctx) ? lhs.getType(ctx) : 0; }
   std::ostream & print(std::ostream & os) const;
 };
 
@@ -139,6 +142,7 @@ class NFunctionDeclaration : public NStatement {
   NBlock *body;
  NFunctionDeclaration(int type, NIdentifier & ident, VariableList & variables, NBlock *body) : type(type), ident(ident), variables(variables), body(body) { }
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
+  bool semanticAnalysis(SemanticContext * ctx);
   std::ostream & print(std::ostream & os) const;
 };
 
@@ -156,6 +160,7 @@ class NFunctionCall : public NExpression {
   ExpressionList args;
   NIdentifier & ident;
  NFunctionCall(NIdentifier & ident, ExpressionList & args) : ident(ident), args(args) { }
+  int getType(SemanticContext * ctx) const;
   std::ostream & print(std::ostream & os) const;
 };
 
@@ -175,11 +180,20 @@ class NListAccess : public NExpression {
   std::ostream & print(std::ostream & os) const;
 };
 
+class NVariableAccess : public NExpression {
+ public:
+  NIdentifier & ident;
+ NVariableAccess(NIdentifier & ident) : ident(ident) { }
+  std::ostream & print(std::ostream & os) const;
+  int getType(SemanticContext * ctx) const;
+};
+
 class NReturn : public NStatement {
  public:
   NExpression & retExpr;
  NReturn(NExpression & re) : retExpr(re) { }
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
+  bool semanticAnalysis(SemanticContext * ctx);
   std::ostream & print(std::ostream & os) const;
 };
 
@@ -187,6 +201,8 @@ class NValue : public NExpression {
  public:
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
   std::ostream & print(std::ostream & os) const;
+  int getType(SemanticContext * ctx) const { return type; }
+  bool semanticAnalysis(SemanticContext * ctx) { return true; }
 };
 
 class NDouble : public NValue {

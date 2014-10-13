@@ -93,6 +93,16 @@ bool NBlock::semanticAnalysis(SemanticContext * ctx)
   return true;
 }
 
+bool NBinaryOperator::semanticAnalysis(SemanticContext * ctx)
+{
+  if (lhs.getType(ctx) != rhs.getType(ctx))
+    {
+      std::cout << "Binary operator type mismatch for op: " << op << std::endl;
+      return false;
+    }
+  return true;
+}
+
 bool NAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
 {
   NVariableDeclaration *var = ctx->searchVars(ident);
@@ -102,12 +112,60 @@ bool NAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
       return false;
     }
 
-  if (var->type != expr.type)
+  if (var->type != expr.getType(ctx))
     {
       std::cout << "Type mismatch for assignment to " << ident << std::endl;
       return false;
     }
   return true;
+}
+
+bool NReturn::semanticAnalysis(SemanticContext * ctx)
+{
+  if (retExpr.getType(ctx) != ctx->currType.back())
+    {
+      std::cout << "Returning type " << retExpr.getType(ctx) << " when a " << ctx->currType.back() << " was expected" << std::endl;
+      return false;
+    }
+  return true;
+}
+
+int NVariableAccess::getType(SemanticContext * ctx) const
+{
+  NVariableDeclaration *var = ctx->searchVars(ident);
+  if (var)
+    {
+      return var->type;
+    }
+  return 0;
+}
+
+int NFunctionCall::getType(SemanticContext * ctx) const 
+{
+  NFunctionDeclaration *func = ctx->searchFuncs(ident);
+  if (func)
+    {
+      return func->type;
+    }
+  return 0;
+}
+
+bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
+{
+  bool blockSA;
+  if (!ctx->registerFunc(this)) 
+    {
+      std::cout << "Duplicate func decl for " << ident << std::endl;
+      return false;
+    } 
+  ctx->newScope(type);
+  for (int i = 0; i < variables.size(); i++)
+    {
+      ctx->registerVar(variables[i]);
+    }
+  blockSA = body->semanticAnalysis(ctx);
+  ctx->delScope();
+  return blockSA;
 }
 
 bool NVariableDeclaration::semanticAnalysis(SemanticContext * ctx)
@@ -120,7 +178,7 @@ bool NVariableDeclaration::semanticAnalysis(SemanticContext * ctx)
     } 
   if (initializationExpression)
     {
-      if (initializationExpression->type != type)
+      if (initializationExpression->getType(ctx) != type || !initializationExpression->semanticAnalysis(ctx))
 	{
 	  std::cout << "Type mismatch for " << name << std::endl;
 	  return false;
@@ -128,3 +186,5 @@ bool NVariableDeclaration::semanticAnalysis(SemanticContext * ctx)
     }
   return true;
 }
+
+

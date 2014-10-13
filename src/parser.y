@@ -108,7 +108,7 @@ func_decl_arg_list : /* Empty */ { $$ = new VariableList(); }
 
 expression : expression combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
 	   | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
-	   | identifier { }
+	   | identifier { $$ = new NVariableAccess(*$1); }
 	   | list { }
 	   | struct { }
 	   | TLPAREN expression TRPAREN { $$ = $2; }
@@ -127,7 +127,7 @@ numeric : TDOUBLE { $$ = new NDouble(atof($1->c_str())); $$->type = TTDOUBLE; de
 	;
 
 value : numeric { $$ = $1; }
-      | TQUOTE TIDENTIFIER TQUOTE { std::string str = $2->c_str(); $$ = new NString(str); delete $2; }
+      | TQUOTE TIDENTIFIER TQUOTE { std::string str = $2->c_str(); $$ = new NString(str); $$->type = TTSTR; delete $2; }
       ;
 
 combine : TADD
