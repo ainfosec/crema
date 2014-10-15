@@ -8,7 +8,7 @@
 extern "C" int yywrap() { }
 %}
 
-%option debug
+%option debug yylineno nodefault
 
 %%
 
