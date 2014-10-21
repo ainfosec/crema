@@ -29,7 +29,7 @@
 %token <token> TRETURN TSDEF TDEF TIF TELSE TFOREACH TAS TCEQ
 %token <token> TCNEQ TCLE TCGE TCLT TCGT TTVOID TTINT TTUINT TTSTR TSTRUCT
 %token <token> TTDOUBLE TEQUAL TLPAREN TRPAREN TLBRAC TRBRAC TMOD TPERIOD
-%token <token> TMUL TADD TDIV TSUB TRBRACKET TLBRACKET TCOMMA TQUOTE
+%token <token> TMUL TADD TDIV TSUB TRBRACKET TLBRACKET TCOMMA TQUOTE 
 
 /* Non-terminal types */
 %type <token> type comparison combine def
@@ -40,8 +40,8 @@
 %type <call_args> func_call_arg_list
 %type <decl_args> func_decl_arg_list var_decls
 
-%left TADD TMUL TDIV
-%left TMOD TSUB
+%left TMOD TMUL TDIV
+%left TADD TSUB
 
 %start program
 
@@ -106,16 +106,17 @@ func_decl_arg_list : /* Empty */ { $$ = new VariableList(); }
 		   | func_decl_arg_list TCOMMA var_decl { $$->push_back($<var_decl>3); }
 		   ;
 
-expression : expression combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
-	   | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
+expression : /* expression combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); } /* 'combine' needs to separate +- and /* to avoid shift reduce */
+	   identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
 	   | identifier { $$ = new NVariableAccess(*$1); }
 	   | list { }
 	   | struct { }
 	   | TLPAREN expression TRPAREN { $$ = $2; }
 	   | value { }
-	   | expression comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
-	   | TSUB expression { NDouble *zero = new NDouble(0); $$ = new NBinaryOperator(*zero, $1, *$2); } /* negative numbers */
+	   /* | expression comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } /* bison cannot distinguish whether a<b<c is (a<b)<c or a<(b<c) */
+       /* | TSUB expression { NDouble *zero = new NDouble(0); $$ = new NBinaryOperator(*zero, $1, *$2); } /* negative numbers */
 	   ;
+
 
 func_call_arg_list : /* Empty */ { $$ = new ExpressionList(); }
 		   | expression { $$ = new ExpressionList(); $$->push_back($<expression>1); }
