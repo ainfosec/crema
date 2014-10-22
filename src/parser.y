@@ -6,7 +6,7 @@
     NBlock *rootBlock;
 
     extern int yylex();
-    void yyerror(const char *s) { fprintf(stderr, "ERROR: %s\n", s); }
+    void yyerror(const char *s) { fprintf(stderr, "ERROR: %s\n", s); exit(-1); }
 %}
 
 %define parse.error verbose
