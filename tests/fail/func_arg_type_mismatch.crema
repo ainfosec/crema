@@ -1,0 +1,5 @@
+def int foo(int a) {
+    return 32
+}
+
+int bar = foo(1.0)
