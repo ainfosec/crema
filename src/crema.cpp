@@ -3,7 +3,6 @@
 
 extern NBlock *rootBlock;
 extern int yyparse();
-SemanticContext ctx;
 
 int main(int argc, char **argv)
 {
@@ -11,7 +10,7 @@ int main(int argc, char **argv)
     if (rootBlock)
       {
 	std::cout << *rootBlock << std::endl;
-	if (rootBlock->semanticAnalysis(&ctx))
+	if (rootBlock->semanticAnalysis(&rootCtx))
 	  {
 	    std::cout << "Passed semantic analysis!" << std::endl;
 	  }

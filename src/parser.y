@@ -56,8 +56,8 @@ statements : statement { $$ = new NBlock(); $$->statements.push_back($<statement
 	   ;
 
 statement : var_decl { }
-	  | struct_decl { } 
-	  | func_decl { }
+	  | struct_decl { }
+	  | func_decl { if(!rootCtx.registerFunc((NFunctionDeclaration *) $1)) yyerror("Duplicate function declaration!"); $$ = $1; }
 	  | assignment { }
 	  | conditional { }
 	  | loop { }

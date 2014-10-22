@@ -1,6 +1,12 @@
 #include "ast.h"
 #include "parser.h"
 
+SemanticContext rootCtx;
+
+bool operator==(const NIdentifier & i1, const NIdentifier & i2)
+{
+  return i1.value == i2.value;
+}
 
 std::ostream & operator<<(std::ostream & os, const Node & node)
 {

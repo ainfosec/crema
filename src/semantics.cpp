@@ -1,5 +1,6 @@
 #include "ast.h"
 #include "parser.h"
+#include <typeinfo>
 
 /** 
  *  
@@ -93,6 +94,28 @@ bool NBlock::semanticAnalysis(SemanticContext * ctx)
   return true;
 }
 
+/** Iterates over the vector and returns 'true' if any of
+ *  checkRecursion elements are true. */
+bool NBlock::checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func)
+{
+  for (int i = 0; i < statements.size(); i++)
+    {
+      if (((*(statements[i])).checkRecursion(ctx, func)))
+	return true;
+    }
+  return false;
+}
+
+bool NFunctionCall::checkRecursion(SemanticContext * ctx, NFunctionDeclaration * func)
+{
+  if (func->ident == ident)
+    {
+      return true;
+    }
+  
+  return ctx->searchFuncs(ident)->body->checkRecursion(ctx, func);
+}
+
 bool NBinaryOperator::semanticAnalysis(SemanticContext * ctx)
 {
   if (lhs.getType(ctx) != rhs.getType(ctx))
@@ -152,20 +175,20 @@ int NFunctionCall::getType(SemanticContext * ctx) const
 
 bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
 {
-  bool blockSA;
-  if (!ctx->registerFunc(this)) 
-    {
-      std::cout << "Duplicate func decl for " << ident << std::endl;
-      return false;
-    } 
+  bool blockSA, blockRecur;
   ctx->newScope(type);
   for (int i = 0; i < variables.size(); i++)
     {
       ctx->registerVar(variables[i]);
     }
   blockSA = body->semanticAnalysis(ctx);
+  blockRecur = body->checkRecursion(ctx, this);
+  if (blockRecur)
+    {
+      std::cout << "Recursive function call in " << ident << std::endl;
+    }
   ctx->delScope();
-  return blockSA;
+  return (blockSA && !blockRecur);
 }
 
 bool NVariableDeclaration::semanticAnalysis(SemanticContext * ctx)

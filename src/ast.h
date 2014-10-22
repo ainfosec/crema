@@ -31,7 +31,7 @@ class SemanticContext {
   std::vector<VariableList*> vars;
   std::vector<int> currType;
   FunctionList funcs;
-  
+
   SemanticContext() { newScope(0); currScope = 0; }  
   void newScope(int type);
   void delScope();
@@ -41,6 +41,8 @@ class SemanticContext {
   bool registerFunc(NFunctionDeclaration * func);
 };
 
+extern SemanticContext rootCtx;
+
 /** 
  *  The base class containing all the language constructs. */
 class Node {
@@ -48,6 +50,7 @@ class Node {
   virtual ~Node() { }
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
   virtual std::ostream & print(std::ostream & os) const { };
+  virtual bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration *func) { };
   virtual bool semanticAnalysis(SemanticContext *ctx) { };
   friend std::ostream & operator<<(std::ostream & os, const Node & node);  
 };
@@ -76,6 +79,7 @@ class NBlock : public Node {
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
   std::ostream & print(std::ostream & os) const;
   bool semanticAnalysis(SemanticContext *ctx);
+  bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration *func);
 };
 
 class NAssignmentStatement : public NStatement {
@@ -86,6 +90,7 @@ class NAssignmentStatement : public NStatement {
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
   bool semanticAnalysis(SemanticContext * ctx);
   std::ostream & print(std::ostream & os) const;
+  bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return expr.checkRecursion(ctx, func); }
 };
 
 class NLoopStatement : public NStatement {
@@ -95,6 +100,7 @@ class NLoopStatement : public NStatement {
   NBlock & loopBlock;
  NLoopStatement(NIdentifier & list, NIdentifier & asVar, NBlock & loopBlock) : list(list), asVar(asVar), loopBlock(loopBlock) { }
   std::ostream & print(std::ostream & os) const;
+  bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return loopBlock.checkRecursion(ctx, func); }
 };
 
 class NIfStatement : public NStatement {
@@ -108,6 +114,7 @@ class NIfStatement : public NStatement {
  NIfStatement(NExpression & condition, NBlock & thenblock) : condition(condition), thenblock(thenblock), elseblock(NULL), elseif(NULL) { }
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
   std::ostream & print(std::ostream & os) const;
+  bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return thenblock.checkRecursion(ctx, func) || (elseblock ? elseblock->checkRecursion(ctx, func) : false) || (elseif ? elseif->checkRecursion(ctx, func) : false); }
 };
 
 class NBinaryOperator : public NExpression {
@@ -120,6 +127,7 @@ class NBinaryOperator : public NExpression {
   bool semanticAnalysis(SemanticContext *ctx);
   int getType(SemanticContext * ctx) const { return lhs.getType(ctx) == rhs.getType(ctx) ? lhs.getType(ctx) : 0; }
   std::ostream & print(std::ostream & os) const;
+  bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return lhs.checkRecursion(ctx, func) || rhs.checkRecursion(ctx, func); }
 };
 
 class NVariableDeclaration : public NStatement {
@@ -132,6 +140,7 @@ class NVariableDeclaration : public NStatement {
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
   std::ostream & print(std::ostream & os) const;
   bool semanticAnalysis(SemanticContext *ctx);
+  bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return initializationExpression ? initializationExpression->checkRecursion(ctx, func) : false; }
 };
 
 class NFunctionDeclaration : public NStatement {
@@ -143,6 +152,7 @@ class NFunctionDeclaration : public NStatement {
  NFunctionDeclaration(int type, NIdentifier & ident, VariableList & variables, NBlock *body) : type(type), ident(ident), variables(variables), body(body) { }
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
   bool semanticAnalysis(SemanticContext * ctx);
+  bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
   std::ostream & print(std::ostream & os) const;
 };
 
@@ -153,6 +163,7 @@ class NStructureDeclaration : public NStatement {
  NStructureDeclaration(NIdentifier & ident, VariableList & members) : ident(ident), members(members) { }
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
   std::ostream & print(std::ostream & os) const;
+  bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
 };
 
 class NFunctionCall : public NExpression {
@@ -162,6 +173,7 @@ class NFunctionCall : public NExpression {
  NFunctionCall(NIdentifier & ident, ExpressionList & args) : ident(ident), args(args) { }
   int getType(SemanticContext * ctx) const;
   std::ostream & print(std::ostream & os) const;
+  bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func);
 };
 
 class NStructureAccess : public NExpression {
@@ -170,6 +182,7 @@ class NStructureAccess : public NExpression {
   NIdentifier & ident;
  NStructureAccess(NIdentifier & ident, NIdentifier & member) : ident(ident), member(member) { }
   std::ostream & print(std::ostream & os) const;
+  bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
 };
 
 class NListAccess : public NExpression {
@@ -178,6 +191,7 @@ class NListAccess : public NExpression {
   NIdentifier & ident;
  NListAccess(NIdentifier & ident, NExpression & index) : ident(ident), index(index) { }
   std::ostream & print(std::ostream & os) const;
+  bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
 };
 
 class NVariableAccess : public NExpression {
@@ -186,6 +200,7 @@ class NVariableAccess : public NExpression {
  NVariableAccess(NIdentifier & ident) : ident(ident) { }
   std::ostream & print(std::ostream & os) const;
   int getType(SemanticContext * ctx) const;
+  bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
 };
 
 class NReturn : public NStatement {
@@ -195,6 +210,7 @@ class NReturn : public NStatement {
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
   bool semanticAnalysis(SemanticContext * ctx);
   std::ostream & print(std::ostream & os) const;
+  bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return retExpr.checkRecursion(ctx, func); }
 };
 
 class NValue : public NExpression {
@@ -203,6 +219,7 @@ class NValue : public NExpression {
   std::ostream & print(std::ostream & os) const;
   int getType(SemanticContext * ctx) const { return type; }
   bool semanticAnalysis(SemanticContext * ctx) { return true; }
+  bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
 };
 
 class NDouble : public NValue {
@@ -251,6 +268,7 @@ class NIdentifier : public Node {
  NIdentifier(const std::string & value) : value(value) { }
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
   std::ostream & print(std::ostream & os) const;
+  friend bool operator==(const NIdentifier & i1, const NIdentifier & i2);
 };
 
 
