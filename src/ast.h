@@ -173,6 +173,7 @@ class NFunctionCall : public NExpression {
  NFunctionCall(NIdentifier & ident, ExpressionList & args) : ident(ident), args(args) { }
   int getType(SemanticContext * ctx) const;
   std::ostream & print(std::ostream & os) const;
+  bool semanticAnalysis(SemanticContext * ctx);
   bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func);
 };
 

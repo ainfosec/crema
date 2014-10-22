@@ -173,6 +173,30 @@ int NFunctionCall::getType(SemanticContext * ctx) const
   return 0;
 }
 
+bool NFunctionCall::semanticAnalysis(SemanticContext * ctx)
+{
+  NFunctionDeclaration *func = ctx->searchFuncs(ident);
+  if (func)
+    {
+      if (func->variables.size() != args.size())
+	{
+	  std::cout << "Call to " << ident << " with invalid number of arguments! " << func->variables.size() << " expected, " << args.size() << " provided" << std::endl;
+	  return false;
+	}
+      for (int i = 0; i < args.size(); i++)
+	{
+	  if (args[i]->getType(ctx) != func->variables[i]->type)
+	    {
+	      std::cout << "Type mismatch when calling function: " << ident << std::endl;
+	      return false;
+	    }
+	}
+      return true;
+    }
+  std::cout << "Call to undefined function: " << ident << std::endl;
+  return false;
+}
+
 bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
 {
   bool blockSA, blockRecur;
