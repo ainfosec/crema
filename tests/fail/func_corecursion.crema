@@ -1,0 +1,7 @@
+def int foo() {
+    return bar()
+}
+
+def int bar() {
+    return foo()
+}

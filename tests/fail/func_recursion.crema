@@ -1,0 +1,3 @@
+def int foo() {
+    return foo()
+}
