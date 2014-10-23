@@ -11,6 +11,7 @@ class NExpression;
 class NStatement;
 class NVariableAssignment;
 class NVariableDeclaration;
+class NStructureDeclaration;
 class NFunctionDeclaration;
 class NValue;
 class NBlock;
@@ -30,15 +31,18 @@ class SemanticContext {
   int currScope;
   std::vector<VariableList*> vars;
   std::vector<int> currType;
+  std::vector<NStructureDeclaration*> structs;
   FunctionList funcs;
 
   SemanticContext() { newScope(0); currScope = 0; }  
   void newScope(int type);
   void delScope();
+  NVariableDeclaration * searchStructs(NIdentifier & ident);
   NVariableDeclaration * searchVars(NIdentifier & ident);
   NFunctionDeclaration * searchFuncs(NIdentifier & ident);
   bool registerVar(NVariableDeclaration * var);
   bool registerFunc(NFunctionDeclaration * func);
+  bool registerStruct(NStructureDeclaration * s);
 };
 
 extern SemanticContext rootCtx;
@@ -135,8 +139,11 @@ class NVariableDeclaration : public NStatement {
   int type;
   NIdentifier & name;
   NExpression *initializationExpression;
- NVariableDeclaration(int type, NIdentifier & name) : type(type), name(name), initializationExpression(NULL) { }
- NVariableDeclaration(int type, NIdentifier & name, NExpression *initExpr) : type(type), name(name), initializationExpression(initExpr) { }
+  int size;
+ NVariableDeclaration(int type, NIdentifier & name) : type(type), name(name), initializationExpression(NULL), size(1) { }
+ NVariableDeclaration(int type, NIdentifier & name, NExpression *initExpr) : type(type), name(name), size(1), initializationExpression(initExpr) { }
+ NVariableDeclaration(int type, NIdentifier & name, int size) : type(type), name(name), initializationExpression(NULL), size(size) { }
+ NVariableDeclaration(int type, NIdentifier & name, int size, NExpression *initExpr) : type(type), name(name), initializationExpression(initExpr), size(size) { }
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
   std::ostream & print(std::ostream & os) const;
   bool semanticAnalysis(SemanticContext *ctx);
@@ -148,8 +155,10 @@ class NFunctionDeclaration : public NStatement {
   VariableList variables;
   NIdentifier & ident;
   int type;
+  bool listReturn;
   NBlock *body;
- NFunctionDeclaration(int type, NIdentifier & ident, VariableList & variables, NBlock *body) : type(type), ident(ident), variables(variables), body(body) { }
+ NFunctionDeclaration(int type, NIdentifier & ident, VariableList & variables, NBlock *body) : type(type), ident(ident), variables(variables), body(body), listReturn(false) { }
+ NFunctionDeclaration(int type, NIdentifier & ident, bool listReturn, VariableList & variables, NBlock *body) : type(type), ident(ident), variables(variables), body(body), listReturn(listReturn) { }
   virtual llvm::Value* codeGen(CodeGenContext & context) { }
   bool semanticAnalysis(SemanticContext * ctx);
   bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
@@ -257,9 +266,9 @@ class NString : public NValue {
 
 class NList : public NValue {
  public:
-  ValueList value;
-  NList() {}
- NList(ValueList & list) : value(list) { }
+  ExpressionList value;
+  NList() { }
+ NList(ExpressionList & list) : value(list) { }
   std::ostream & print(std::ostream & os) const;
 };
 

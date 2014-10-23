@@ -34,8 +34,8 @@
 /* Non-terminal types */
 %type <token> type comparison combine def
 %type <ident> identifier
-%type <statement> statement struct_decl var_decl func_decl assignment return loop conditional
-%type <expression> expression value numeric list struct
+%type <statement> statement struct_decl var_decl list_decl func_decl assignment return loop conditional
+%type <expression> expression value numeric list_access struct list
 %type <block> block program statements 
 %type <call_args> func_call_arg_list
 %type <decl_args> func_decl_arg_list var_decls
@@ -56,9 +56,10 @@ statements : statement { $$ = new NBlock(); $$->statements.push_back($<statement
 	   ;
 
 statement : var_decl { }
-	  | struct_decl { }
+	  | struct_decl { if(!rootCtx.registerStruct((NStructureDeclaration *) $1)) yyerror("Duplicate struct declaration!"); $$ = $1; }
 	  | func_decl { if(!rootCtx.registerFunc((NFunctionDeclaration *) $1)) yyerror("Duplicate function declaration!"); $$ = $1; }
 	  | assignment { }
+	  | list_decl { }
 	  | conditional { }
 	  | loop { }
 	  | return { }
@@ -81,6 +82,10 @@ loop : TFOREACH TLPAREN identifier TAS identifier TRPAREN block { $$ = new NLoop
 struct_decl : TSTRUCT identifier TLBRACKET var_decls TRBRACKET { $$ = new NStructureDeclaration(*$2, *$4); }	
 	    ;
 
+list_decl : type identifier TLBRAC TINT TRBRAC { $$ = new NVariableDeclaration($1, *$2, atoi($4->c_str())); }
+	  | type identifier TLBRAC TINT TRBRAC TEQUAL expression { $$ = new NVariableDeclaration($1, *$2, atoi($4->c_str()), $7); }
+	  ;
+
 var_decls : { $$ = new VariableList(); }
 	  | var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
 	  | var_decls TCOMMA var_decl { $$->push_back($<var_decl>3); }
@@ -91,6 +96,7 @@ var_decl : type identifier { $$ = new NVariableDeclaration($1, *$2); }
 	 ;
 
 func_decl : def type identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration($2, *$3, *$5, $7); }
+	  | def type TLBRAC TRBRAC identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration($2, *$5, true, *$7, $9); }
 	  ;
 
 def : TDEF
@@ -106,9 +112,10 @@ func_decl_arg_list : /* Empty */ { $$ = new VariableList(); }
 		   | func_decl_arg_list TCOMMA var_decl { $$->push_back($<var_decl>3); }
 		   ;
 
-expression : /* expression combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); } /* 'combine' needs to separate +- and /* to avoid shift reduce */
+expression : /*expression combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); } /* 'combine' needs to separate +- and /* to avoid shift reduce */
 	   identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
 	   | identifier { $$ = new NVariableAccess(*$1); }
+	   | list_access { }
 	   | list { }
 	   | struct { }
 	   | TLPAREN expression TRPAREN { $$ = $2; }
@@ -117,6 +124,9 @@ expression : /* expression combine expression { $$ = new NBinaryOperator(*$1, $2
        /* | TSUB expression { NDouble *zero = new NDouble(0); $$ = new NBinaryOperator(*zero, $1, *$2); } /* negative numbers */
 	   ;
 
+list : TLBRAC func_call_arg_list TRBRAC { $$ = new NList(*$2); }
+     | TLBRAC TRBRAC { $$ = new NList(); }
+     ;
 
 func_call_arg_list : /* Empty */ { $$ = new ExpressionList(); }
 		   | expression { $$ = new ExpressionList(); $$->push_back($<expression>1); }
@@ -126,6 +136,8 @@ func_call_arg_list : /* Empty */ { $$ = new ExpressionList(); }
 numeric : TDOUBLE { $$ = new NDouble(atof($1->c_str())); $$->type = TTDOUBLE; delete $1; }
 	| TINT { $$ = new NInt(atoi($1->c_str())); $$->type = TTINT; delete $1; }
 	;
+
+
 
 value : numeric { $$ = $1; }
       | TQUOTE TIDENTIFIER TQUOTE { std::string str = $2->c_str(); $$ = new NString(str); $$->type = TTSTR; delete $2; }
@@ -138,8 +150,8 @@ combine : TADD
 	| TDIV
 	;
 
-list : identifier TLBRAC expression TRBRAC { $$ = new NListAccess(*$1, *$3); } /* Array access */
-     ;
+list_access : identifier TLBRAC expression TRBRAC { $$ = new NListAccess(*$1, *$3); } /* Array access */
+     	    ;
 
 struct : identifier TPERIOD identifier { $$ = new NStructureAccess(*$1, *$3); } /* Structure access */
        ;

@@ -27,7 +27,10 @@ std::ostream & NBlock::print(std::ostream & os) const
 
 std::ostream & NVariableDeclaration::print(std::ostream & os) const
 {
-  os << "Variable decl: " << type << " " << name;
+  if (size == 1)
+    os << "Variable decl: " << type << " " << name;
+  else
+    os << "List decl: " << type << " " << name << "[" << size << "]";
   if (initializationExpression != NULL)
     os << " " << *initializationExpression;
   os << std::endl;
