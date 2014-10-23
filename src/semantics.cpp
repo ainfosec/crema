@@ -156,13 +156,14 @@ bool NBinaryOperator::semanticAnalysis(SemanticContext * ctx)
 bool NAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
 {
   NVariableDeclaration *var = ctx->searchVars(ident);
+  int type = (var->size == 1) ? var->type : var->type | 0xF0000000;
   if (!var)
     {
       std::cout << "Assignment to undefined variable " << ident << std::endl;
       return false;
     }
 
-  if (var->type != expr.getType(ctx))
+  if (type != expr.getType(ctx))
     {
       std::cout << "Type mismatch for assignment to " << ident << std::endl;
       return false;
@@ -180,12 +181,26 @@ bool NReturn::semanticAnalysis(SemanticContext * ctx)
   return true;
 }
 
+int NList::getType(SemanticContext * ctx) const
+{
+  if (value.size() == 0)
+    return 0;
+  int type = value[0]->getType(ctx);
+  for (int i = 1; i < value.size(); i++)
+    {
+      if (value[i]->getType(ctx) != type)
+	return 0;
+    }
+
+  return 0xF0000000 | type;
+}
+
 int NVariableAccess::getType(SemanticContext * ctx) const
 {
   NVariableDeclaration *var = ctx->searchVars(ident);
   if (var)
     {
-      return var->type;
+      return (var->size == 1) ? var->type : 0xF0000000 | var->type;
     }
   return 0;
 }
@@ -195,7 +210,7 @@ int NFunctionCall::getType(SemanticContext * ctx) const
   NFunctionDeclaration *func = ctx->searchFuncs(ident);
   if (func)
     {
-      return func->type;
+      return func->listReturn ? 0xF0000000 | func->type : func->type;
     }
   return 0;
 }
@@ -244,6 +259,7 @@ bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
 
 bool NVariableDeclaration::semanticAnalysis(SemanticContext * ctx)
 {
+  int ltype = (size == 1) ? type : 0xF0000000 | type;
   if (!ctx->registerVar(this)) 
     {
       std::cout << "Duplicate var decl for " << name << std::endl;
@@ -252,7 +268,7 @@ bool NVariableDeclaration::semanticAnalysis(SemanticContext * ctx)
     } 
   if (initializationExpression)
     {
-      if (initializationExpression->getType(ctx) != type || !initializationExpression->semanticAnalysis(ctx))
+      if (initializationExpression->getType(ctx) != ltype || !initializationExpression->semanticAnalysis(ctx))
 	{
 	  std::cout << "Type mismatch for " << name << std::endl;
 	  return false;

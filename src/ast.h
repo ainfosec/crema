@@ -269,6 +269,7 @@ class NList : public NValue {
   ExpressionList value;
   NList() { }
  NList(ExpressionList & list) : value(list) { }
+  int getType(SemanticContext * ctx) const;
   std::ostream & print(std::ostream & os) const;
 };
 
