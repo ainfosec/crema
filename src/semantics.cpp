@@ -242,7 +242,7 @@ bool NFunctionCall::semanticAnalysis(SemanticContext * ctx)
 bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
 {
   bool blockSA, blockRecur;
-  ctx->newScope(type);
+  ctx->newScope(listReturn ? type | 0xF0000000 : type);
   for (int i = 0; i < variables.size(); i++)
     {
       ctx->registerVar(variables[i]);
