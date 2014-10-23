@@ -34,7 +34,7 @@ bool SemanticContext::registerVar(NVariableDeclaration * var)
 
 bool SemanticContext::registerFunc(NFunctionDeclaration * func)
 {
-  // Search through current scope for function duplication
+  // Search through for duplicate function duplication
   for (int j = 0; j < funcs.size(); j++)
     {
       if (func->ident.value == funcs[j]->ident.value)
@@ -42,6 +42,19 @@ bool SemanticContext::registerFunc(NFunctionDeclaration * func)
     }
 
   funcs.push_back(func);
+  return true;
+}
+
+bool SemanticContext::registerStruct(NStructureDeclaration * s)
+{
+  // Search through for duplicate struct duplication
+  for (int j = 0; j < structs.size(); j++)
+    {
+      if (s->ident.value == structs[j]->ident.value)
+	return false;
+    }
+
+  structs.push_back(s);
   return true;
 }
 
@@ -65,15 +78,29 @@ NVariableDeclaration * SemanticContext::searchVars(NIdentifier & ident)
 }
 
 /*
-  Searches the local, then parent scopes for a function declaration
+  Searches for a function declaration
  */
 NFunctionDeclaration * SemanticContext::searchFuncs(NIdentifier & ident) 
 {
-  // Search through stacks in reverse order
   for (int i = 0; i < funcs.size(); i++)
     {
       if (ident.value == funcs[i]->ident.value)
 	return funcs[i];
+    }
+
+  return NULL;
+}
+
+
+/*
+  Searches for a structure declaration
+ */
+NStructureDeclaration * SemanticContext::searchStructs(NIdentifier & ident) 
+{
+  for (int i = 0; i < structs.size(); i++)
+    {
+      if (ident.value == structs[i]->ident.value)
+	return structs[i];
     }
 
   return NULL;

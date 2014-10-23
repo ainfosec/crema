@@ -37,7 +37,7 @@ class SemanticContext {
   SemanticContext() { newScope(0); currScope = 0; }  
   void newScope(int type);
   void delScope();
-  NVariableDeclaration * searchStructs(NIdentifier & ident);
+  NStructureDeclaration * searchStructs(NIdentifier & ident);
   NVariableDeclaration * searchVars(NIdentifier & ident);
   NFunctionDeclaration * searchFuncs(NIdentifier & ident);
   bool registerVar(NVariableDeclaration * var);
