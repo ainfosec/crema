@@ -120,8 +120,8 @@ expression : /*expression combine expression { $$ = new NBinaryOperator(*$1, $2,
 	   | struct { }
 	   | TLPAREN expression TRPAREN { $$ = $2; }
 	   | value { }
-	   /* | expression comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } /* bison cannot distinguish whether a<b<c is (a<b)<c or a<(b<c) */
-       /* | TSUB expression { NDouble *zero = new NDouble(0); $$ = new NBinaryOperator(*zero, $1, *$2); } /* negative numbers */
+	   | expression comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } /* bison cannot distinguish whether a<b<c is (a<b)<c or a<(b<c) */
+       | TSUB expression { NDouble *zero = new NDouble(0); $$ = new NBinaryOperator(*zero, $1, *$2); } /* list and struct are also expressions, which cannot follow TSUB */
 	   ;
 
 list : TLBRAC func_call_arg_list TRBRAC { $$ = new NList(*$2); }
