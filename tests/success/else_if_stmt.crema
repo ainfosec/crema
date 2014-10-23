@@ -1,0 +1,4 @@
+int x=0
+int y=1
+int z
+if (x==1) {z=3} else if (x==0) {z=2}
