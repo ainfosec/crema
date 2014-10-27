@@ -1,9 +1,0 @@
-<map id="yyalloc" name="yyalloc">
-<area shape="rect" id="node2" href="$unionYYSTYPE.html" title="{YYSTYPE\n|+ token\l+ decl_args\l+ call_args\l+ string\l|}" alt="" coords="350,521,448,642"/>
-<area shape="rect" id="node3" href="$classNVariableDeclaration.html" title="{NVariableDeclaration\n|+ type\l|+ NVariableDeclaration()\l+ NVariableDeclaration()\l+ codeGen()\l+ print()\l}" alt="" coords="122,334,303,455"/>
-<area shape="rect" id="node4" href="$classNStatement.html" title="{NStatement\n||}" alt="" coords="134,177,235,255"/>
-<area shape="rect" id="node5" href="$classNode.html" title="{Node\n||+ ~Node()\l+ codeGen()\l+ print()\l}" alt="" coords="334,5,438,112"/>
-<area shape="rect" id="node6" href="$classNIdentifier.html" title="{NIdentifier\n|+ value\l|+ NIdentifier()\l+ codeGen()\l+ print()\l}" alt="" coords="259,163,370,269"/>
-<area shape="rect" id="node7" href="$classNExpression.html" title="{NExpression\n||}" alt="" coords="440,177,542,255"/>
-<area shape="rect" id="node8" href="$classNBlock.html" title="{NBlock\n|+ statements\l|+ codeGen()\l+ print()\l}" alt="" coords="557,349,667,441"/>
-</map>
