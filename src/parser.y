@@ -25,11 +25,11 @@
 }
 
 /* Terminal types */
-%token <string> TIDENTIFIER TINT TDOUBLE
+%token <string> TIDENTIFIER TINT TDOUBLE TSTRING
 %token <token> TRETURN TSDEF TDEF TIF TELSE TFOREACH TAS TCEQ
 %token <token> TCNEQ TCLE TCGE TCLT TCGT TTVOID TTINT TTUINT TTSTR TSTRUCT
 %token <token> TTDOUBLE TEQUAL TLPAREN TRPAREN TLBRAC TRBRAC TMOD TPERIOD
-%token <token> TMUL TADD TDIV TSUB TRBRACKET TLBRACKET TCOMMA TQUOTE 
+%token <token> TMUL TADD TDIV TSUB TRBRACKET TLBRACKET TCOMMA 
 
 /* Non-terminal types */
 %type <token> type comparison combine def
@@ -74,6 +74,8 @@ return : TRETURN expression { $$ = new NReturn(*$2); }
        ;
 
 assignment : identifier TEQUAL expression { $$ = new NAssignmentStatement(*$1, *$3); }
+	   | list_access TEQUAL expression { $$ = new NListAssignmentStatement(((NListAccess *) $1)->ident, *((NListAccess *) $1), *$3); }
+	   | struct TEQUAL expression { $$ = new NStructureAssignmentStatement(((NStructureAccess *) $1)->ident, *((NStructureAccess *) $1), *$3); }
 	   ;
 
 loop : TFOREACH TLPAREN identifier TAS identifier TRPAREN block { $$ = new NLoopStatement(*$3, *$5, *$7); }
@@ -139,7 +141,7 @@ numeric : TDOUBLE { $$ = new NDouble(atof($1->c_str())); $$->type = TTDOUBLE; de
 	;
 
 value : numeric { $$ = $1; }
-      | TQUOTE TIDENTIFIER TQUOTE { std::string str = $2->c_str(); $$ = new NString(str); $$->type = TTSTR; delete $2; }
+      | TSTRING { std::string str = $1->c_str(); $$ = new NString(str); $$->type = TTSTR; delete $1; }
       ;
 
 combine : TADD

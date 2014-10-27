@@ -36,6 +36,7 @@ extern "C" int yywrap() { }
 [a-zA-Z_][a-zA-Z_0-9]* 	      SAVE_VAL; return TIDENTIFIER;
 [0-9]+\.[0-9]+		      SAVE_VAL; return TDOUBLE;
 [0-9]+			      SAVE_VAL; return TINT;
+\"[^\"\n]*\"		      SAVE_VAL; return TSTRING;
 "="			      return TOK(TEQUAL);
 "=="			      return TOK(TCEQ);
 "!="			      return TOK(TCNEQ);
@@ -47,7 +48,6 @@ extern "C" int yywrap() { }
 ")"			      return TOK(TRPAREN);
 "["			      return TOK(TLBRAC);
 "]"			      return TOK(TRBRAC);
-"\""			      return TOK(TQUOTE);
 "%"			      return TOK(TMOD);
 "*"			      return TOK(TMUL);
 "/"			      return TOK(TDIV);

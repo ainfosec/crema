@@ -1,9 +1,20 @@
+/**
+   @file semantics.cpp
+   @brief Implementation for semantic analysis-related functionality of cremacc checking
+   @copyright 2014 Assured Information Security, Inc.
+   @author Jacob Torrey <torreyj@ainfosec.com>
+
+   This file contains the implementations for all functionality related to semantic analysis.
+   This includes the SemanticContext implementation and the typing functions for the AST functions.
+ */
 #include "ast.h"
 #include "parser.h"
 #include <typeinfo>
 
 /** 
- *  
+    Creates a new scope for variable declarations
+
+    @param type The return type of the scope (0 if void)
  */
 void SemanticContext::newScope(int type)
 {
@@ -12,6 +23,9 @@ void SemanticContext::newScope(int type)
   currScope++;
 }
 
+/**
+   Deletes the most recent scope
+*/
 void SemanticContext::delScope()
 {
   vars.pop_back();
@@ -19,12 +33,18 @@ void SemanticContext::delScope()
   currScope--;
 }
 
+/**
+   Registers the variable into the current scope
+
+   @param var Pointer to the NVariableDeclaration to add to the current scope
+   @return true if the variable was added, false if it is a duplicate
+*/
 bool SemanticContext::registerVar(NVariableDeclaration * var)
 {
   // Search through current scope for variable duplication
   for (int j = 0; j < (vars[currScope])->size(); j++)
     {
-      if (var->name.value == vars[currScope]->at(j)->name.value)
+      if (var->ident == vars[currScope]->at(j)->ident)
 	return false;
     }
 
@@ -32,12 +52,18 @@ bool SemanticContext::registerVar(NVariableDeclaration * var)
   return true;
 }
 
+/**
+   Registers the function into the global scope
+
+   @param func Pointer to the NFunctionDeclaration to add to the global scope
+   @return true if the function was added, false if it is a duplicate
+*/
 bool SemanticContext::registerFunc(NFunctionDeclaration * func)
 {
   // Search through for duplicate function duplication
   for (int j = 0; j < funcs.size(); j++)
     {
-      if (func->ident.value == funcs[j]->ident.value)
+      if (func->ident == funcs[j]->ident)
 	return false;
     }
 
@@ -45,12 +71,18 @@ bool SemanticContext::registerFunc(NFunctionDeclaration * func)
   return true;
 }
 
+/**
+   Registers the structure into the global scope
+
+   @param s Pointer to the NStructureDeclaration to add to the global scope
+   @return true if the structure was added, false if it is a duplicate
+*/
 bool SemanticContext::registerStruct(NStructureDeclaration * s)
 {
   // Search through for duplicate struct duplication
   for (int j = 0; j < structs.size(); j++)
     {
-      if (s->ident.value == structs[j]->ident.value)
+      if (s->ident == structs[j]->ident)
 	return false;
     }
 
@@ -58,8 +90,11 @@ bool SemanticContext::registerStruct(NStructureDeclaration * s)
   return true;
 }
 
-/*
+/**
   Searches the local, then parent scopes for a variable declaration
+
+  @param ident NIdentifier to search for in the stack of scopes
+  @return Pointer to NVariableDeclaration of the referenced variable or NULL if it cannot be found
  */
 NVariableDeclaration * SemanticContext::searchVars(NIdentifier & ident) 
 {
@@ -69,7 +104,7 @@ NVariableDeclaration * SemanticContext::searchVars(NIdentifier & ident)
       // Search through current scope for variable
       for (int j = 0; j < (vars[i])->size(); j++)
 	{
-	  if (ident.value == vars[i]->at(j)->name.value)
+	  if (ident == vars[i]->at(j)->ident)
 	    return vars[i]->at(j);
 	}
     }
@@ -77,14 +112,17 @@ NVariableDeclaration * SemanticContext::searchVars(NIdentifier & ident)
   return NULL;
 }
 
-/*
+/**
   Searches for a function declaration
- */
+
+  @param ident NIdentifier to search for in the global function scope
+  @return Pointer to NFunctionDeclaration of the referenced function or NULL if it cannot be found
+*/
 NFunctionDeclaration * SemanticContext::searchFuncs(NIdentifier & ident) 
 {
   for (int i = 0; i < funcs.size(); i++)
     {
-      if (ident.value == funcs[i]->ident.value)
+      if (ident == funcs[i]->ident)
 	return funcs[i];
     }
 
@@ -92,22 +130,30 @@ NFunctionDeclaration * SemanticContext::searchFuncs(NIdentifier & ident)
 }
 
 
-/*
+/**
   Searches for a structure declaration
- */
+
+  @param ident NIdentifier to search for in the global structure scope
+  @return Pointer to NStructureDeclaration of the referenced structure or NULL if it cannot be found
+*/
 NStructureDeclaration * SemanticContext::searchStructs(NIdentifier & ident) 
 {
   for (int i = 0; i < structs.size(); i++)
     {
-      if (ident.value == structs[i]->ident.value)
+      if (ident == structs[i]->ident)
 	return structs[i];
     }
 
   return NULL;
 }
 
-/** Iterates over the vector and returns 'false' if any of
- *  semanticAnalysis elements are false. */
+/**
+   Iterates over the vector and returns 'false' if any of
+   semanticAnalysis elements are false.
+
+   @param ctx Pointer to the SemanticContext on which to perform the checks
+   @return true if the block passes semantic analysis, false otherwise
+*/
 bool NBlock::semanticAnalysis(SemanticContext * ctx)
 {
   // Points to the last element in the vector<int> currType.
@@ -121,8 +167,14 @@ bool NBlock::semanticAnalysis(SemanticContext * ctx)
   return true;
 }
 
-/** Iterates over the vector and returns 'true' if any of
- *  checkRecursion elements are true. */
+/**
+   Iterates over the vector and returns 'true' if any of
+   checkRecursion elements are true.
+
+   @param ctx Pointer to SemanticContext on which to perform the checks
+   @param func Pointer to NFunctionDeclaration of the parent function that is being checked
+   @return true if there is a recursive call, false otherwise
+*/
 bool NBlock::checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func)
 {
   for (int i = 0; i < statements.size(); i++)
@@ -262,7 +314,7 @@ bool NVariableDeclaration::semanticAnalysis(SemanticContext * ctx)
   int ltype = (size == 1) ? type : 0xF0000000 | type;
   if (!ctx->registerVar(this)) 
     {
-      std::cout << "Duplicate var decl for " << name << std::endl;
+      std::cout << "Duplicate var decl for " << ident << std::endl;
       // Variable collision
       return false;
     } 
@@ -270,7 +322,7 @@ bool NVariableDeclaration::semanticAnalysis(SemanticContext * ctx)
     {
       if (initializationExpression->getType(ctx) != ltype || !initializationExpression->semanticAnalysis(ctx))
 	{
-	  std::cout << "Type mismatch for " << name << std::endl;
+	  std::cout << "Type mismatch for " << ident << std::endl;
 	  return false;
 	}
     }

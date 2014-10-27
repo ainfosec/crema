@@ -1,13 +1,38 @@
+/**
+   @file ast.cpp
+   @brief Implementation file for AST-related classes
+   @copyright 2014 Assured Information Security, Inc.
+   @author Jacob Torrey <torreyj@ainfosec.com>
+
+   Stores the implementations for the AST classes. Includes pretty-printing logic
+   and some operator overloads for AST manipulation and analysis.
+*/
 #include "ast.h"
 #include "parser.h"
 
+/**
+ * The root SemanticContext object to use when performing semantic analysis */
 SemanticContext rootCtx;
 
+/**
+   Overload for the == operator to allow for simple comparison of two NIdentifiers
+
+   @param i1 First NIdentifier to compare
+   @param i2 Second NIdentifier to compare
+   @return true if the Identifiers resolve to the same value, false otherwise
+*/
 bool operator==(const NIdentifier & i1, const NIdentifier & i2)
 {
   return i1.value == i2.value;
 }
 
+/**
+   Overload for the << operator to allow pretty printing of AST objects and AST as a whole
+
+   @param os Output stream to print to
+   @param node Node to pretty-print
+   @return Output stream passed in
+*/
 std::ostream & operator<<(std::ostream & os, const Node & node)
 {
   node.print(os);
@@ -28,9 +53,9 @@ std::ostream & NBlock::print(std::ostream & os) const
 std::ostream & NVariableDeclaration::print(std::ostream & os) const
 {
   if (size == 1)
-    os << "Variable decl: " << type << " " << name;
+    os << "Variable decl: " << type << " " << ident;
   else
-    os << "List decl: " << type << " " << name << "[" << size << "]";
+    os << "List decl: " << type << " " << ident << "[" << size << "]";
   if (initializationExpression != NULL)
     os << " " << *initializationExpression;
   os << std::endl;
@@ -64,6 +89,18 @@ std::ostream & NStructureDeclaration::print(std::ostream & os) const
 std::ostream & NAssignmentStatement::print(std::ostream & os) const
 {
   os << "Assignment: " << ident << " = " << expr << std::endl;
+  return os;
+}
+
+std::ostream & NListAssignmentStatement::print(std::ostream & os) const
+{
+  os << "Assignment: " << list << " = " << expr << std::endl;
+  return os;
+}
+
+std::ostream & NStructureAssignmentStatement::print(std::ostream & os) const
+{
+  os << "Assignment: " << structure << " = " << expr << std::endl;
   return os;
 }
 
