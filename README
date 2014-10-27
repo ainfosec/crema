@@ -12,10 +12,10 @@ Crema is designed in the popular procedural paradigm, following a number of C st
 some newer features from more modern languages like Python and Ruby. Below are a few examples of Crema
 programs that demonstrate the "feel" of the language:
 
-### Hellow World
+### Hello World
 ```
 sdef void main() {
-    hw = "Hello, world!" # Sets variable hw to the string
+    string hw = "Hello, world!" # Sets variable hw to the string
     println(hw) # Prints it out
 }
 ```
@@ -23,7 +23,7 @@ sdef void main() {
 ### FizzBuzz
 ```
 sdef void fizzbuzz() {
-    range = seq(1, 100)
+    int range[100] = seq(1, 100)
     foreach (range as num) {
     	    if (num % 15 == 0) {
 	      println("FizzBuzz")
