@@ -9,5 +9,8 @@ graph:
 	bison -d -o parser.cpp --defines=parser.h -g parser.y
 	dot -Tpng parser.dot > parser.png
 
+doc:
+	cd ../docs/doxygen && doxygen
+
 clean:
 	-rm *~ *.o cremacc parser.cpp parser.h lexer.cpp
