@@ -84,8 +84,8 @@ loop : TFOREACH TLPAREN identifier TAS identifier TRPAREN block { $$ = new NLoop
 struct_decl : TSTRUCT identifier TLBRACKET var_decls TRBRACKET { $$ = new NStructureDeclaration(*$2, *$4); }	
 	    ;
 
-list_decl : type identifier TLBRAC TINT TRBRAC { $$ = new NVariableDeclaration($1, *$2, atoi($4->c_str())); }
-	  | type identifier TLBRAC TINT TRBRAC TEQUAL expression { $$ = new NVariableDeclaration($1, *$2, atoi($4->c_str()), $7); }
+list_decl : type identifier TLBRAC TRBRAC { $$ = new NVariableDeclaration($1, *$2); }
+	  | type identifier TLBRAC TRBRAC TEQUAL expression { $$ = new NVariableDeclaration($1, *$2); }
 	  ;
 
 var_decls : { $$ = new VariableList(); }

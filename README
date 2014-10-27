@@ -23,7 +23,7 @@ sdef void main() {
 ### FizzBuzz
 ```
 sdef void fizzbuzz() {
-    int range[100] = seq(1, 100)
+    int range[] = seq(1, 100)
     foreach (range as num) {
     	    if (num % 15 == 0) {
 	      println("FizzBuzz")
