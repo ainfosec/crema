@@ -121,7 +121,6 @@ expression : /*expression combine expression { $$ = new NBinaryOperator(*$1, $2,
 	   | TLPAREN expression TRPAREN { $$ = $2; }
 	   | value { }
 	   | expression comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } /* bison cannot distinguish whether a<b<c is (a<b)<c or a<(b<c) */
-       | TSUB expression { NDouble *zero = new NDouble(0); $$ = new NBinaryOperator(*zero, $1, *$2); } /* list and struct are also expressions, which cannot follow TSUB */
 	   ;
 
 list : TLBRAC func_call_arg_list TRBRAC { $$ = new NList(*$2); }
@@ -134,10 +133,10 @@ func_call_arg_list : /* Empty */ { $$ = new ExpressionList(); }
 		   ;
 
 numeric : TDOUBLE { $$ = new NDouble(atof($1->c_str())); $$->type = TTDOUBLE; delete $1; }
+	| TSUB TDOUBLE { NDouble *zero = new NDouble(0); zero->type = TTDOUBLE; NDouble *d = new NDouble(atof($2->c_str())); d->type = TTDOUBLE; delete $2; $$ = new NBinaryOperator(*zero, $1, *d); } 
 	| TINT { $$ = new NInt(atoi($1->c_str())); $$->type = TTINT; delete $1; }
+	| TSUB TINT { NInt *zero = new NInt(0); zero->type = TTINT; NInt *i = new NInt(atoi($2->c_str())); i->type = TTINT; delete $2; $$ = new NBinaryOperator(*zero, $1, *i); } 
 	;
-
-
 
 value : numeric { $$ = $1; }
       | TQUOTE TIDENTIFIER TQUOTE { std::string str = $2->c_str(); $$ = new NString(str); $$->type = TTSTR; delete $2; }
