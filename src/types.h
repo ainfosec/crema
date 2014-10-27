@@ -13,12 +13,30 @@
 #include <iostream>
 
 /**
+ *  Enumeration of types available to Crema programs */
+enum TypeCodes {
+    INT,
+    DOUBLE,
+    STRING,
+    VOID,
+    UINT
+};
+
+/**
  *  Root type class */
 class Type {
+private:
+    void setType(int type);
 public:
+    bool list;
+    TypeCodes typecode; /**< typecode for the Type */
     virtual ~Type() { }
-    virtual std::ostream & print(std::ostream & os) const { }
+    Type(int type) { setType(type); list = false; }
+    Type(int type, bool list) { setType(type); list = list; }
+    bool isList() { return list; }
+    std::ostream & print(std::ostream & os) const;
     friend std::ostream & operator<<(std::ostream & os, Type & type); 
+    friend bool operator==(Type & t1, Type & t2);
 };
 
 #endif // CREMA_TYPE_H_
