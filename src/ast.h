@@ -8,8 +8,8 @@
    walking the AST for semantic analysis. All AST classes are derived from Node
 */
 
-#ifndef AST_H_
-#define AST_H_
+#ifndef CREMA_AST_H_
+#define CREMA_AST_H_
 
 #include <iostream>
 #include <string>
@@ -356,4 +356,4 @@ NIdentifier(const std::string & value) : value(value) { }
 
 
 
-#endif // AST_H_
+#endif // CREMA_AST_H_
