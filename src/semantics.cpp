@@ -9,6 +9,7 @@
  */
 #include "ast.h"
 #include "parser.h"
+#include "types.h"
 #include <typeinfo>
 
 /** 

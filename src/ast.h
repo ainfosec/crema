@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include <llvm/IR/Value.h>
+#include "types.h"
 
 class CodeGenContext;
 class NExpression;
