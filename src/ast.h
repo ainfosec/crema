@@ -90,7 +90,7 @@ class NStatement : public Node {
 
 /**
  *  One or more statements that evaluate to an NExpression value. */
-class NBlock : public Node {
+class NBlock : public NExpression {
 public:
     StatementList statements; /**< Vector of statements in the NBlock */
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
