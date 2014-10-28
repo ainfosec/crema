@@ -38,6 +38,10 @@ public:
     std::ostream & print(std::ostream & os) const;
     friend std::ostream & operator<<(std::ostream & os, Type & type); 
     friend bool operator==(Type & t1, Type & t2);
+    friend bool operator>(Type & t1, Type & t2);
+    friend bool operator>=(Type & t1, Type & t2);
+    friend bool operator<(Type & t1, Type & t2);
+    friend bool operator<=(Type & t1, Type & t2);
 };
 
 #endif // CREMA_TYPE_H_

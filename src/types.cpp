@@ -25,6 +25,92 @@ bool operator==(Type & t1, Type & t2)
 }
 
 /**
+   Greater than operator for Types
+
+   One Type is considered "larger" than another if it can upcast.
+   E.g. DOUBLE > INT as integers can be upcast to doubles, but not vice versa
+
+   @param t1 First Type to compare
+   @param t2 Second Type to compare
+   @return true is t1 is "larger" than t2, false otherwise
+*/
+bool operator>(Type & t1, Type & t2)
+{
+    // Double > Int
+    if (t1.typecode == DOUBLE && (t2.typecode == INT || t2.typecode == UINT))
+    {
+	return true;
+    }
+
+    // Double/Int > Bool (true = 1, false = 0)
+    if ((t1.typecode == INT || t2.typecode == UINT || t2.typecode == DOUBLE) && t2.typecode == BOOL)
+    {
+	return true;
+    }
+
+    // Bool > Double/Int
+    if (t1.typecode == BOOL && (t2.typecode == DOUBLE || t2.typecode == INT || t2.typecode == UINT))
+    {
+	return true;
+    }
+
+    // String > Double/Int
+    if (t1.typecode == STRING && (t2.typecode == UINT || t2.typecode == INT || t2.typecode == DOUBLE))
+    {
+	return true;
+    }
+    
+    return false;
+}
+
+/**
+   Less than operator for Types
+
+   One Type is considered "larger" than another if it can upcast.
+   E.g. DOUBLE >= INT as integers can be upcast to doubles, but not vice versa
+
+   @param t1 First Type to compare
+   @param t2 Second Type to compare
+   @return true is t1 is "smaller" than to t2, false otherwise
+*/
+bool operator<(Type & t1, Type & t2)
+{
+    return !(t1 >= t2);
+}
+
+/**
+   Greater than or equal operator for Types
+
+   One Type is considered "larger" than another if it can upcast.
+   E.g. DOUBLE >= INT as integers can be upcast to doubles, but not vice versa
+
+   @param t1 First Type to compare
+   @param t2 Second Type to compare
+   @return true is t1 is "larger" than or equal to t2, false otherwise
+*/
+bool operator>=(Type & t1, Type & t2)
+{
+    return (t1 == t2) || (t1 > t2);
+}
+
+/**
+   Less than or equal operator for Types
+
+   One Type is considered "larger" than another if it can upcast.
+   E.g. DOUBLE >= INT as integers can be upcast to doubles, but not vice versa
+
+   @param t1 First Type to compare
+   @param t2 Second Type to compare
+   @return true is t1 is "smaller" than or equal to t2, false otherwise
+*/
+bool operator<=(Type & t1, Type & t2)
+{
+    return (t1 == t2) || (t1 < t2);
+}
+
+
+
+/**
    Pretty-prints a Type object
 
    @param os Stream to print to
