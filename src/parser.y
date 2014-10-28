@@ -22,6 +22,7 @@
        std::vector<NVariableDeclaration*> *decl_args;
        std::vector<NExpression*> *call_args;
        std::string *string;
+       int fn; /* which function */
 }
 
 /* Terminal types */
@@ -114,15 +115,15 @@ func_decl_arg_list : /* Empty */ { $$ = new VariableList(); }
 		   | func_decl_arg_list TCOMMA var_decl { $$->push_back($<var_decl>3); }
 		   ;
 
-expression : /*expression combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); } /* 'combine' needs to separate +- and /* to avoid shift reduce */
-	   identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
+expression : identifier combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); } /* 'combine' needs to separate +- and /* to avoid shift reduce */
+	   | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
 	   | identifier { $$ = new NVariableAccess(*$1); }
 	   | list_access { }
 	   | list { }
 	   | struct { }
 	   | TLPAREN expression TRPAREN { $$ = $2; }
 	   | value { }
-	   | expression comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } /* bison cannot distinguish whether a<b<c is (a<b)<c or a<(b<c) */
+	   | identifier comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } /* bison cannot distinguish whether a<b<c is (a<b)<c or a<(b<c) */
 	   ;
 
 list : TLBRAC func_call_arg_list TRBRAC { $$ = new NList(*$2); }
