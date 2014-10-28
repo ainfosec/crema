@@ -127,7 +127,6 @@ expression : identifier combine expression { $$ = new NBinaryOperator(*((NExpres
 	   ;
 
 list : TLBRAC func_call_arg_list TRBRAC { $$ = new NList(*$2); }
-     | TLBRAC TRBRAC { $$ = new NList(); }
      ;
 
 func_call_arg_list : /* Empty */ { $$ = new ExpressionList(); }
