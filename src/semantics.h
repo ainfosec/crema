@@ -12,6 +12,7 @@
 #define CREMA_SEMANTICS_H_
 
 #include "decls.h"
+#include "types.h"
 
 /** 
  *  Stores the contextual information required to perform semantic analysis on a Crema program */
@@ -19,12 +20,12 @@ class SemanticContext {
 public:
     int currScope; /**< Index to the current scope used for variable search */
     std::vector<VariableList*> vars; /**< Stack of scopes containing declared variables */
-    std::vector<int> currType; /**< List of return types for the stack of scopes */
+    std::vector<Type> currType; /**< List of return types for the stack of scopes */
     std::vector<NStructureDeclaration*> structs; /**< List of defined structures */
     FunctionList funcs; /**< List of defined functions */
     
-    SemanticContext() { newScope(0); currScope = 0; } /**< Default constructor, creates the root (empty) scope */
-    void newScope(int type);
+    SemanticContext() { newScope(*(new Type())); currScope = 0; } /**< Default constructor, creates the root (empty) scope */
+    void newScope(Type & type);
     void delScope();
     NStructureDeclaration * searchStructs(NIdentifier & ident);
     NVariableDeclaration * searchVars(NIdentifier & ident);

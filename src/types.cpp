@@ -25,6 +25,18 @@ bool operator==(Type & t1, Type & t2)
 }
 
 /**
+   Non-equality operator for Types
+
+   @param t1 First Type to compare against
+   @param t2 Second Type to compare against
+   @return false if the types are the same in type and dimension, true otherwise
+*/
+bool operator!=(Type & t1, Type & t2)
+{
+    return !(t1 == t2);
+}
+
+/**
    Greater than operator for Types
 
    One Type is considered "larger" than another if it can upcast.
@@ -36,6 +48,12 @@ bool operator==(Type & t1, Type & t2)
 */
 bool operator>(Type & t1, Type & t2)
 {
+    // List types go with list types, singtons with singletons
+    if (t1.list != t2.list)
+    {
+	return false;
+    }
+    
     // Double > Int
     if (t1.typecode == DOUBLE && (t2.typecode == INT || t2.typecode == UINT))
     {

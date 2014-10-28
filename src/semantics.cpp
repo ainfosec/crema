@@ -22,7 +22,7 @@ SemanticContext rootCtx;
 
     @param type The return type of the scope (0 if void)
  */
-void SemanticContext::newScope(int type)
+void SemanticContext::newScope(Type & type)
 {
   vars.push_back(new VariableList());
   currType.push_back(type);
@@ -203,25 +203,25 @@ bool NFunctionCall::checkRecursion(SemanticContext * ctx, NFunctionDeclaration *
 
 bool NBinaryOperator::semanticAnalysis(SemanticContext * ctx)
 {
-  if (lhs.getType(ctx) != rhs.getType(ctx))
+    Type & t1 = lhs.getType(ctx), & t2 = rhs.getType(ctx);
+    if (!(t1 >= t2 || t2 >= t1))
     {
-      std::cout << "Binary operator type mismatch for op: " << op << std::endl;
-      return false;
+	std::cout << "Binary operator type mismatch for op: " << op << std::endl;
+	return false;
     }
-  return true;
+    return true;
 }
 
 bool NAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
 {
   NVariableDeclaration *var = ctx->searchVars(ident);
-  int type = (var->size == 1) ? var->type : var->type | 0xF0000000;
   if (!var)
     {
       std::cout << "Assignment to undefined variable " << ident << std::endl;
       return false;
     }
 
-  if (type != expr.getType(ctx))
+  if (var->type < expr.getType(ctx))
     {
       std::cout << "Type mismatch for assignment to " << ident << std::endl;
       return false;
@@ -231,7 +231,7 @@ bool NAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
 
 bool NReturn::semanticAnalysis(SemanticContext * ctx)
 {
-  if (retExpr.getType(ctx) != ctx->currType.back())
+  if (retExpr.getType(ctx) > ctx->currType.back())
     {
       std::cout << "Returning type " << retExpr.getType(ctx) << " when a " << ctx->currType.back() << " was expected" << std::endl;
       return false;
@@ -239,38 +239,36 @@ bool NReturn::semanticAnalysis(SemanticContext * ctx)
   return true;
 }
 
-int NList::getType(SemanticContext * ctx) const
+Type & NList::getType(SemanticContext * ctx) const
 {
-  if (value.size() == 0)
-    return 0;
-  int type = value[0]->getType(ctx);
+  Type & type = value[0]->getType(ctx);
   for (int i = 1; i < value.size(); i++)
     {
       if (value[i]->getType(ctx) != type)
-	return 0;
+	  return *(new Type());
     }
 
-  return 0xF0000000 | type;
+  return type;
 }
 
-int NVariableAccess::getType(SemanticContext * ctx) const
+Type & NVariableAccess::getType(SemanticContext * ctx) const
 {
   NVariableDeclaration *var = ctx->searchVars(ident);
   if (var)
     {
-      return (var->size == 1) ? var->type : 0xF0000000 | var->type;
+      return var->type;
     }
-  return 0;
+  return *(new Type());
 }
 
-int NFunctionCall::getType(SemanticContext * ctx) const 
+Type & NFunctionCall::getType(SemanticContext * ctx) const 
 {
   NFunctionDeclaration *func = ctx->searchFuncs(ident);
   if (func)
     {
-      return func->listReturn ? 0xF0000000 | func->type : func->type;
+      return func->type;
     }
-  return 0;
+  return *(new Type());
 }
 
 bool NFunctionCall::semanticAnalysis(SemanticContext * ctx)
@@ -285,7 +283,7 @@ bool NFunctionCall::semanticAnalysis(SemanticContext * ctx)
 	}
       for (int i = 0; i < args.size(); i++)
 	{
-	  if (args[i]->getType(ctx) != func->variables[i]->type)
+	  if (args[i]->getType(ctx) > func->variables[i]->type)
 	    {
 	      std::cout << "Type mismatch when calling function: " << ident << std::endl;
 	      return false;
@@ -300,7 +298,7 @@ bool NFunctionCall::semanticAnalysis(SemanticContext * ctx)
 bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
 {
   bool blockSA, blockRecur;
-  ctx->newScope(listReturn ? type | 0xF0000000 : type);
+  ctx->newScope(type);
   for (int i = 0; i < variables.size(); i++)
     {
       ctx->registerVar(variables[i]);
@@ -317,7 +315,6 @@ bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
 
 bool NVariableDeclaration::semanticAnalysis(SemanticContext * ctx)
 {
-  int ltype = (size == 1) ? type : 0xF0000000 | type;
   if (!ctx->registerVar(this)) 
     {
       std::cout << "Duplicate var decl for " << ident << std::endl;
@@ -326,9 +323,9 @@ bool NVariableDeclaration::semanticAnalysis(SemanticContext * ctx)
     } 
   if (initializationExpression)
     {
-      if (initializationExpression->getType(ctx) != ltype || !initializationExpression->semanticAnalysis(ctx))
-	{
-	  std::cout << "Type mismatch for " << ident << std::endl;
+      if (type < initializationExpression->getType(ctx) || !initializationExpression->semanticAnalysis(ctx))
+      {
+	  std::cout << "Type mismatch for " << ident << " (" << type << " vs. " << initializationExpression->getType(ctx) << ")" << std::endl;
 	  return false;
 	}
     }

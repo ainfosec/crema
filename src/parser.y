@@ -88,8 +88,8 @@ loop : TFOREACH TLPAREN identifier TAS identifier TRPAREN block { $$ = new NLoop
 struct_decl : TSTRUCT identifier TLBRACKET var_decls TRBRACKET { $$ = new NStructureDeclaration(*$2, *$4); }	
 	    ;
 
-list_decl : type identifier TLBRAC TRBRAC { $$ = new NVariableDeclaration($1, *$2); }
-	  | type identifier TLBRAC TRBRAC TEQUAL expression { $$ = new NVariableDeclaration($1, *$2); }
+list_decl : type identifier TLBRAC TRBRAC { Type *t = new Type($1, true); $$ = new NVariableDeclaration(*t, *$2); }
+	  | type identifier TLBRAC TRBRAC TEQUAL expression { Type *t = new Type($1, true); $$ = new NVariableDeclaration(*t, *$2); }
 	  ;
 
 var_decls : { $$ = new VariableList(); }
@@ -97,12 +97,12 @@ var_decls : { $$ = new VariableList(); }
 	  | var_decls TCOMMA var_decl { $$->push_back($<var_decl>3); }
 	  ;
 
-var_decl : type identifier { $$ = new NVariableDeclaration($1, *$2); }
-	 | type identifier TEQUAL expression { $$ = new NVariableDeclaration($1, *$2, $4); }
+var_decl : type identifier { $$ = new NVariableDeclaration(*(new Type($1)), *$2); }
+	 | type identifier TEQUAL expression { $$ = new NVariableDeclaration(*(new Type($1)), *$2, $4); }
 	 ;
 
-func_decl : def type identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration($2, *$3, *$5, $7); }
-	  | def type TLBRAC TRBRAC identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration($2, *$5, true, *$7, $9); }
+func_decl : def type identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration(*(new Type($2)), *$3, *$5, $7); }
+	  | def type TLBRAC TRBRAC identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration(*(new Type($2, true)), *$5, *$7, $9); }
 	  ;
 
 def : TDEF
@@ -139,14 +139,14 @@ func_call_arg_list : /* Empty */ { $$ = new ExpressionList(); }
 		   | func_call_arg_list TCOMMA expression { $$->push_back($<expression>3); }
 		   ;
 
-numeric : TDOUBLE { $$ = new NDouble(atof($1->c_str())); $$->type = TTDOUBLE; delete $1; }
-	| TSUB TDOUBLE { NDouble *zero = new NDouble(0); zero->type = TTDOUBLE; NDouble *d = new NDouble(atof($2->c_str())); d->type = TTDOUBLE; delete $2; $$ = new NBinaryOperator(*zero, $1, *d); } 
-	| TINT { $$ = new NInt(atoi($1->c_str())); $$->type = TTINT; delete $1; }
-	| TSUB TINT { NInt *zero = new NInt(0); zero->type = TTINT; NInt *i = new NInt(atoi($2->c_str())); i->type = TTINT; delete $2; $$ = new NBinaryOperator(*zero, $1, *i); } 
+numeric : TDOUBLE { $$ = new NDouble(atof($1->c_str())); $$->type = *(new Type(TTDOUBLE)); delete $1; }
+	| TSUB TDOUBLE { NDouble *zero = new NDouble(0); zero->type = *(new Type(TTDOUBLE)); NDouble *d = new NDouble(atof($2->c_str())); d->type = Type(TTDOUBLE); delete $2; $$ = new NBinaryOperator(*zero, $1, *d); } 
+	| TINT { $$ = new NInt(atoi($1->c_str())); $$->type = *(new Type(TTINT)); delete $1; }
+	| TSUB TINT { NInt *zero = new NInt(0); zero->type = TTINT; NInt *i = new NInt(atoi($2->c_str())); i->type = *(new Type(TTINT)); delete $2; $$ = new NBinaryOperator(*zero, $1, *i); } 
 	;
 
 value : numeric { $$ = $1; }
-      | TSTRING { std::string str = $1->c_str(); $$ = new NString(str); $$->type = TTSTR; delete $1; }
+      | TSTRING { std::string str = $1->c_str(); $$ = new NString(str); $$->type = *(new Type(TTSTR)); delete $1; }
       | TTRUE { $$ = new NBool(true); }
       | TFALSE { $$ = new NBool(false); }
       ;

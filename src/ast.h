@@ -35,8 +35,9 @@ class Node {
  *  (Ex. 45*3 % 20)  */
 class NExpression : public Node {
 public:
-    int type; /**< Expression type used for type-checking during semantic analysis */
-    virtual int getType(SemanticContext * ctx) const { }
+    Type & type; /**< Expression type used for type-checking during semantic analysis */
+NExpression() : type(*(new Type())) { }
+    virtual Type & getType(SemanticContext * ctx) const { }
 };
 
 /**
@@ -130,7 +131,7 @@ public:
 NBinaryOperator(NExpression & lhs, int op, NExpression & rhs) : lhs(lhs), op(op), rhs(rhs) { }
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
     bool semanticAnalysis(SemanticContext *ctx);
-    int getType(SemanticContext * ctx) const { return lhs.getType(ctx) == rhs.getType(ctx) ? lhs.getType(ctx) : 0; }
+    Type & getType(SemanticContext * ctx) const { return lhs.getType(ctx) == rhs.getType(ctx) ? lhs.getType(ctx) : *(new Type()); }
     std::ostream & print(std::ostream & os) const;
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return lhs.checkRecursion(ctx, func) || rhs.checkRecursion(ctx, func); }
 };
@@ -139,14 +140,11 @@ NBinaryOperator(NExpression & lhs, int op, NExpression & rhs) : lhs(lhs), op(op)
  *  Declaring a variable and its type, optionally with an expression for its initial value */
 class NVariableDeclaration : public NStatement {
 public:
-    int type; /**< Type of variable */
+    Type & type; /**< Type of variable */
     NIdentifier & ident; /**< Name of variable */
     NExpression *initializationExpression; /**< Pointer to optional initialization expression */
-    int size; /**< Size (1 for singleton, >1 for list) */
-NVariableDeclaration(int type, NIdentifier & name) : type(type), ident(name), initializationExpression(NULL), size(1) { }
-NVariableDeclaration(int type, NIdentifier & name, NExpression *initExpr) : type(type), ident(name), size(1), initializationExpression(initExpr) { }
-NVariableDeclaration(int type, NIdentifier & name, int size) : type(type), ident(name), initializationExpression(NULL), size(size) { }
-NVariableDeclaration(int type, NIdentifier & name, int size, NExpression *initExpr) : type(type), ident(name), initializationExpression(initExpr), size(size) { }
+NVariableDeclaration(Type & type, NIdentifier & name) : type(type), ident(name), initializationExpression(NULL) { }
+NVariableDeclaration(Type & type, NIdentifier & name, NExpression *initExpr) : type(type), ident(name), initializationExpression(initExpr) { }
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
     std::ostream & print(std::ostream & os) const;
     bool semanticAnalysis(SemanticContext *ctx);
@@ -159,11 +157,9 @@ class NFunctionDeclaration : public NStatement {
 public:
     VariableList variables; /**< List of variables to take as arguments */
     NIdentifier & ident; /**< Name of function */
-    int type; /**< Return type of function */
-    bool listReturn; /**< If this function returns a list of types or is a singleton */
+    Type & type; /**< Return type of function */
     NBlock *body; /**< NBlock body of function */
-NFunctionDeclaration(int type, NIdentifier & ident, VariableList & variables, NBlock *body) : type(type), ident(ident), variables(variables), body(body), listReturn(false) { }
-NFunctionDeclaration(int type, NIdentifier & ident, bool listReturn, VariableList & variables, NBlock *body) : type(type), ident(ident), variables(variables), body(body), listReturn(listReturn) { }
+NFunctionDeclaration(Type & type, NIdentifier & ident, VariableList & variables, NBlock *body) : type(type), ident(ident), variables(variables), body(body) { }
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
     bool semanticAnalysis(SemanticContext * ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
@@ -189,7 +185,7 @@ public:
     ExpressionList args;  /**< List of function call arguments */
     NIdentifier & ident; /**< Name of function to call */
 NFunctionCall(NIdentifier & ident, ExpressionList & args) : ident(ident), args(args) { }
-    int getType(SemanticContext * ctx) const;
+    Type & getType(SemanticContext * ctx) const;
     std::ostream & print(std::ostream & os) const;
     bool semanticAnalysis(SemanticContext * ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func);
@@ -224,7 +220,7 @@ public:
     NIdentifier & ident; /**< Name or variable to access */
 NVariableAccess(NIdentifier & ident) : ident(ident) { }
     std::ostream & print(std::ostream & os) const;
-    int getType(SemanticContext * ctx) const;
+    Type & getType(SemanticContext * ctx) const;
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
 };
 
@@ -246,7 +242,7 @@ class NValue : public NExpression {
 public:
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
     std::ostream & print(std::ostream & os) const;
-    int getType(SemanticContext * ctx) const { return type; }
+    Type & getType(SemanticContext * ctx) const { return type; }
     bool semanticAnalysis(SemanticContext * ctx) { return true; }
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
 };
@@ -308,7 +304,7 @@ public:
     ExpressionList value; /**< List of NExpression elements */
     NList() { } /**< Default constructor to initialize an empty list */
 NList(ExpressionList & list) : value(list) { }
-    int getType(SemanticContext * ctx) const;
+    Type & getType(SemanticContext * ctx) const;
     std::ostream & print(std::ostream & os) const;
 };
 

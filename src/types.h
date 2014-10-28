@@ -20,7 +20,8 @@ enum TypeCodes {
     STRING,
     VOID,
     BOOL,
-    UINT
+    UINT,
+    INVALID
 };
 
 /**
@@ -32,12 +33,14 @@ public:
     bool list;
     TypeCodes typecode; /**< typecode for the Type */
     virtual ~Type() { }
+Type() : typecode(INVALID) { }
     Type(int type) { setType(type); list = false; }
     Type(int type, bool list) { setType(type); list = list; }
     bool isList() { return list; }
     std::ostream & print(std::ostream & os) const;
     friend std::ostream & operator<<(std::ostream & os, Type & type); 
     friend bool operator==(Type & t1, Type & t2);
+    friend bool operator!=(Type & t1, Type & t2);
     friend bool operator>(Type & t1, Type & t2);
     friend bool operator>=(Type & t1, Type & t2);
     friend bool operator<(Type & t1, Type & t2);

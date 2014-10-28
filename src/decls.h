@@ -25,6 +25,7 @@ class NListAccess;
 class NStructureAccess;
 class NIdentifier;
 class SemanticContext;
+class Type;
 
 typedef std::vector<NStatement*> StatementList;
 typedef std::vector<NExpression*> ExpressionList;
