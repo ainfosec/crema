@@ -116,6 +116,7 @@ func_decl_arg_list : /* Empty */ { $$ = new VariableList(); }
 		   ;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 expression : identifier combine expression { $$ = new NBinaryOperator(*((NExpression *) $1), $2, *$3); } /* 'combine' needs to separate +- and /* for precendence */
 	   | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
 	   | identifier { $$ = new NVariableAccess(*$1); }
@@ -127,6 +128,8 @@ expression : identifier combine expression { $$ = new NBinaryOperator(*((NExpres
 	   | identifier comparison expression { $$ = new NBinaryOperator(*((NExpression *) $1), $2, *$3); } /* bison cannot distinguish whether a<b<c is (a<b)<c or a<(b<c) */
 	   ;
 =======
+=======
+>>>>>>> trent
 expression : identifier { $$ = new NVariableAccess(*$1); }
            | identifier combine expression { $$ = new NBinaryOperator(*((NExpression *) $1), $2, *$3); } 
 	       | identifier comparison expression { $$ = new NBinaryOperator(*((NExpression *) $1), $2, *$3); } 
@@ -138,6 +141,9 @@ expression : identifier { $$ = new NVariableAccess(*$1); }
            | value { }
            | value combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
            ;
+<<<<<<< HEAD
+>>>>>>> trent
+=======
 >>>>>>> trent
 
 list : TLBRAC func_call_arg_list TRBRAC { $$ = new NList(*$2); }
