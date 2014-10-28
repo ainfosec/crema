@@ -327,8 +327,18 @@ NInt(long int value) : value(value) { }
  * String type */
 class NString : public NValue {
 public:
-    std::string value; /**< Value ot string */
+    std::string value; /**< Value of string */
 NString(const std::string & value) : value(value) { }
+    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    std::ostream & print(std::ostream & os) const;
+};
+
+/**
+ * Bool type */
+class NBool : public NValue {
+public:
+    bool value; /**< Value of bool */
+NBool(bool value) : value(value) { }
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
     std::ostream & print(std::ostream & os) const;
 };

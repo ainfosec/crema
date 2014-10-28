@@ -28,6 +28,9 @@ extern "C" int yywrap() { }
 "ge"			      return TOK(TCGE);
 "gt"			      return TOK(TCGT);
 "lt"			      return TOK(TCLT);
+"true"			      return TOK(TTRUE);
+"false"			      return TOK(TFALSE);
+"bool"			      return TOK(TTBOOL);
 "void"			      return TOK(TTVOID);
 "int"			      return TOK(TTINT);
 "uint"			      return TOK(TTUINT);

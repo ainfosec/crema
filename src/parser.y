@@ -30,7 +30,7 @@
 %token <token> TRETURN TSDEF TDEF TIF TELSE TFOREACH TAS TCEQ
 %token <token> TCNEQ TCLE TCGE TCLT TCGT TTVOID TTINT TTUINT TTSTR TSTRUCT
 %token <token> TTDOUBLE TEQUAL TLPAREN TRPAREN TLBRAC TRBRAC TMOD TPERIOD
-%token <token> TMUL TADD TDIV TSUB TRBRACKET TLBRACKET TCOMMA 
+%token <token> TMUL TADD TDIV TSUB TRBRACKET TLBRACKET TCOMMA TTBOOL TTRUE TFALSE
 
 /* Non-terminal types */
 %type <token> type comparison combine def
@@ -115,7 +115,7 @@ func_decl_arg_list : /* Empty */ { $$ = new VariableList(); }
 		   | func_decl_arg_list TCOMMA var_decl { $$->push_back($<var_decl>3); }
 		   ;
 
-expression : identifier combine expression { $$ = new NBinaryOperator(*((NExpression *) $1), $2, *$3); } /* 'combine' needs to separate +- and /* to avoid shift reduce */
+expression : identifier combine expression { $$ = new NBinaryOperator(*((NExpression *) $1), $2, *$3); } /* 'combine' needs to separate +- and /* for precendence */
 	   | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
 	   | identifier { $$ = new NVariableAccess(*$1); }
 	   | list_access { }
@@ -142,6 +142,8 @@ numeric : TDOUBLE { $$ = new NDouble(atof($1->c_str())); $$->type = TTDOUBLE; de
 
 value : numeric { $$ = $1; }
       | TSTRING { std::string str = $1->c_str(); $$ = new NString(str); $$->type = TTSTR; delete $1; }
+      | TTRUE { $$ = new NBool(true); }
+      | TFALSE { $$ = new NBool(false); }
       ;
 
 combine : TADD
@@ -173,6 +175,7 @@ type : TTDOUBLE
      | TTUINT
      | TTSTR
      | TTVOID
+     | TTBOOL
      ;
 
 %%

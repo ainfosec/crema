@@ -146,6 +146,12 @@ std::ostream & NDouble::print(std::ostream & os) const
   return os;
 }
 
+std::ostream & NBool::print(std::ostream & os) const
+{
+  os << "Value: " << value;
+  return os;
+}
+
 std::ostream & NInt::print(std::ostream & os) const
 {
   os << "Value: " << value;
