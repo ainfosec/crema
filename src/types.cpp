@@ -53,6 +53,9 @@ std::ostream & Type::print(std::ostream & os) const
     case STRING:
 	os << "STRING";
 	break;
+    case BOOL:
+	os << "BOOL";
+	break;
     case VOID:
 	os << "VOID";
 	break;
@@ -80,6 +83,9 @@ void Type::setType(int type)
 	break;
     case TTDOUBLE:
 	typecode = DOUBLE;
+	break;
+    case TTBOOL:
+	typecode = BOOL;
 	break;
     case TTSTR:
 	typecode = STRING;
