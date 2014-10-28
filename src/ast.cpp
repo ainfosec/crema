@@ -11,10 +11,6 @@
 #include "parser.h"
 
 /**
- * The root SemanticContext object to use when performing semantic analysis */
-SemanticContext rootCtx;
-
-/**
    Overload for the == operator to allow for simple comparison of two NIdentifiers
 
    @param i1 First NIdentifier to compare

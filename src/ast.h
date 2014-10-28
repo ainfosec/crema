@@ -8,57 +8,15 @@
    walking the AST for semantic analysis. All AST classes are derived from Node
 */
 
-#ifndef CREMA_AST_H_
+#ifndef CREMA_AST_bH_
 #define CREMA_AST_H_
 
 #include <iostream>
 #include <string>
 #include <vector>
 #include <llvm/IR/Value.h>
+#include "decls.h"
 #include "types.h"
-
-class CodeGenContext;
-class NExpression;
-class NStatement;
-class NVariableAssignment;
-class NVariableDeclaration;
-class NStructureDeclaration;
-class NFunctionDeclaration;
-class NValue;
-class NBlock;
-class NListAccess;
-class NStructureAccess;
-class NIdentifier;
-class SemanticContext;
-
-typedef std::vector<NStatement*> StatementList;
-typedef std::vector<NExpression*> ExpressionList;
-typedef std::vector<NVariableDeclaration*> VariableList;
-typedef std::vector<NFunctionDeclaration*> FunctionList;
-typedef std::vector<NValue*> ValueList;
-
-/** 
- *  Stores the contextual information required to perform semantic analysis on a Crema program */
-class SemanticContext {
-public:
-    int currScope; /**< Index to the current scope used for variable search */
-    std::vector<VariableList*> vars; /**< Stack of scopes containing declared variables */
-    std::vector<int> currType; /**< List of return types for the stack of scopes */
-    std::vector<NStructureDeclaration*> structs; /**< List of defined structures */
-    FunctionList funcs; /**< List of defined functions */
-    
-    SemanticContext() { newScope(0); currScope = 0; } /**< Default constructor, creates the root (empty) scope */
-    void newScope(int type);
-    void delScope();
-    NStructureDeclaration * searchStructs(NIdentifier & ident);
-    NVariableDeclaration * searchVars(NIdentifier & ident);
-    NFunctionDeclaration * searchFuncs(NIdentifier & ident);
-    bool registerVar(NVariableDeclaration * var);
-    bool registerFunc(NFunctionDeclaration * func);
-    bool registerStruct(NStructureDeclaration * s);
-};
-
-extern SemanticContext rootCtx;
 
 /** 
  *  The base class containing all the language constructs. */

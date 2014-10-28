@@ -7,10 +7,15 @@
    This file contains the implementations for all functionality related to semantic analysis.
    This includes the SemanticContext implementation and the typing functions for the AST functions.
  */
+#include "semantics.h"
 #include "ast.h"
 #include "parser.h"
 #include "types.h"
 #include <typeinfo>
+
+/**
+ * The root SemanticContext object to use when performing semantic analysis */
+SemanticContext rootCtx;
 
 /** 
     Creates a new scope for variable declarations
