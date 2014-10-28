@@ -346,7 +346,7 @@ NList(ExpressionList & list) : value(list) { }
 
 /**
  * Identifier */
-class NIdentifier : public Node {
+class NIdentifier : public NExpression {
 public:
     std::string value; /**< Identifier value */
 NIdentifier(const std::string & value) : value(value) { }
