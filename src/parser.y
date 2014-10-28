@@ -33,6 +33,7 @@
 %token <token> TCNEQ TCLE TCGE TCLT TCGT TTVOID TTINT TTUINT TTSTR TSTRUCT
 %token <token> TTDOUBLE TEQUAL TLPAREN TRPAREN TLBRAC TRBRAC TMOD TPERIOD
 %token <token> TMUL TADD TDIV TSUB TRBRACKET TLBRACKET TCOMMA TTBOOL TTRUE TFALSE
+%token <token> TAND TNOT TOR
 
 /* Non-terminal types */
 %type <token> type comparison combine def
@@ -119,12 +120,13 @@ func_decl_arg_list : /* Empty */ { $$ = new VariableList(); }
 
 expression : identifier { $$ = new NVariableAccess(*$1); }
            | identifier combine expression { $$ = new NBinaryOperator(*((NExpression *) $1), $2, *$3); } 
-	       | identifier comparison expression { $$ = new NBinaryOperator(*((NExpression *) $1), $2, *$3); } 
+	   | identifier comparison expression { $$ = new NBinaryOperator(*((NExpression *) $1), $2, *$3); } 
            | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
            | list { }
-	       | list_access { }
+	   | list_access { }
            | struct { }
-	       | TLPAREN expression TRPAREN { $$ = $2; }
+	   | TNOT expression { $$ = new NBinaryOperator(*$2, $1, *$2); }
+	   | TLPAREN expression TRPAREN { $$ = $2; }
            | value { }
            | value combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
            ;
@@ -154,6 +156,8 @@ combine : TADD
 	| TMOD 
 	| TSUB
 	| TDIV
+	| TOR
+	| TAND
 	;
 
 list_access : identifier TLBRAC expression TRBRAC { $$ = new NListAccess(*$1, *$3); } /* Array access */

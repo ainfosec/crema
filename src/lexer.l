@@ -42,6 +42,7 @@ extern "C" int yywrap() { }
 \"[^\"\n]*\"		      SAVE_VAL; return TSTRING;
 "="			      return TOK(TEQUAL);
 "=="			      return TOK(TCEQ);
+"!"			      return TOK(TNOT);
 "!="			      return TOK(TCNEQ);
 "<"			      return TOK(TCLT);
 "<="			      return TOK(TCLE);
@@ -56,6 +57,8 @@ extern "C" int yywrap() { }
 "/"			      return TOK(TDIV);
 "+"			      return TOK(TADD);
 "-"			      return TOK(TSUB);
+"||"			      return TOK(TOR);
+"&&"			      return TOK(TAND);
 "{"			      return TOK(TLBRACKET);
 "}"			      return TOK(TRBRACKET);
 ","			      return TOK(TCOMMA);
