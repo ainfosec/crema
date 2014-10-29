@@ -119,8 +119,8 @@ func_decl_arg_list : /* Empty */ { $$ = new VariableList(); }
 		   ;
 
 expression : identifier { $$ = new NVariableAccess(*$1); }
-           | identifier combine expression { $$ = new NBinaryOperator(*((NExpression *) $1), $2, *$3); } 
-	   | identifier comparison expression { $$ = new NBinaryOperator(*((NExpression *) $1), $2, *$3); } 
+	   | identifier combine expression { NVariableAccess * va = new NVariableAccess(*$1); $$ = new NBinaryOperator(*va, $2, *$3); } 
+	   | identifier comparison expression { NVariableAccess * va = new NVariableAccess(*$1); $$ = new NBinaryOperator(*va, $2, *$3); } 
            | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
            | list { }
 	   | list_access { }
