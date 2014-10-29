@@ -50,11 +50,11 @@ std::ostream & NVariableDeclaration::print(std::ostream & os) const
 {
   if (!type.list)
   {
-      os << "Variable decl: " << type << " " << ident;
+      os << "Variable declared --- (" << type << " " << ident << ")";
   }
   else
   {
-      os << "List decl: " << type << " " << ident << "[]";
+      os << "List declared --- (" << type << " " << ident << "[])";
   }
   if (initializationExpression != NULL)
   {
@@ -66,49 +66,55 @@ std::ostream & NVariableDeclaration::print(std::ostream & os) const
 
 std::ostream & NFunctionDeclaration::print(std::ostream & os) const
 {
-  os << "Function decl: " << type << " " << ident << "(";
+  os << "Function declared --- (" << type << " " << ident << "(";
   for (int i = 0; i < variables.size(); i++)
     {
       os << *(variables[i]) << " ";
     }
-  os << ") " << *body << std::endl;
+  os << ") " << *body << ")"; 
+  os << std::endl;
   
   return os;
 }
 
 std::ostream & NStructureDeclaration::print(std::ostream & os) const
 {
-  os << "Struct decl: " << ident << " {";
+  os << "Struct declared --- (" << ident << " {";
   for (int i = 0; i < members.size(); i++)
     {
       os << *(members[i]) << " ";
     }
-  os << "}" << std::endl;
+  os << "})";
+  os << std::endl;
   
   return os;
 }
 
 std::ostream & NAssignmentStatement::print(std::ostream & os) const
 {
-  os << "Assignment: " << ident << " = " << expr << std::endl;
+  os << "(Assignment: " << ident << " = " << expr << ")" << std::endl;
   return os;
 }
 
 std::ostream & NListAssignmentStatement::print(std::ostream & os) const
 {
-  os << "Assignment: " << list << " = " << expr << std::endl;
+  os << "(Assignment: " << list << " = " << expr << "<" << std::endl;
   return os;
 }
 
 std::ostream & NStructureAssignmentStatement::print(std::ostream & os) const
 {
-  os << "Assignment: " << structure << " = " << expr << std::endl;
+  os << "(Assignment: " << structure << " = " << expr << ")" << std::endl;
   return os;
 }
 
 std::ostream & NBinaryOperator::print(std::ostream & os) const
 {
+<<<<<<< HEAD
     os << "Binary Op: (" << lhs << ") " << op << " (" << rhs << ")" << std::endl;
+=======
+  os << "(Binary Op: " << lhs << " " << op << " " << rhs << ")" << std::endl;
+>>>>>>> trent
   return os;
 }
 
@@ -120,68 +126,69 @@ std::ostream & NIdentifier::print(std::ostream & os) const
 
 std::ostream & NListAccess::print(std::ostream & os) const
 {
-  os << "List access: " << ident << "[" << index << "]";
+  os << "(List access: " << ident << "[" << index << "])";
   return os;
 }
 
 std::ostream & NVariableAccess::print(std::ostream & os) const
 {
-  os << "Var access: " << ident;
+  os << "(Variable access: " << ident << ")";
   return os;
 }
 
 std::ostream & NStructureAccess::print(std::ostream & os) const
 {
-  os << "Struct access: " << ident << "." << member;
+  os << "(Struct access: " << ident << "." << member << ")";
   return os;
 }
 
 std::ostream & NReturn::print(std::ostream & os) const
 {
-  os << "Return: " << retExpr << std::endl;
+  os << "(Return: " << retExpr << ")";
+  os << std::endl;
   return os;
 }
 
 std::ostream & NDouble::print(std::ostream & os) const
 {
-  os << "Value: " << value;
+  os << "(Value: " << value << ")";
   return os;
 }
 
 std::ostream & NBool::print(std::ostream & os) const
 {
-  os << "Value: " << value;
+  os << "(Value: " << value << ")";
   return os;
 }
 
 std::ostream & NInt::print(std::ostream & os) const
 {
-  os << "Value: " << value;
+  os << "(Value: " << value << ")";
   return os;
 }
 
 std::ostream & NValue::print(std::ostream & os) const
 {
-  os << "Generic NValue" << std::endl;
+  os << "(Generic NValue)" << std::endl;
   return os;
 }
 
 std::ostream & NUInt::print(std::ostream & os) const
 {
-  os << "Value: " << value;
+  os << "(Value: " << value << ")";
   return os;
 }
 
 std::ostream & NString::print(std::ostream & os) const
 {
-  os << "Value: " << value;
+  os << "(Value: " << value << ")";
   return os;
 }
 
 std::ostream & NLoopStatement::print(std::ostream & os) const
 {
-  os << "Loop: " << list << " as " << asVar << std::endl;
-  os << "{" << loopBlock << "}" << std::endl;
+  os << "(Loop: " << list << " as " << asVar << std::endl;
+  os << "{" << loopBlock << "})" << std::endl;
   return os;
 }
 
