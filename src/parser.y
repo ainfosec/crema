@@ -89,7 +89,7 @@ struct_decl : TSTRUCT identifier TLBRACKET var_decls TRBRACKET { $$ = new NStruc
 	    ;
 
 list_decl : type identifier TLBRAC TRBRAC { Type *t = new Type($1, true); $$ = new NVariableDeclaration(*t, *$2); }
-	  | type identifier TLBRAC TRBRAC TEQUAL expression { Type *t = new Type($1, true); $$ = new NVariableDeclaration(*t, *$2); }
+	  | type identifier TLBRAC TRBRAC TEQUAL expression { Type *t = new Type($1, true); $$ = new NVariableDeclaration(*t, *$2, $6); }
 	  ;
 
 var_decls : { $$ = new VariableList(); }
