@@ -150,8 +150,8 @@ numeric : TDOUBLE { $$ = new NDouble(atof($1->c_str())); $$->type = *(new Type(T
 
 value : numeric { $$ = $1; }
       | TSTRING { std::string str = $1->c_str(); $$ = new NString(str); $$->type = *(new Type(TTSTR)); delete $1; }
-      | TTRUE { $$ = new NBool(true); }
-      | TFALSE { $$ = new NBool(false); }
+      | TTRUE { $$ = new NBool(true); $$->type = *(new Type(TTBOOL)); }
+      | TFALSE { $$ = new NBool(false); $$->type = *(new Type(TTBOOL)); }
       ;
 
 combine : TADD
