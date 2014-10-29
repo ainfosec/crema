@@ -47,6 +47,11 @@ void SemanticContext::delScope()
 */
 bool SemanticContext::registerVar(NVariableDeclaration * var)
 {
+    if (NULL != searchFuncs(var->ident))
+    {
+	return false;
+    }
+    
   // Search through current scope for variable duplication
   for (int j = 0; j < (vars[currScope])->size(); j++)
     {
@@ -66,6 +71,12 @@ bool SemanticContext::registerVar(NVariableDeclaration * var)
 */
 bool SemanticContext::registerFunc(NFunctionDeclaration * func)
 {
+    if (NULL != searchVars(func->ident))
+    {
+	return false;
+    }
+
+
   // Search through for duplicate function duplication
   for (int j = 0; j < funcs.size(); j++)
     {
