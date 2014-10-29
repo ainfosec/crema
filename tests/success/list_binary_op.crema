@@ -1,0 +1,2 @@
+int foo[] = [1, 2, 3]
+int bar = foo[1] + 32
