@@ -119,6 +119,7 @@ NIfStatement(NExpression & condition, NBlock & thenblock, NStatement * elseif) :
 NIfStatement(NExpression & condition, NBlock & thenblock) : condition(condition), thenblock(thenblock), elseblock(NULL), elseif(NULL) { }
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
     std::ostream & print(std::ostream & os) const;
+    bool semanticAnalysis(SemanticContext * ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return thenblock.checkRecursion(ctx, func) || (elseblock ? elseblock->checkRecursion(ctx, func) : false) || (elseif ? elseif->checkRecursion(ctx, func) : false); }
 };
 
