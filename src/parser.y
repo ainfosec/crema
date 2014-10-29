@@ -39,7 +39,7 @@
 %type <token> type comparison combine def
 %type <ident> identifier
 %type <statement> statement struct_decl var_decl list_decl func_decl assignment return loop conditional
-%type <expression> expression value numeric list_access struct list
+%type <expression> expression value numeric list_access struct list var_access
 %type <block> block program statements 
 %type <call_args> func_call_arg_list
 %type <decl_args> func_decl_arg_list var_decls
@@ -118,18 +118,21 @@ func_decl_arg_list : /* Empty */ { $$ = new VariableList(); }
 		   | func_decl_arg_list TCOMMA var_decl { $$->push_back($<var_decl>3); }
 		   ;
 
-expression : identifier { $$ = new NVariableAccess(*$1); }
-	   | identifier combine expression { NVariableAccess * va = new NVariableAccess(*$1); $$ = new NBinaryOperator(*va, $2, *$3); } 
-	   | identifier comparison expression { NVariableAccess * va = new NVariableAccess(*$1); $$ = new NBinaryOperator(*va, $2, *$3); } 
+expression : var_access { }
+	   | var_access combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
+	   | var_access comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
            | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
            | list { }
-	   | list_access { }
-           | struct { }
 	   | TNOT expression { $$ = new NBinaryOperator(*$2, $1, *$2); }
 	   | TLPAREN expression TRPAREN { $$ = $2; }
            | value { }
            | value combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
            ;
+
+var_access : identifier { $$ = new NVariableAccess(*$1); }
+	   | list_access { }
+	   | struct { }
+	   ;
 
 list : TLBRAC func_call_arg_list TRBRAC { $$ = new NList(*$2); }
      ;
