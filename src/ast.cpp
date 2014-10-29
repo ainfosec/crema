@@ -53,7 +53,7 @@ std::ostream & NVariableDeclaration::print(std::ostream & os) const
   else
     os << "List decl: " << type << " " << ident << "[]";
   if (initializationExpression != NULL)
-    os << " " << *initializationExpression;
+    os << " = " << *initializationExpression;
   os << std::endl;
   return os;
 }
@@ -210,11 +210,11 @@ std::ostream & NFunctionCall::print(std::ostream & os) const
 
 std::ostream & NList::print(std::ostream & os) const
 {
-  os << "List: ";
+    os << "List: [";
     for (int i = 0; i < value.size(); i++)
     {
-      os << value[i] << " ";
+	os << *(value[i]) << " ";
     }
-    os << std::endl;
+    os << "]" << std::endl;
     return os;
 }
