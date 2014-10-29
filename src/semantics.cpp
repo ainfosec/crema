@@ -288,6 +288,16 @@ Type & NVariableAccess::getType(SemanticContext * ctx) const
   return *(new Type());
 }
 
+bool NVariableAccess::semanticAnalysis(SemanticContext * ctx)
+{
+  NVariableDeclaration *var = ctx->searchVars(ident);
+  if (var)
+    {
+      return true;
+    }
+  return false;
+}
+
 Type & NListAccess::getType(SemanticContext * ctx) const
 {
   NVariableDeclaration *var = ctx->searchVars(ident);
