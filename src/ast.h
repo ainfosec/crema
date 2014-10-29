@@ -38,6 +38,7 @@ public:
     Type & type; /**< Expression type used for type-checking during semantic analysis */
 NExpression() : type(*(new Type())) { }
     virtual Type & getType(SemanticContext * ctx) const { }
+    bool semanticAnalysis(SemanticContext * ctx) { std::cout << "Generic expression SA!" << std::endl; return false; }
 };
 
 /**
@@ -210,6 +211,7 @@ public:
     NIdentifier & ident; /**< Name of list variable to access */
 NListAccess(NIdentifier & ident, NExpression & index) : ident(ident), index(index) { }
     std::ostream & print(std::ostream & os) const;
+    Type & getType(SemanticContext * ctx) const;
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
 };
 
@@ -306,6 +308,7 @@ public:
 NList(ExpressionList & list) : value(list) { }
     Type & getType(SemanticContext * ctx) const;
     std::ostream & print(std::ostream & os) const;
+    bool semanticAnalysis(SemanticContext * ctx);
 };
 
 /**

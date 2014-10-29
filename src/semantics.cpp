@@ -242,13 +242,29 @@ bool NReturn::semanticAnalysis(SemanticContext * ctx)
 Type & NList::getType(SemanticContext * ctx) const
 {
   Type & type = value[0]->getType(ctx);
+  Type *lt = new Type(type, true);
   for (int i = 1; i < value.size(); i++)
     {
       if (value[i]->getType(ctx) != type)
 	  return *(new Type());
     }
 
-  return type;
+  return *lt;
+}
+
+bool NList::semanticAnalysis(SemanticContext * ctx)
+{
+  Type & type = value[0]->getType(ctx);
+  for (int i = 1; i < value.size(); i++)
+  {
+      if (value[i]->getType(ctx) != type)
+      {
+	  std::cout << "List contains differing types!" << std::endl;
+	  return false;
+      }
+  }
+  
+  return true;
 }
 
 Type & NVariableAccess::getType(SemanticContext * ctx) const
@@ -258,6 +274,17 @@ Type & NVariableAccess::getType(SemanticContext * ctx) const
     {
       return var->type;
     }
+  return *(new Type());
+}
+
+Type & NListAccess::getType(SemanticContext * ctx) const
+{
+  NVariableDeclaration *var = ctx->searchVars(ident);
+  if (var)
+  {
+      Type *st = new Type(var->type, false);
+      return *st;
+  }
   return *(new Type());
 }
 
@@ -315,21 +342,22 @@ bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
 
 bool NVariableDeclaration::semanticAnalysis(SemanticContext * ctx)
 {
-  if (!ctx->registerVar(this)) 
+    if (!ctx->registerVar(this)) 
     {
-      std::cout << "Duplicate var decl for " << ident << std::endl;
-      // Variable collision
-      return false;
+	std::cout << "Duplicate var decl for " << ident << std::endl;
+	// Variable collision
+	return false;
     } 
-  if (initializationExpression)
+    if (initializationExpression)
     {
-      if (type < initializationExpression->getType(ctx) || !initializationExpression->semanticAnalysis(ctx))
-      {
-	  std::cout << "Type mismatch for " << ident << " (" << type << " vs. " << initializationExpression->getType(ctx) << ")" << std::endl;
-	  return false;
+	if (type != initializationExpression->getType(ctx))
+	{
+	    std::cout << "Type mismatch for " << ident << " (" << type << " vs. " << initializationExpression->getType(ctx) << ")" << std::endl;
+	    return false;
 	}
+	return initializationExpression->semanticAnalysis(ctx);
     }
-  return true;
+    return true;
 }
 
 
