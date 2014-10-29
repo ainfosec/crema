@@ -30,12 +30,13 @@ class Type {
 private:
     void setType(int type);
 public:
-    bool list;
+    bool list; /**< Bool value if the type is a list-type */
     TypeCodes typecode; /**< typecode for the Type */
     virtual ~Type() { }
 Type() : typecode(INVALID) { }
     Type(int type) { setType(type); list = false; }
-    Type(int type, bool list) { setType(type); list = list; }
+    Type(int type, bool l) { setType(type); list = l; }
+    Type(Type & t, bool l) { typecode = t.typecode; list = l; }
     bool isList() { return list; }
     std::ostream & print(std::ostream & os) const;
     friend std::ostream & operator<<(std::ostream & os, Type & type); 
