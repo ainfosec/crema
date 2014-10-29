@@ -108,7 +108,7 @@ std::ostream & NStructureAssignmentStatement::print(std::ostream & os) const
 
 std::ostream & NBinaryOperator::print(std::ostream & os) const
 {
-  os << "Binary Op: " << lhs << " " << op << " " << rhs << std::endl;
+    os << "Binary Op: (" << lhs << ") " << op << " (" << rhs << ")" << std::endl;
   return os;
 }
 
