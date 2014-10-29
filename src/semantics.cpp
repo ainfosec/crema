@@ -328,7 +328,11 @@ bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
   ctx->newScope(type);
   for (int i = 0; i < variables.size(); i++)
     {
-      ctx->registerVar(variables[i]);
+	if (!ctx->registerVar(variables[i]))
+	{
+	    ctx->delScope();
+	    return false;
+	}
     }
   blockSA = body->semanticAnalysis(ctx);
   blockRecur = body->checkRecursion(ctx, this);
