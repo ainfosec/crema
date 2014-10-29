@@ -223,6 +223,7 @@ public:
 NVariableAccess(NIdentifier & ident) : ident(ident) { }
     std::ostream & print(std::ostream & os) const;
     Type & getType(SemanticContext * ctx) const;
+    bool semanticAnalysis(SemanticContext * ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
 };
 
