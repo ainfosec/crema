@@ -163,6 +163,9 @@ std::ostream & Type::print(std::ostream & os) const
     case VOID:
 	os << "VOID";
 	break;
+    case INVALID:
+	os << "INVALID";
+	break;
     default:
 	os << "UNKNOWN TYPE!";
 	break;

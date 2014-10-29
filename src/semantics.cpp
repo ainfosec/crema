@@ -365,6 +365,25 @@ bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
   return (blockSA && !blockRecur);
 }
 
+bool NIfStatement::semanticAnalysis(SemanticContext * ctx)
+{
+    Type & condType = condition.getType(ctx);
+    if (condType.typecode == STRING || condType.typecode == INVALID || condType.typecode == VOID)
+    {
+	std::cout << "Condition cannot evaluate to a boolean!" << std::endl;
+	return false;
+    }
+    if (elseblock && !elseblock->semanticAnalysis(ctx))
+    {
+	return false;
+    }
+    if (elseif && !elseif->semanticAnalysis(ctx))
+    {
+	return false;
+    }
+    return thenblock.semanticAnalysis(ctx);
+}
+
 bool NVariableDeclaration::semanticAnalysis(SemanticContext * ctx)
 {
     if (!ctx->registerVar(this)) 
@@ -375,7 +394,7 @@ bool NVariableDeclaration::semanticAnalysis(SemanticContext * ctx)
     } 
     if (initializationExpression)
     {
-	if (type != initializationExpression->getType(ctx))
+	if (type < initializationExpression->getType(ctx))
 	{
 	    std::cout << "Type mismatch for " << ident << " (" << type << " vs. " << initializationExpression->getType(ctx) << ")" << std::endl;
 	    return false;
