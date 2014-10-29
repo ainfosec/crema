@@ -49,11 +49,17 @@ std::ostream & NBlock::print(std::ostream & os) const
 std::ostream & NVariableDeclaration::print(std::ostream & os) const
 {
   if (!type.list)
-    os << "Variable decl: " << type << " " << ident;
+  {
+      os << "Variable decl: " << type << " " << ident;
+  }
   else
-    os << "List decl: " << type << " " << ident << "[]";
+  {
+      os << "List decl: " << type << " " << ident << "[]";
+  }
   if (initializationExpression != NULL)
-    os << " = " << *initializationExpression;
+  {
+      os << " = " << *initializationExpression;
+  }
   os << std::endl;
   return os;
 }
