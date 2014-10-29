@@ -167,6 +167,10 @@ std::ostream & Type::print(std::ostream & os) const
 	os << "UNKNOWN TYPE!";
 	break;
     }
+    if (list)
+    {
+	os << "[]";
+    }
     return os;
 }
 
