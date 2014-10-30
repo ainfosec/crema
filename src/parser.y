@@ -36,10 +36,10 @@
 %token <token> TAND TNOT TOR
 
 /* Non-terminal types */
-%type <token> type comparison combine def
+%type <token> type comparison def
 %type <ident> identifier
 %type <statement> statement struct_decl var_decl list_decl func_decl assignment return loop conditional
-%type <expression> expression value numeric list_access struct list var_access
+%type <expression> expression value numeric list_access struct list var_access binary_operator func_call
 %type <block> block program statements 
 %type <call_args> func_call_arg_list
 %type <decl_args> func_decl_arg_list var_decls
@@ -118,22 +118,43 @@ func_decl_arg_list : /* Empty */ { $$ = new VariableList(); }
 		   | func_decl_arg_list TCOMMA var_decl { $$->push_back($<var_decl>3); }
 		   ;
 
-expression : expression TADD expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
-           | expression TSUB expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
-           | expression TMUL expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
-           | expression TDIV expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
-           | expression TMOD expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
-           | expression TAND expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
-           | expression TOR expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
-           | var_access { }
-	       | var_access combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
-	       | var_access comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
-           | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
+expression :/* binary_operator { }
+           |*/ var_access { }
+           | func_call { }
            | list { }
-	       | TNOT expression { $$ = new NBinaryOperator(*$2, $1, *$2); }
-	       | TLPAREN expression TRPAREN { $$ = $2; }
+	   | TNOT expression { $$ = new NBinaryOperator(*$2, $1, *$2); }
+	   | TLPAREN expression TRPAREN { $$ = $2; }
            | value { }
-           ;
+/*           ;
+
+binary_operator :*/| value TADD expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+		| value TSUB expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+		| value TMUL expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+		| value TDIV expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+		| value TMOD expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+		| value TAND expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+		| value TOR expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+		| value comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+		| var_access TADD expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
+		| var_access TSUB expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
+		| var_access TDIV expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
+		| var_access TMUL expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
+		| var_access TMOD expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
+		| var_access TAND expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
+		| var_access TOR expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
+		| var_access comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
+		| func_call TADD expression  { $$ = new NBinaryOperator(*$1, $2, *$3); } 
+		| func_call TSUB expression  { $$ = new NBinaryOperator(*$1, $2, *$3); } 
+		| func_call TMUL expression  { $$ = new NBinaryOperator(*$1, $2, *$3); } 
+		| func_call TDIV expression  { $$ = new NBinaryOperator(*$1, $2, *$3); } 
+		| func_call TAND expression  { $$ = new NBinaryOperator(*$1, $2, *$3); }
+		| func_call TMOD expression  { $$ = new NBinaryOperator(*$1, $2, *$3); } 
+		| func_call TOR expression  { $$ = new NBinaryOperator(*$1, $2, *$3); }
+		| func_call comparison expression  { $$ = new NBinaryOperator(*$1, $2, *$3); }
+		;
+		
+func_call : identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
+	  ;
 
 var_access : identifier { $$ = new NVariableAccess(*$1); }
 	   | list_access { }
@@ -159,15 +180,6 @@ value : numeric { $$ = $1; }
       | TTRUE { $$ = new NBool(true); $$->type = *(new Type(TTBOOL)); }
       | TFALSE { $$ = new NBool(false); $$->type = *(new Type(TTBOOL)); }
       ;
-
-combine : TADD
-	| TMUL
-	| TMOD 
-	| TSUB
-	| TDIV
-	| TOR
-	| TAND
-	;
 
 list_access : identifier TLBRAC expression TRBRAC { $$ = new NListAccess(*$1, *$3); } /* Array access */
      	    ;
