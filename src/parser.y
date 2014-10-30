@@ -44,8 +44,8 @@
 %type <call_args> func_call_arg_list
 %type <decl_args> func_decl_arg_list var_decls
 
-%left TMOD TMUL TDIV
 %left TADD TSUB
+%left TMOD TMUL TDIV
 
 %start program
 
@@ -118,15 +118,21 @@ func_decl_arg_list : /* Empty */ { $$ = new VariableList(); }
 		   | func_decl_arg_list TCOMMA var_decl { $$->push_back($<var_decl>3); }
 		   ;
 
-expression : var_access { }
-	   | var_access combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
-	   | var_access comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
+expression : expression TADD expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+           | expression TSUB expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+           | expression TMUL expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+           | expression TDIV expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+           | expression TMOD expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+           | expression TAND expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+           | expression TOR expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+           | var_access { }
+	       | var_access combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
+	       | var_access comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
            | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
            | list { }
-	   | TNOT expression { $$ = new NBinaryOperator(*$2, $1, *$2); }
-	   | TLPAREN expression TRPAREN { $$ = $2; }
+	       | TNOT expression { $$ = new NBinaryOperator(*$2, $1, *$2); }
+	       | TLPAREN expression TRPAREN { $$ = $2; }
            | value { }
-           | value combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
            ;
 
 var_access : identifier { $$ = new NVariableAccess(*$1); }
