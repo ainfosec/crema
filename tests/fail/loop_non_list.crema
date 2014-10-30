@@ -1,0 +1,5 @@
+int a = 1
+int sum = 0
+foreach (a as b) {
+  sum = sum + b
+}

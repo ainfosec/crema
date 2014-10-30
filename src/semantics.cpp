@@ -359,6 +359,32 @@ bool NFunctionCall::semanticAnalysis(SemanticContext * ctx)
   return false;
 }
 
+bool NLoopStatement::semanticAnalysis(SemanticContext * ctx)
+{
+    NVariableDeclaration *l = ctx->searchVars(list);
+    bool blockSA;
+    Type *st;
+    
+    if (NULL == l)
+    {
+	std::cout << "List variable " << list << " not defined!" << std::endl;
+	return false;
+    }
+    if (!l->type.list)
+    {
+	std::cout << "Variable " << list << " not a list!" << std::endl;
+	return false;
+    }
+    ctx->newScope(ctx->currType.back());
+    st = new Type(l->type, false);
+    
+    ctx->registerVar(new NVariableDeclaration(*st, asVar));
+    
+    blockSA = loopBlock.semanticAnalysis(ctx);
+    ctx->delScope();
+    return blockSA;
+}
+
 bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
 {
   bool blockSA, blockRecur;
