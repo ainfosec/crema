@@ -111,11 +111,36 @@ std::ostream & NStructureAssignmentStatement::print(std::ostream & os) const
 std::ostream & NBinaryOperator::print(std::ostream & os) const
 {
   std::string symbol;
-  switch(op) {
-      case 288: symbol = "*"; break;
-      case 289: symbol = "+"; break;
-      case 290: symbol = "/"; break;
-      case 291: symbol = "-"; break;
+  switch(op)
+  {
+  case TMUL:
+      symbol = "*";
+      break;
+  case TADD:
+      symbol = "+";
+      break;
+  case TDIV:
+      symbol = "/";
+      break;
+  case TSUB:
+      symbol = "-";
+      break;
+  case TMOD:
+      symbol = "%";
+      break;
+  case TNOT:
+      symbol = "!";
+      break;
+  case TOR:
+      symbol = "||";
+      break;
+  case TAND:
+      symbol = "&&";
+      break;
+  default:
+      symbol = "UNKNOWN OP";
+      break;
+      
   }
   os << "(BINOP: " << lhs << " " << symbol << " " << rhs << ")" << std::endl;
   return os;
