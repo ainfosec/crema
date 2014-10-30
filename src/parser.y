@@ -28,12 +28,13 @@
 }
 
 /* Terminal types */
-%token <string> TIDENTIFIER TINT TDOUBLE TSTRING
-%token <token> TRETURN TSDEF TDEF TIF TELSE TFOREACH TAS TCEQ
-%token <token> TCNEQ TCLE TCGE TCLT TCGT TTVOID TTINT TTUINT TTSTR TSTRUCT
-%token <token> TTDOUBLE TEQUAL TLPAREN TRPAREN TLBRAC TRBRAC TMOD TPERIOD
-%token <token> TMUL TADD TDIV TSUB TRBRACKET TLBRACKET TCOMMA TTBOOL TTRUE TFALSE
-%token <token> TAND TNOT TOR
+%token <string> TIDENTIFIER TINT TDOUBLE TSTRING TSTRUCT
+%token <token> TRETURN TTRUE TFALSE TSDEF TDEF TIF TELSE TFOREACH TAS 
+%token <token> TTVOID TTBOOL TTINT TTUINT TTDOUBLE TTSTR 
+%token <token> TEQUAL TPERIOD TCOMMA TLPAREN TRPAREN TLBRAC TRBRAC TLBRACKET TRBRACKET TMOD
+%token <token> TCEQ TCNEQ TCLE TCGE TCLT TCGT 
+%token <token> TADD TSUB TMUL TDIV
+%token <token> TAND TNOT TOR TUMINUS
 
 /* Non-terminal types */
 %type <token> type comparison combine def
@@ -44,8 +45,11 @@
 %type <call_args> func_call_arg_list
 %type <decl_args> func_decl_arg_list var_decls
 
+%nonassoc TCEQ TCNEQ TCLE TCGE TCLT TCGT
+%right TEQUAL
 %left TADD TSUB
 %left TMOD TMUL TDIV
+%nonassoc TUMINUS /* this gives the unary minus precendence over the binary operators */ 
 
 %start program
 
@@ -149,9 +153,9 @@ func_call_arg_list : /* Empty */ { $$ = new ExpressionList(); }
 		   ;
 
 numeric : TDOUBLE { $$ = new NDouble(atof($1->c_str())); $$->type = *(new Type(TTDOUBLE)); delete $1; }
-	| TSUB TDOUBLE { NDouble *zero = new NDouble(0); zero->type = *(new Type(TTDOUBLE)); NDouble *d = new NDouble(atof($2->c_str())); d->type = Type(TTDOUBLE); delete $2; $$ = new NBinaryOperator(*zero, $1, *d); } 
+	| TUMINUS TDOUBLE { NDouble *zero = new NDouble(0); zero->type = *(new Type(TTDOUBLE)); NDouble *d = new NDouble(atof($2->c_str())); d->type = Type(TTDOUBLE); delete $2; $$ = new NBinaryOperator(*zero, $1, *d); } 
 	| TINT { $$ = new NInt(atoi($1->c_str())); $$->type = *(new Type(TTINT)); delete $1; }
-	| TSUB TINT { NInt *zero = new NInt(0); zero->type = TTINT; NInt *i = new NInt(atoi($2->c_str())); i->type = *(new Type(TTINT)); delete $2; $$ = new NBinaryOperator(*zero, $1, *i); } 
+	| TUMINUS TINT { NInt *zero = new NInt(0); zero->type = TTINT; NInt *i = new NInt(atoi($2->c_str())); i->type = *(new Type(TTINT)); delete $2; $$ = new NBinaryOperator(*zero, $1, *i); } 
 	;
 
 value : numeric { $$ = $1; }
