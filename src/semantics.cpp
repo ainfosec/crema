@@ -268,7 +268,7 @@ bool NReturn::semanticAnalysis(SemanticContext * ctx)
 
 Type & NList::getType(SemanticContext * ctx) const
 {
-  Type & type = value[0]->getType(ctx);
+  Type & type = (value.size() > 0) ? value[0]->getType(ctx) : *(new Type());
   Type *lt = new Type(type, true);
   for (int i = 1; i < value.size(); i++)
     {
@@ -281,7 +281,7 @@ Type & NList::getType(SemanticContext * ctx) const
 
 bool NList::semanticAnalysis(SemanticContext * ctx)
 {
-  Type & type = value[0]->getType(ctx);
+  Type & type = (value.size() > 0) ? value[0]->getType(ctx) : *(new Type());
   for (int i = 1; i < value.size(); i++)
   {
       if (value[i]->getType(ctx) != type)
