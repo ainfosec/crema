@@ -133,7 +133,7 @@ public:
 NBinaryOperator(NExpression & lhs, int op, NExpression & rhs) : lhs(lhs), op(op), rhs(rhs) { }
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
     bool semanticAnalysis(SemanticContext *ctx);
-    Type & getType(SemanticContext * ctx) const { return lhs.getType(ctx) == rhs.getType(ctx) ? lhs.getType(ctx) : *(new Type()); }
+    Type & getType(SemanticContext * ctx) const;
     std::ostream & print(std::ostream & os) const;
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return lhs.checkRecursion(ctx, func) || rhs.checkRecursion(ctx, func); }
 };

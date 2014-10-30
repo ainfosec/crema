@@ -223,6 +223,22 @@ bool NBinaryOperator::semanticAnalysis(SemanticContext * ctx)
     return true;
 }
 
+Type & NBinaryOperator::getType(SemanticContext * ctx) const
+{
+    Type & t1 = lhs.getType(ctx), & t2 = rhs.getType(ctx);
+    if (!(t1 >= t2 || t2 >= t1))
+    {
+	return *(new Type());
+    }
+
+    if (t1 == t2)
+    {
+	return t1;
+    }
+
+    return (t1 > t2) ? t1 : t2;
+}
+
 bool NAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
 {
   NVariableDeclaration *var = ctx->searchVars(ident);
