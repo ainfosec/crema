@@ -8,7 +8,7 @@
    walking the AST for semantic analysis. All AST classes are derived from Node
 */
 
-#ifndef CREMA_AST_bH_
+#ifndef CREMA_AST_H_
 #define CREMA_AST_H_
 
 #include <iostream>
@@ -17,13 +17,14 @@
 #include <llvm/IR/Value.h>
 #include "decls.h"
 #include "types.h"
+#include "codegen.h"
 
 /** 
  *  The base class containing all the language constructs. */
 class Node {
  public:
   virtual ~Node() { }
-  virtual llvm::Value* codeGen(CodeGenContext & context) { }
+  virtual llvm::Value * codeGen(CodeGenContext & context) { }
   virtual std::ostream & print(std::ostream & os) const { };
   virtual bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration *func) { };
   virtual bool semanticAnalysis(SemanticContext *ctx) { };
@@ -258,7 +259,7 @@ class NDouble : public NValue {
 public:
     double value; /**< Value of double */
 NDouble(double value) : value(value) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     std::ostream & print(std::ostream & os) const;
 };
 

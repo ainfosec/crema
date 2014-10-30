@@ -9,12 +9,15 @@
  */
 #include <iostream>
 #include "ast.h"
+#include "codegen.h"
 
 extern NBlock *rootBlock;
 extern int yyparse();
+extern llvm::Module *rootModule;
 
 int main(int argc, char **argv)
 {
+    rootModule = new llvm::Module("Crema JIT", llvm::getGlobalContext());
     yyparse();
     if (rootBlock)
       {
