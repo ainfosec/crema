@@ -110,11 +110,7 @@ std::ostream & NStructureAssignmentStatement::print(std::ostream & os) const
 
 std::ostream & NBinaryOperator::print(std::ostream & os) const
 {
-<<<<<<< HEAD
-    os << "Binary Op: (" << lhs << ") " << op << " (" << rhs << ")" << std::endl;
-=======
-  os << "(Binary Op: " << lhs << " " << op << " " << rhs << ")" << std::endl;
->>>>>>> trent
+  os << "Binary Op: (" << lhs << ") " << op << " (" << rhs << ")" << std::endl;
   return os;
 }
 
