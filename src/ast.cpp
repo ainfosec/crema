@@ -110,7 +110,14 @@ std::ostream & NStructureAssignmentStatement::print(std::ostream & os) const
 
 std::ostream & NBinaryOperator::print(std::ostream & os) const
 {
-  os << "Binary Op: (" << lhs << ") " << op << " (" << rhs << ")" << std::endl;
+  std::string symbol;
+  switch(op) {
+      case 288: symbol = "*"; break;
+      case 289: symbol = "+"; break;
+      case 290: symbol = "/"; break;
+      case 291: symbol = "-"; break;
+  }
+  os << "(BINOP: " << lhs << " " << symbol << " " << rhs << ")" << std::endl;
   return os;
 }
 
@@ -147,19 +154,19 @@ std::ostream & NReturn::print(std::ostream & os) const
 
 std::ostream & NDouble::print(std::ostream & os) const
 {
-  os << "(Value: " << value << ")";
+  os << "DOUBLE:" << value;
   return os;
 }
 
 std::ostream & NBool::print(std::ostream & os) const
 {
-  os << "(Value: " << value << ")";
+  os << "BOOL:" << value;
   return os;
 }
 
 std::ostream & NInt::print(std::ostream & os) const
 {
-  os << "(Value: " << value << ")";
+  os << "INT:" << value;
   return os;
 }
 
@@ -171,20 +178,20 @@ std::ostream & NValue::print(std::ostream & os) const
 
 std::ostream & NUInt::print(std::ostream & os) const
 {
-  os << "(Value: " << value << ")";
+  os << "UINT:" << value;
   return os;
 }
 
 std::ostream & NString::print(std::ostream & os) const
 {
-  os << "(Value: " << value << ")";
+  os << "STRING:" << value;
   return os;
 }
 
 std::ostream & NLoopStatement::print(std::ostream & os) const
 {
-  os << "(Loop: " << list << " as " << asVar << std::endl;
-  os << "{" << loopBlock << "})" << std::endl;
+  os << "Loop: " << list << " as " << asVar << std::endl;
+  os << "{" << loopBlock << "}" << std::endl;
   return os;
 }
 
