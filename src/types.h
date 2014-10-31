@@ -7,6 +7,7 @@
    The Type family of classes are used to store type information about various expressions and
    AST nodes to assist in the analysis of typing during semantic analysis.
 */
+
 #ifndef CREMA_TYPE_H_
 #define CREMA_TYPE_H_
 
