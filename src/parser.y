@@ -34,7 +34,7 @@
 %token <token> TEQUAL TPERIOD TCOMMA TLPAREN TRPAREN TLBRAC TRBRAC TLBRACKET TRBRACKET TMOD
 %token <token> TCEQ TCNEQ TCLE TCGE TCLT TCGT 
 %token <token> TADD TSUB TMUL TDIV
-%token <token> TAND TNOT TOR TUMINUS
+%token <token> TAND TNOT TOR TUMINUS TUPLUS
 
 /* Non-terminal types */
 %type <token> type comparison combine def
@@ -49,7 +49,7 @@
 %right TEQUAL
 %left TADD TSUB
 %left TMOD TMUL TDIV
-%nonassoc TUMINUS /* this gives the unary minus precendence over the binary operators */ 
+%nonassoc TUMINUS TUPLUS /* this gives the unary minus precendence over the binary operators */ 
 
 %start program
 
@@ -152,11 +152,21 @@ func_call_arg_list : /* Empty */ { $$ = new ExpressionList(); }
 		   | func_call_arg_list TCOMMA expression { $$->push_back($<expression>3); }
 		   ;
 
-numeric : TDOUBLE { $$ = new NDouble(atof($1->c_str())); $$->type = *(new Type(TTDOUBLE)); delete $1; }
-	| TUMINUS TDOUBLE { NDouble *zero = new NDouble(0); zero->type = *(new Type(TTDOUBLE)); NDouble *d = new NDouble(atof($2->c_str())); d->type = Type(TTDOUBLE); delete $2; $$ = new NBinaryOperator(*zero, $1, *d); } 
-	| TINT { $$ = new NInt(atoi($1->c_str())); $$->type = *(new Type(TTINT)); delete $1; }
-	| TUMINUS TINT { NInt *zero = new NInt(0); zero->type = TTINT; NInt *i = new NInt(atoi($2->c_str())); i->type = *(new Type(TTINT)); delete $2; $$ = new NBinaryOperator(*zero, $1, *i); } 
-	;
+numeric : TINT { $$ = new NInt(atoi($1->c_str())); $$->type = *(new Type(TTINT)); delete $1; }
+        | TDOUBLE { $$ = new NDouble(atof($1->c_str())); $$->type = *(new Type(TTDOUBLE)); delete $1; }
+	    | TUMINUS TINT { NInt *zero = new NInt(0); zero->type = TTINT; 
+                         NInt *i = new NInt(atoi($2->c_str())); i->type = *(new Type(TTINT)); 
+                         delete $2; $$ = new NBinaryOperator(*zero, $1, *i); } 
+        | TUMINUS TDOUBLE { NDouble *zero = new NDouble(0); zero->type = *(new Type(TTDOUBLE)); 
+                            NDouble *d = new NDouble(atof($2->c_str())); d->type = Type(TTDOUBLE); 
+                            delete $2; $$ = new NBinaryOperator(*zero, $1, *d); } 
+        | TUPLUS TINT { NInt *zero = new NInt(0); zero->type = TTINT; 
+                         NInt *i = new NInt(atoi($2->c_str())); i->type = *(new Type(TTINT)); 
+                         delete $2; $$ = new NBinaryOperator(*zero, $1, *i); } 
+        | TUPLUS TDOUBLE { NDouble *zero = new NDouble(0); zero->type = *(new Type(TTDOUBLE)); 
+                            NDouble *d = new NDouble(atof($2->c_str())); d->type = Type(TTDOUBLE); 
+                            delete $2; $$ = new NBinaryOperator(*zero, $1, *d); } 
+        ;
 
 value : numeric { $$ = $1; }
       | TSTRING { std::string str = $1->c_str(); $$ = new NString(str); $$->type = *(new Type(TTSTR)); delete $1; }

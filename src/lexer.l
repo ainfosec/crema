@@ -42,7 +42,8 @@ extern "C" int yywrap() { }
 \"[^\"\n]*\"		      SAVE_VAL; return TSTRING;
 "="			      return TOK(TEQUAL);
 "=="			      return TOK(TCEQ);
-"|-"               return TOK(TUMINUS);
+"\\+"               return TOK(TUPLUS);
+"\\-"               return TOK(TUMINUS);
 "!"			      return TOK(TNOT);
 "!="			      return TOK(TCNEQ);
 "<"			      return TOK(TCLT);
