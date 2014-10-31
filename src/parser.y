@@ -56,58 +56,59 @@
 %%
 
 program : { rootBlock = NULL; } /* Empty program */
-	| statements { rootBlock = $1; }
-	;
-
-statements : statement { $$ = new NBlock(); $$->statements.push_back($<statement>1); }
-	   | statements statement { $1->statements.push_back($<statement>2); }
-	   ;
-
-statement : var_decl { }
-	  | struct_decl { if(!rootCtx.registerStruct((NStructureDeclaration *) $1)) yyerror("Duplicate struct declaration!"); $$ = $1; }
-	  | func_decl { if(!rootCtx.registerFunc((NFunctionDeclaration *) $1)) yyerror("Duplicate function declaration!"); $$ = $1; }
-	  | assignment { }
-	  | list_decl { }
-	  | conditional { }
-	  | loop { }
-	  | return { }
-	  ;
-
-conditional : TIF TLPAREN expression TRPAREN block TELSE conditional { $$ = new NIfStatement(*$3, *$5, $7); } /* else if */
-	    | TIF TLPAREN expression TRPAREN block TELSE block { $$ = new NIfStatement(*$3, *$5, $7); } /* else */
-	    | TIF TLPAREN expression TRPAREN block { $$ = new NIfStatement(*$3, *$5); } /* vanilla if */
+    	| statements { rootBlock = $1; }
 	    ;
 
-return : TRETURN expression { $$ = new NReturn(*$2); }
-       ;
+statements : statement { $$ = new NBlock(); $$->statements.push_back($<statement>1); }
+	       | statements statement { $1->statements.push_back($<statement>2); }
+	       ;
+
+statement : var_decl { }
+	      | struct_decl { if(!rootCtx.registerStruct((NStructureDeclaration *) $1)) yyerror("Duplicate struct declaration!"); $$ = $1; }
+	      | func_decl { if(!rootCtx.registerFunc((NFunctionDeclaration *) $1)) yyerror("Duplicate function declaration!"); $$ = $1; }
+	      | assignment { }
+	      | list_decl { }
+	      | conditional { }
+	      | loop { }
+	      | return { }
+	      ;
+
+var_decls : { $$ = new VariableList(); }
+	      | var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
+	      | var_decls TCOMMA var_decl { $$->push_back($<var_decl>3); }
+	      ;
+
+var_decl : type identifier { $$ = new NVariableDeclaration(*(new Type($1)), *$2); }
+	     | type identifier TEQUAL expression { $$ = new NVariableDeclaration(*(new Type($1)), *$2, $4); }
+	     ;
+
+
+struct_decl : TSTRUCT identifier TLBRACKET var_decls TRBRACKET { $$ = new NStructureDeclaration(*$2, *$4); }	
+	        ;
+
+func_decl : def type identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration(*(new Type($2)), *$3, *$5, $7); }
+	      | def type TLBRAC TRBRAC identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration(*(new Type($2, true)), *$5, *$7, $9); }
+	      ;
 
 assignment : identifier TEQUAL expression { $$ = new NAssignmentStatement(*$1, *$3); }
-	   | list_access TEQUAL expression { $$ = new NListAssignmentStatement(((NListAccess *) $1)->ident, *((NListAccess *) $1), *$3); }
-	   | struct TEQUAL expression { $$ = new NStructureAssignmentStatement(((NStructureAccess *) $1)->ident, *((NStructureAccess *) $1), *$3); }
-	   ;
+	       | list_access TEQUAL expression { $$ = new NListAssignmentStatement(((NListAccess *) $1)->ident, *((NListAccess *) $1), *$3); }
+	       | struct TEQUAL expression { $$ = new NStructureAssignmentStatement(((NStructureAccess *) $1)->ident, *((NStructureAccess *) $1), *$3); }
+	       ;
+
+list_decl : type identifier TLBRAC TRBRAC { Type *t = new Type($1, true); $$ = new NVariableDeclaration(*t, *$2); }
+	      | type identifier TLBRAC TRBRAC TEQUAL expression { Type *t = new Type($1, true); $$ = new NVariableDeclaration(*t, *$2, $6); }
+	      ;
+
+conditional : TIF TLPAREN expression TRPAREN block TELSE conditional { $$ = new NIfStatement(*$3, *$5, $7); } /* else if */
+	        | TIF TLPAREN expression TRPAREN block TELSE block { $$ = new NIfStatement(*$3, *$5, $7); } /* else */
+	        | TIF TLPAREN expression TRPAREN block { $$ = new NIfStatement(*$3, *$5); } /* vanilla if */
+	        ;
 
 loop : TFOREACH TLPAREN identifier TAS identifier TRPAREN block { $$ = new NLoopStatement(*$3, *$5, *$7); }
      ;
 
-struct_decl : TSTRUCT identifier TLBRACKET var_decls TRBRACKET { $$ = new NStructureDeclaration(*$2, *$4); }	
-	    ;
-
-list_decl : type identifier TLBRAC TRBRAC { Type *t = new Type($1, true); $$ = new NVariableDeclaration(*t, *$2); }
-	  | type identifier TLBRAC TRBRAC TEQUAL expression { Type *t = new Type($1, true); $$ = new NVariableDeclaration(*t, *$2, $6); }
-	  ;
-
-var_decls : { $$ = new VariableList(); }
-	  | var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
-	  | var_decls TCOMMA var_decl { $$->push_back($<var_decl>3); }
-	  ;
-
-var_decl : type identifier { $$ = new NVariableDeclaration(*(new Type($1)), *$2); }
-	 | type identifier TEQUAL expression { $$ = new NVariableDeclaration(*(new Type($1)), *$2, $4); }
-	 ;
-
-func_decl : def type identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration(*(new Type($2)), *$3, *$5, $7); }
-	  | def type TLBRAC TRBRAC identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration(*(new Type($2, true)), *$5, *$7, $9); }
-	  ;
+return : TRETURN expression { $$ = new NReturn(*$2); }
+       ;
 
 def : TDEF
     | TSDEF
@@ -118,9 +119,9 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
       ;
 
 func_decl_arg_list : /* Empty */ { $$ = new VariableList(); }
-		   | var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
-		   | func_decl_arg_list TCOMMA var_decl { $$->push_back($<var_decl>3); }
-		   ;
+		           | var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
+		           | func_decl_arg_list TCOMMA var_decl { $$->push_back($<var_decl>3); }
+		           ;
 
 expression : expression TADD expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
            | expression TSUB expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
@@ -140,17 +141,17 @@ expression : expression TADD expression { $$ = new NBinaryOperator(*$1, $2, *$3)
            ;
 
 var_access : identifier { $$ = new NVariableAccess(*$1); }
-	   | list_access { }
-	   | struct { }
-	   ;
+	       | list_access { }
+	       | struct { }
+	       ;
 
 list : TLBRAC func_call_arg_list TRBRAC { $$ = new NList(*$2); }
      ;
 
 func_call_arg_list : /* Empty */ { $$ = new ExpressionList(); }
-		   | expression { $$ = new ExpressionList(); $$->push_back($<expression>1); }
-		   | func_call_arg_list TCOMMA expression { $$->push_back($<expression>3); }
-		   ;
+		           | expression { $$ = new ExpressionList(); $$->push_back($<expression>1); }
+		           | func_call_arg_list TCOMMA expression { $$->push_back($<expression>3); }
+		           ;
 
 numeric : TINT { $$ = new NInt(atoi($1->c_str())); $$->type = *(new Type(TTINT)); delete $1; }
         | TDOUBLE { $$ = new NDouble(atof($1->c_str())); $$->type = *(new Type(TTDOUBLE)); delete $1; }
