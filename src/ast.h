@@ -54,7 +54,7 @@ class NStatement : public Node {
 class NBlock : public NExpression {
 public:
     StatementList statements; /**< Vector of statements in the NBlock */
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     std::ostream & print(std::ostream & os) const;
     bool semanticAnalysis(SemanticContext *ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration *func);
@@ -269,7 +269,7 @@ class NUInt : public NValue {
 public:
     unsigned long int value; /**< Value of unsigned int */
 NUInt(unsigned long int value) : value(value) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value* codeGen(CodeGenContext & context);
     std::ostream & print(std::ostream & os) const;
 };
 
@@ -279,7 +279,7 @@ class NInt : public NValue {
 public:
     long int value; /**< Value of signed int */
 NInt(long int value) : value(value) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value* codeGen(CodeGenContext & context);
     std::ostream & print(std::ostream & os) const;
 };
 

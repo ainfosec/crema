@@ -13,11 +13,9 @@
 
 extern NBlock *rootBlock;
 extern int yyparse();
-extern llvm::Module *rootModule;
 
 int main(int argc, char **argv)
 {
-    rootModule = new llvm::Module("Crema JIT", llvm::getGlobalContext());
     yyparse();
     if (rootBlock)
       {
@@ -32,5 +30,11 @@ int main(int argc, char **argv)
 	    return -1;
 	  }
       }
+
+    std::cout << "Generating LLVM IR bytecode" << std::endl;
+    rootBlock->codeGen(rootCodeGenCtx);
+    
+    std::cout << "Dumping generated LLVM bytecode" << std::endl;
+    rootCodeGenCtx.dump();
     return 0;
 }

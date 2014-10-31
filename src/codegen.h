@@ -16,10 +16,15 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Type.h>
 #include <llvm/ADT/APFloat.h>
+#include <llvm/ADT/APInt.h>
 
 class CodeGenContext
 {
-
+public:
+    llvm::Module * rootModule;
+    llvm::IRBuilder<> Builder;
+CodeGenContext() : rootModule(new llvm::Module("Crema JIT", llvm::getGlobalContext())), Builder(llvm::getGlobalContext()) { }
+    void dump() { rootModule->dump(); }
 };
 
 llvm::Value * CodeGenError(std::string & str);

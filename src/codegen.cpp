@@ -11,8 +11,7 @@
 #include "codegen.h"
 #include "ast.h"
 
-llvm::Module *rootModule;
-static llvm::IRBuilder<> Builder(llvm::getGlobalContext());
+CodeGenContext rootCodeGenCtx; 
 
 /**
    An error function for code generation routines
@@ -26,7 +25,28 @@ llvm::Value * CodeGenError(std::string & str)
     return NULL;
 }
 
+llvm::Value * NBlock::codeGen(CodeGenContext & context)
+{
+    llvm::Value * last;
+    for (int i = 0; i < statements.size(); i++)
+    {
+	last = statements[i]->codeGen(context);
+    }
+    
+    return last;
+}
+
 llvm::Value * NDouble::codeGen(CodeGenContext & context)
 {
     return llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat(value));
+}
+
+llvm::Value * NUInt::codeGen(CodeGenContext & context)
+{
+    return llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, value, false));
+}
+
+llvm::Value * NInt::codeGen(CodeGenContext & context)
+{
+    return llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, value, true));
 }
