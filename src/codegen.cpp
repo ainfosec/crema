@@ -13,6 +13,28 @@
 
 CodeGenContext rootCodeGenCtx; 
 
+CodeGenContext::CodeGenContext()
+{
+    rootModule = new llvm::Module("Crema JIT", llvm::getGlobalContext());
+    Builder = new llvm::IRBuilder<>(llvm::getGlobalContext());
+}
+
+void CodeGenContext::codeGen(NBlock * rootBlock)
+{
+    // Create the root "function" for top level functionality
+    llvm::ArrayRef<llvm::Type *> argTypes;
+    llvm::FunctionType *ftype = llvm::FunctionType::get(llvm::Type::getVoidTy(llvm::getGlobalContext()), argTypes, false);
+    mainFunction = llvm::Function::Create(ftype, llvm::GlobalValue::InternalLinkage, "main", rootModule);
+    llvm::BasicBlock *bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "entry", mainFunction, 0);
+
+    blocks.push(bb);
+    // Call codeGen on our rootBlock
+    rootBlock->codeGen(*this);
+    
+    llvm::ReturnInst::Create(llvm::getGlobalContext(), bb);
+    blocks.pop();
+}
+
 /**
    An error function for code generation routines
 

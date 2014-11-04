@@ -11,6 +11,7 @@
 #ifndef CREMA_CODEGEN_H_
 #define CREMA_CODEGEN_H_
 
+#include <stack>
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/IRBuilder.h>
@@ -18,12 +19,19 @@
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/APInt.h>
 
+class NBlock;
+
 class CodeGenContext
 {
 public:
     llvm::Module * rootModule;
-    llvm::IRBuilder<> Builder;
-CodeGenContext() : rootModule(new llvm::Module("Crema JIT", llvm::getGlobalContext())), Builder(llvm::getGlobalContext()) { }
+    llvm::IRBuilder<> * Builder;
+    llvm::Function *mainFunction;
+    std::stack<llvm::BasicBlock *> blocks;
+    
+    CodeGenContext();
+    ~CodeGenContext() { delete Builder; }
+    void codeGen(NBlock * rootBlock);
     void dump() { rootModule->dump(); }
 };
 

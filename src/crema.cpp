@@ -32,7 +32,7 @@ int main(int argc, char **argv)
       }
 
     std::cout << "Generating LLVM IR bytecode" << std::endl;
-    rootBlock->codeGen(rootCodeGenCtx);
+    rootCodeGenCtx.codeGen(rootBlock);
     
     std::cout << "Dumping generated LLVM bytecode" << std::endl;
     rootCodeGenCtx.dump();
