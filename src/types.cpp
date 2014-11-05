@@ -178,6 +178,34 @@ std::ostream & Type::print(std::ostream & os) const
 }
 
 /**
+   Function to convert a Crema Type to an llvm::Type
+
+   @return LLVM type object corresponding with the Type
+*/
+llvm::Type * Type::toLlvmType()
+{
+    switch(typecode)
+    {
+    case INT:
+	return llvm::Type::getInt64Ty(llvm::getGlobalContext());
+	break;
+    case DOUBLE:
+	return llvm::Type::getDoubleTy(llvm::getGlobalContext());
+	break;
+    case VOID:
+	return llvm::Type::getVoidTy(llvm::getGlobalContext());
+	break;
+    case BOOL:
+	return llvm::Type::getInt8Ty(llvm::getGlobalContext());
+	break;
+    default:
+	return NULL;
+	break;
+    }
+    return NULL;
+}
+
+/**
    Private function to set the typecode of a Type based on the Flex/Bison enumeration
 
    @param type Token value for type

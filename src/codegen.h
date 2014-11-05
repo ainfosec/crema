@@ -12,12 +12,19 @@
 #define CREMA_CODEGEN_H_
 
 #include <stack>
+#include <string>
+#include <map>
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Type.h>
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/APInt.h>
+#include <llvm/PassManager.h>
+#include <llvm/ExecutionEngine/GenericValue.h>
+#include <llvm/ExecutionEngine/ExecutionEngine.h>
+#include <llvm/ExecutionEngine/JIT.h>
+#include <llvm/Assembly/PrintModulePass.h>
 
 class NBlock;
 
@@ -28,10 +35,14 @@ public:
     llvm::IRBuilder<> * Builder;
     llvm::Function *mainFunction;
     std::stack<llvm::BasicBlock *> blocks;
+    std::vector<std::map<std::string, llvm::Value *> > variables;
     
     CodeGenContext();
     ~CodeGenContext() { delete Builder; }
     void codeGen(NBlock * rootBlock);
+    llvm::Value * findVariable(std::string ident);
+    void addVariable(std::string ident, llvm::Value * value);
+    llvm::GenericValue runProgram();
     void dump() { rootModule->dump(); }
 };
 

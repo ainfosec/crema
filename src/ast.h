@@ -67,7 +67,7 @@ public:
     NIdentifier & ident; /**< Variable identifier */
     NExpression & expr; /**< Expression to assign to variable */
 NAssignmentStatement(NIdentifier & ident, NExpression & expr) : ident(ident), expr(expr) { } /**< Default constructor to create an NAssignmentStatement with the passed identifier and expression */
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     bool semanticAnalysis(SemanticContext * ctx);
     std::ostream & print(std::ostream & os) const;
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return expr.checkRecursion(ctx, func); }
@@ -149,7 +149,7 @@ public:
     NExpression *initializationExpression; /**< Pointer to optional initialization expression */
 NVariableDeclaration(Type & type, NIdentifier & name) : type(type), ident(name), initializationExpression(NULL) { }
 NVariableDeclaration(Type & type, NIdentifier & name, NExpression *initExpr) : type(type), ident(name), initializationExpression(initExpr) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     std::ostream & print(std::ostream & os) const;
     bool semanticAnalysis(SemanticContext *ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return initializationExpression ? initializationExpression->checkRecursion(ctx, func) : false; }
@@ -225,6 +225,7 @@ public:
     NIdentifier & ident; /**< Name or variable to access */
 NVariableAccess(NIdentifier & ident) : ident(ident) { }
     std::ostream & print(std::ostream & os) const;
+    llvm::Value * codeGen(CodeGenContext & context);
     Type & getType(SemanticContext * ctx) const;
     bool semanticAnalysis(SemanticContext * ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
@@ -236,7 +237,7 @@ class NReturn : public NStatement {
 public:
     NExpression & retExpr; /**< NExpression to return to parent scope */
 NReturn(NExpression & re) : retExpr(re) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     bool semanticAnalysis(SemanticContext * ctx);
     std::ostream & print(std::ostream & os) const;
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return retExpr.checkRecursion(ctx, func); }

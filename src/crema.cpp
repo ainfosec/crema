@@ -36,5 +36,11 @@ int main(int argc, char **argv)
     
     std::cout << "Dumping generated LLVM bytecode" << std::endl;
     rootCodeGenCtx.dump();
+
+/*
+    std::cout << "Running program:" << std::endl;
+    rootCodeGenCtx.runProgram();
+    std::cout << "Program run successfully!" << std::endl;
+*/    
     return 0;
 }
