@@ -164,7 +164,7 @@ public:
     Type & type; /**< Return type of function */
     NBlock *body; /**< NBlock body of function */
 NFunctionDeclaration(Type & type, NIdentifier & ident, VariableList & variables, NBlock *body) : type(type), ident(ident), variables(variables), body(body) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     bool semanticAnalysis(SemanticContext * ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
     std::ostream & print(std::ostream & os) const;
@@ -189,6 +189,7 @@ public:
     ExpressionList args;  /**< List of function call arguments */
     NIdentifier & ident; /**< Name of function to call */
 NFunctionCall(NIdentifier & ident, ExpressionList & args) : ident(ident), args(args) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     Type & getType(SemanticContext * ctx) const;
     std::ostream & print(std::ostream & os) const;
     bool semanticAnalysis(SemanticContext * ctx);

@@ -76,12 +76,12 @@ llvm::Value * CodeGenContext::findVariable(std::string ident)
     std::vector<std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> > >::reverse_iterator scopes = variables.rbegin();
     for ( ; scopes != variables.rend(); scopes++)
     {
-	llvm::Value * v = (*scopes).find(ident)->second.second;
-	if (v != NULL)
+	if ((*scopes).find(ident) != (*scopes).end())
 	{
-	    return v;
+	    return (*scopes).find(ident)->second.second;
 	}
     }
+    std::cout << "Unable to find variable " << ident << "!" << std::endl;
     return NULL;
 }
 
@@ -221,6 +221,51 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
 default:
 	return NULL;
     }
+}
+
+llvm::Value * NFunctionDeclaration::codeGen(CodeGenContext & context)
+{
+    std::vector<llvm::Type *> v;
+    // Loop through argument types
+    for (int i = 0; i < variables.size(); i++)
+    {
+	v.push_back(variables[i]->type.toLlvmType());
+    }
+    // Convert from std::vector to llvm::ArrayRef
+    llvm::ArrayRef<llvm::Type *> argtypes(v);
+    llvm::FunctionType *ft = llvm::FunctionType::get(type.toLlvmType(), argtypes, false);
+
+    llvm::Function *func = llvm::Function::Create(ft, llvm::GlobalValue::InternalLinkage, ident.value.c_str(), context.rootModule);
+    llvm::BasicBlock *bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "entry", func, 0);
+
+    context.blocks.push(bb);
+    context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
+
+    for (int i = 0; i < variables.size(); i++)
+    {
+	variables[i]->codeGen(context);
+    }
+    body->codeGen(context);
+
+    // Add duplicate return in the event there isn't one defined
+    llvm::ReturnInst::Create(llvm::getGlobalContext(), bb);
+
+    context.blocks.pop();
+    context.variables.pop_back();
+    
+    return func;
+}
+
+llvm::Value * NFunctionCall::codeGen(CodeGenContext & context)
+{
+    llvm::Function *func = context.rootModule->getFunction(ident.value.c_str());
+    std::vector<llvm::Value *> v;
+    for (int i = 0; i < args.size(); i++)
+    {
+	v.push_back(args[i]->codeGen(context));
+    }
+    llvm::ArrayRef<llvm::Value *> llvmargs(v);
+    return llvm::CallInst::Create(func, llvmargs, "", context.blocks.top());
 }
 
 llvm::Value * NReturn::codeGen(CodeGenContext & context)
