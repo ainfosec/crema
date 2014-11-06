@@ -133,7 +133,7 @@ public:
     NExpression & lhs; /**< Left hand-side of binary operator */
     NExpression & rhs; /**< Right hand-side of binary operator */
 NBinaryOperator(NExpression & lhs, int op, NExpression & rhs) : lhs(lhs), op(op), rhs(rhs) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     bool semanticAnalysis(SemanticContext *ctx);
     Type & getType(SemanticContext * ctx) const;
     std::ostream & print(std::ostream & os) const;

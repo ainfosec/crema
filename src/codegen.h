@@ -27,6 +27,7 @@
 #include <llvm/Assembly/PrintModulePass.h>
 
 class NBlock;
+class NVariableDeclaration;
 
 class CodeGenContext
 {
@@ -35,13 +36,14 @@ public:
     llvm::IRBuilder<> * Builder;
     llvm::Function *mainFunction;
     std::stack<llvm::BasicBlock *> blocks;
-    std::vector<std::map<std::string, llvm::Value *> > variables;
+    std::vector<std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> > > variables;
+//    std::vector<std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> > > functions;
     
     CodeGenContext();
     ~CodeGenContext() { delete Builder; }
     void codeGen(NBlock * rootBlock);
     llvm::Value * findVariable(std::string ident);
-    void addVariable(std::string ident, llvm::Value * value);
+    void addVariable(NVariableDeclaration * var, llvm::Value * value);
     llvm::GenericValue runProgram();
     void dump() { rootModule->dump(); }
 };
