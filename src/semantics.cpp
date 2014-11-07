@@ -223,6 +223,22 @@ bool NBinaryOperator::semanticAnalysis(SemanticContext * ctx)
     return true;
 }
 
+Type & NBinaryOperator::getType(SemanticContext * ctx) const
+{
+    Type & t1 = lhs.getType(ctx), & t2 = rhs.getType(ctx);
+    if (!(t1 >= t2 || t2 >= t1))
+    {
+	return *(new Type());
+    }
+
+    if (t1 == t2)
+    {
+	return t1;
+    }
+
+    return (t1 > t2) ? t1 : t2;
+}
+
 bool NAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
 {
   NVariableDeclaration *var = ctx->searchVars(ident);
@@ -252,7 +268,7 @@ bool NReturn::semanticAnalysis(SemanticContext * ctx)
 
 Type & NList::getType(SemanticContext * ctx) const
 {
-  Type & type = value[0]->getType(ctx);
+  Type & type = (value.size() > 0) ? value[0]->getType(ctx) : *(new Type());
   Type *lt = new Type(type, true);
   for (int i = 1; i < value.size(); i++)
     {
@@ -265,7 +281,7 @@ Type & NList::getType(SemanticContext * ctx) const
 
 bool NList::semanticAnalysis(SemanticContext * ctx)
 {
-  Type & type = value[0]->getType(ctx);
+  Type & type = (value.size() > 0) ? value[0]->getType(ctx) : *(new Type());
   for (int i = 1; i < value.size(); i++)
   {
       if (value[i]->getType(ctx) != type)
@@ -341,6 +357,32 @@ bool NFunctionCall::semanticAnalysis(SemanticContext * ctx)
     }
   std::cout << "Call to undefined function: " << ident << std::endl;
   return false;
+}
+
+bool NLoopStatement::semanticAnalysis(SemanticContext * ctx)
+{
+    NVariableDeclaration *l = ctx->searchVars(list);
+    bool blockSA;
+    Type *st;
+    
+    if (NULL == l)
+    {
+	std::cout << "List variable " << list << " not defined!" << std::endl;
+	return false;
+    }
+    if (!l->type.list)
+    {
+	std::cout << "Variable " << list << " not a list!" << std::endl;
+	return false;
+    }
+    ctx->newScope(ctx->currType.back());
+    st = new Type(l->type, false);
+    
+    ctx->registerVar(new NVariableDeclaration(*st, asVar));
+    
+    blockSA = loopBlock.semanticAnalysis(ctx);
+    ctx->delScope();
+    return blockSA;
 }
 
 bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)

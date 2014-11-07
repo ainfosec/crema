@@ -8,7 +8,7 @@
    walking the AST for semantic analysis. All AST classes are derived from Node
 */
 
-#ifndef CREMA_AST_bH_
+#ifndef CREMA_AST_H_
 #define CREMA_AST_H_
 
 #include <iostream>
@@ -17,13 +17,14 @@
 #include <llvm/IR/Value.h>
 #include "decls.h"
 #include "types.h"
+#include "codegen.h"
 
 /** 
  *  The base class containing all the language constructs. */
 class Node {
  public:
   virtual ~Node() { }
-  virtual llvm::Value* codeGen(CodeGenContext & context) { }
+  virtual llvm::Value * codeGen(CodeGenContext & context) { }
   virtual std::ostream & print(std::ostream & os) const { };
   virtual bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration *func) { };
   virtual bool semanticAnalysis(SemanticContext *ctx) { };
@@ -53,7 +54,7 @@ class NStatement : public Node {
 class NBlock : public NExpression {
 public:
     StatementList statements; /**< Vector of statements in the NBlock */
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     std::ostream & print(std::ostream & os) const;
     bool semanticAnalysis(SemanticContext *ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration *func);
@@ -66,7 +67,7 @@ public:
     NIdentifier & ident; /**< Variable identifier */
     NExpression & expr; /**< Expression to assign to variable */
 NAssignmentStatement(NIdentifier & ident, NExpression & expr) : ident(ident), expr(expr) { } /**< Default constructor to create an NAssignmentStatement with the passed identifier and expression */
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     bool semanticAnalysis(SemanticContext * ctx);
     std::ostream & print(std::ostream & os) const;
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return expr.checkRecursion(ctx, func); }
@@ -104,6 +105,7 @@ public:
 NLoopStatement(NIdentifier & list, NIdentifier & asVar, NBlock & loopBlock) : list(list), asVar(asVar), loopBlock(loopBlock) { }
     std::ostream & print(std::ostream & os) const;
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return loopBlock.checkRecursion(ctx, func); }
+    bool semanticAnalysis(SemanticContext * ctx);
 };
 
 /**
@@ -131,9 +133,9 @@ public:
     NExpression & lhs; /**< Left hand-side of binary operator */
     NExpression & rhs; /**< Right hand-side of binary operator */
 NBinaryOperator(NExpression & lhs, int op, NExpression & rhs) : lhs(lhs), op(op), rhs(rhs) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     bool semanticAnalysis(SemanticContext *ctx);
-    Type & getType(SemanticContext * ctx) const { return lhs.getType(ctx) == rhs.getType(ctx) ? lhs.getType(ctx) : *(new Type()); }
+    Type & getType(SemanticContext * ctx) const;
     std::ostream & print(std::ostream & os) const;
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return lhs.checkRecursion(ctx, func) || rhs.checkRecursion(ctx, func); }
 };
@@ -147,7 +149,7 @@ public:
     NExpression *initializationExpression; /**< Pointer to optional initialization expression */
 NVariableDeclaration(Type & type, NIdentifier & name) : type(type), ident(name), initializationExpression(NULL) { }
 NVariableDeclaration(Type & type, NIdentifier & name, NExpression *initExpr) : type(type), ident(name), initializationExpression(initExpr) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     std::ostream & print(std::ostream & os) const;
     bool semanticAnalysis(SemanticContext *ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return initializationExpression ? initializationExpression->checkRecursion(ctx, func) : false; }
@@ -162,7 +164,7 @@ public:
     Type & type; /**< Return type of function */
     NBlock *body; /**< NBlock body of function */
 NFunctionDeclaration(Type & type, NIdentifier & ident, VariableList & variables, NBlock *body) : type(type), ident(ident), variables(variables), body(body) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     bool semanticAnalysis(SemanticContext * ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
     std::ostream & print(std::ostream & os) const;
@@ -187,6 +189,7 @@ public:
     ExpressionList args;  /**< List of function call arguments */
     NIdentifier & ident; /**< Name of function to call */
 NFunctionCall(NIdentifier & ident, ExpressionList & args) : ident(ident), args(args) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     Type & getType(SemanticContext * ctx) const;
     std::ostream & print(std::ostream & os) const;
     bool semanticAnalysis(SemanticContext * ctx);
@@ -223,6 +226,7 @@ public:
     NIdentifier & ident; /**< Name or variable to access */
 NVariableAccess(NIdentifier & ident) : ident(ident) { }
     std::ostream & print(std::ostream & os) const;
+    llvm::Value * codeGen(CodeGenContext & context);
     Type & getType(SemanticContext * ctx) const;
     bool semanticAnalysis(SemanticContext * ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
@@ -234,7 +238,7 @@ class NReturn : public NStatement {
 public:
     NExpression & retExpr; /**< NExpression to return to parent scope */
 NReturn(NExpression & re) : retExpr(re) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     bool semanticAnalysis(SemanticContext * ctx);
     std::ostream & print(std::ostream & os) const;
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return retExpr.checkRecursion(ctx, func); }
@@ -257,7 +261,7 @@ class NDouble : public NValue {
 public:
     double value; /**< Value of double */
 NDouble(double value) : value(value) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     std::ostream & print(std::ostream & os) const;
 };
 
@@ -267,7 +271,7 @@ class NUInt : public NValue {
 public:
     unsigned long int value; /**< Value of unsigned int */
 NUInt(unsigned long int value) : value(value) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value* codeGen(CodeGenContext & context);
     std::ostream & print(std::ostream & os) const;
 };
 
@@ -277,7 +281,7 @@ class NInt : public NValue {
 public:
     long int value; /**< Value of signed int */
 NInt(long int value) : value(value) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value* codeGen(CodeGenContext & context);
     std::ostream & print(std::ostream & os) const;
 };
 

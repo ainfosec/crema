@@ -7,10 +7,12 @@
    The Type family of classes are used to store type information about various expressions and
    AST nodes to assist in the analysis of typing during semantic analysis.
 */
+
 #ifndef CREMA_TYPE_H_
 #define CREMA_TYPE_H_
 
 #include <iostream>
+#include <llvm/IR/Type.h>
 
 /**
  *  Enumeration of types available to Crema programs */
@@ -38,6 +40,7 @@ Type() : typecode(INVALID) { }
     Type(int type, bool l) { setType(type); list = l; }
     Type(Type & t, bool l) { typecode = t.typecode; list = l; }
     bool isList() { return list; }
+    llvm::Type * toLlvmType();
     std::ostream & print(std::ostream & os) const;
     friend std::ostream & operator<<(std::ostream & os, Type & type); 
     friend bool operator==(Type & t1, Type & t2);

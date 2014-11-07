@@ -1,0 +1,4 @@
+int sum = 0
+foreach(list as elem) {
+  sum = sum + elem
+}

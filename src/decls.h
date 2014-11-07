@@ -34,5 +34,6 @@ typedef std::vector<NFunctionDeclaration*> FunctionList;
 typedef std::vector<NValue*> ValueList;
 
 extern SemanticContext rootCtx;
+extern CodeGenContext rootCodeGenCtx;
 
 #endif // CREMA_DECLS_H_
