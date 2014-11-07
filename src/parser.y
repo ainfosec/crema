@@ -85,13 +85,16 @@ expression : expression TADD expression { $$ = new NBinaryOperator(*$1, $2, *$3)
            | expression TMOD expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
            | expression TAND expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
            | expression TOR expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
-           | var_access { }
-           | func_call { }
-/*	       | var_access comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } */
-/*         | list { } */
-/*	       | TNOT expression { $$ = new NBinaryOperator(*$2, $1, *$2); } */
-	       | TLPAREN expression TRPAREN { $$ = $2; }
-           | value { }
+/*         | var_access { } */
+           | func_call { } 
+	       | expression comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
+           | list_access { } 
+	       | TNOT expression { $$ = new NBinaryOperator(*$2, $1, *$2); } 
+	       | TLPAREN expression TRPAREN { $$ = $2; } 
+           | expression { $$ = $1; }
+           | identifier { }
+/*         | value { } */
+           | numeric { } 
            ;
 
 var_access : identifier { $$ = new NVariableAccess(*$1); }
