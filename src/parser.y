@@ -37,10 +37,10 @@
 %token <token> TAND TNOT TOR TUMINUS TUPLUS
 
 /* Non-terminal types */
-%type <token> type comparison def
+%type <token> type comparison combine def
 %type <ident> identifier
 %type <statement> statement struct_decl var_decl list_decl func_decl assignment return loop conditional
-%type <expression> expression value numeric list_access struct list var_access func_call 
+%type <expression> expression value numeric list_access struct /*list*/ func_call 
 %type <block> block program statements 
 %type <call_args> func_call_arg_list
 %type <decl_args> func_decl_arg_list var_decls
@@ -78,29 +78,27 @@ statement : expression { }
 	      | return { }
 	      ;
 
-expression : expression TADD expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
-           | expression TSUB expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
-           | expression TMUL expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
-           | expression TDIV expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
-           | expression TMOD expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
-           | expression TAND expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
-           | expression TOR expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
-/*         | var_access { } */
-           | func_call { } 
-	       | expression comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
-           | list_access { } 
-	       | TNOT expression { $$ = new NBinaryOperator(*$2, $1, *$2); } 
-	       | TLPAREN expression TRPAREN { $$ = $2; } 
-           | expression { $$ = $1; }
+expression : identifier combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+           | identifier comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+           | func_call combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+           | func_call comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+           | list_access combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+           | list_access comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+           | struct combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+           | struct comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+           | numeric combine expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
+           | numeric comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); }
            | identifier { }
-/*         | value { } */
-           | numeric { } 
+           | func_call { } 
+           | list_access { } 
+           | struct { } 
+           | numeric { }
+/*         | expression comparison expression { $$ = new NBinaryOperator(*$1, $2, *$3); } 
+	       | TNOT expression { $$ = new NBinaryOperator(*$2, $1, *$2); } 
+	       | TLPAREN expression TRPAREN { $$ = $2; } /*
+           | expression { $$ = $1; } 
+           | value { } */
            ;
-
-var_access : identifier { $$ = new NVariableAccess(*$1); }
-	       | list_access { }
-	       | struct { }
-	       ;
 
 func_call : identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); } 
 
@@ -123,11 +121,8 @@ func_decl : def type identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = 
 assignment : identifier TEQUAL expression { $$ = new NAssignmentStatement(*$1, *$3); }
 	       | list_access TEQUAL expression { $$ = new NListAssignmentStatement(((NListAccess *) $1)->ident, *((NListAccess *) $1), *$3); }
 	       | struct TEQUAL expression { $$ = new NStructureAssignmentStatement(((NStructureAccess *) $1)->ident, *((NStructureAccess *) $1), *$3); }
+           | identifier TEQUAL value { $$ = new NAssignmentStatement(*$1, *$3); }
 	       ;
-
-list_decl : type identifier TLBRAC TRBRAC { Type *t = new Type($1, true); $$ = new NVariableDeclaration(*t, *$2); }
-	      | type identifier TLBRAC TRBRAC TEQUAL expression { Type *t = new Type($1, true); $$ = new NVariableDeclaration(*t, *$2, $6); }
-	      ;
 
 conditional : TIF TLPAREN expression TRPAREN block TELSE conditional { $$ = new NIfStatement(*$3, *$5, $7); } /* else if */
 	        | TIF TLPAREN expression TRPAREN block TELSE block { $$ = new NIfStatement(*$3, *$5, $7); } /* else */
@@ -149,8 +144,16 @@ func_decl_arg_list : /* Empty */ { $$ = new VariableList(); }
 		           | func_decl_arg_list TCOMMA var_decl { $$->push_back($<var_decl>3); }
 		           ;
 
-list : TLBRAC func_call_arg_list TRBRAC { $$ = new NList(*$2); }
+list_decl : type identifier TLBRAC TRBRAC { Type *t = new Type($1, true); $$ = new NVariableDeclaration(*t, *$2); }
+	      | type identifier TLBRAC TRBRAC TEQUAL expression { Type *t = new Type($1, true); $$ = new NVariableDeclaration(*t, *$2, $6); }
+	      ;
+
+/*list : TLBRAC func_call_arg_list TRBRAC { $$ = new NList(*$2); }
      ;
+*/
+
+list_access : identifier TLBRAC expression TRBRAC { $$ = new NListAccess(*$1, *$3); } /* Array access */
+     	    ;
 
 func_call_arg_list : /* Empty */ { $$ = new ExpressionList(); }
 		           | expression { $$ = new ExpressionList(); $$->push_back($<expression>1); }
@@ -173,14 +176,10 @@ numeric : TINT { $$ = new NInt(atoi($1->c_str())); $$->type = *(new Type(TTINT))
                             delete $2; $$ = new NBinaryOperator(*zero, $1, *d); } 
         ;
 
-value : numeric { $$ = $1; }
-      | TSTRING { std::string str = $1->c_str(); $$ = new NString(str); $$->type = *(new Type(TTSTR)); delete $1; }
+value : TSTRING { std::string str = $1->c_str(); $$ = new NString(str); $$->type = *(new Type(TTSTR)); delete $1; }
       | TTRUE { $$ = new NBool(true); $$->type = *(new Type(TTBOOL)); }
       | TFALSE { $$ = new NBool(false); $$->type = *(new Type(TTBOOL)); }
       ;
-
-list_access : identifier TLBRAC expression TRBRAC { $$ = new NListAccess(*$1, *$3); } /* Array access */
-     	    ;
 
 struct : identifier TPERIOD identifier { $$ = new NStructureAccess(*$1, *$3); } /* Structure access */
        ;
@@ -195,6 +194,15 @@ comparison : TCEQ
 	   | TCGE
 	   | TCLE
 	   ;
+
+combine : TADD
+        | TSUB
+        | TMUL
+        | TDIV
+        | TMOD
+        | TAND
+        | TOR
+        ;
 
 type : TTDOUBLE
      | TTINT
