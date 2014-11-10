@@ -156,12 +156,17 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                            | value { }
                            | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
                            | TLPAREN expression TRPAREN { $$ = $2; }
+                           | TSUB TLPAREN expression TRPAREN %prec TUMINUS { }
+                           | TADD TLPAREN expression TRPAREN %prec TUPLUS { } 
                            ;
 
                         var_access : identifier { $$ = new NVariableAccess(*$1); }
                                    | list_access { }
                                    | struct { }
+                                   | TSUB var_access %prec TUMINUS { }
+                                   | TADD var_access %prec TUPLUS { }
                                    ;
+
                             list_access : identifier TLBRAC expression TRBRAC { $$ = new NListAccess(*$1, *$3); } /* Array access */
                                         ;
 
@@ -210,6 +215,6 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                                                                i->type = *(new Type(TTINT)); 
                                                                delete $2; 
                                                                $$ = new NBinaryOperator(*zero, $1, *i); } 
-                                ;
+                                    ;
 
 %%
