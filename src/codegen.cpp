@@ -30,7 +30,6 @@ void CodeGenContext::codeGen(NBlock * rootBlock)
 {
     // Create the root "function" for top level functionality
     llvm::ArrayRef<llvm::Type *> argTypes;
-    //llvm::FunctionType *ftype = llvm::FunctionType::get(llvm::Type::getVoidTy(llvm::getGlobalContext()), argTypes, false);
     llvm::FunctionType *ftype = llvm::FunctionType::get(llvm::Type::getInt64Ty(llvm::getGlobalContext()), argTypes, false);
     mainFunction = llvm::Function::Create(ftype, llvm::GlobalValue::InternalLinkage, "main", rootModule);
     llvm::BasicBlock *bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "entry", mainFunction, 0);
@@ -40,7 +39,7 @@ void CodeGenContext::codeGen(NBlock * rootBlock)
     // Call codeGen on our rootBlock
     rootBlock->codeGen(*this);
     
-    llvm::ReturnInst::Create(llvm::getGlobalContext(), bb);
+    llvm::ReturnInst::Create(llvm::getGlobalContext(), llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, 0, true)), blocks.top());
     blocks.pop();
 }
 
@@ -178,14 +177,18 @@ llvm::Value * NIfStatement::codeGen(CodeGenContext & context)
     context.blocks.pop();
     context.variables.pop_back();
 
+    context.blocks.push(ifcb);
     parent->getBasicBlockList().push_back(ifcb);
     context.Builder->SetInsertPoint(ifcb);
+/*
     llvm::PHINode *PN = context.Builder->CreatePHI(llvm::Type::getVoidTy(llvm::getGlobalContext()), 2, "iftmp");
 
     PN->addIncoming(tv, tb);
     PN->addIncoming(ev, eb);
 
     return PN;
+*/
+    return cond;
 }
 
 llvm::Value * NVariableAccess::codeGen(CodeGenContext & context)
