@@ -44,153 +44,172 @@
 %type <call_args> func_call_arg_list
 %type <decl_args> func_decl_arg_list var_decls
 
-
+%right TEQUAL
 %left TADD TSUB
 %left TMOD TMUL TDIV
+%nonassoc TUMINUS TUPLUS
 
 %start program
 
 %%
 
 program : { rootBlock = NULL; } /* Empty program */
-	| statements { rootBlock = $1; }
-	;
-
-statements : statement { $$ = new NBlock(); $$->statements.push_back($<statement>1); }
-	   | statements statement { $1->statements.push_back($<statement>2); }
-	   ;
-
-statement : var_decl { }
-	  | struct_decl { if(!rootCtx.registerStruct((NStructureDeclaration *) $1)) yyerror("Duplicate struct declaration!"); $$ = $1; }
-	  | func_decl { if(!rootCtx.registerFunc((NFunctionDeclaration *) $1)) yyerror("Duplicate function declaration!"); $$ = $1; }
-	  | assignment { }
-	  | list_decl { }
-	  | conditional { }
-	  | loop { }
-	  | return { }
-	  ;
-
-conditional : TIF TLPAREN expression TRPAREN block TELSE conditional { $$ = new NIfStatement(*$3, *$5, $7); } /* else if */
-	    | TIF TLPAREN expression TRPAREN block TELSE block { $$ = new NIfStatement(*$3, *$5, $7); } /* else */
-	    | TIF TLPAREN expression TRPAREN block { $$ = new NIfStatement(*$3, *$5); } /* vanilla if */
-	    ;
-
-return : TRETURN expression { $$ = new NReturn(*$2); }
-       ;
-
-assignment : identifier TEQUAL expression { $$ = new NAssignmentStatement(*$1, *$3); }
-	   | list_access TEQUAL expression { $$ = new NListAssignmentStatement(((NListAccess *) $1)->ident, *((NListAccess *) $1), *$3); }
-	   | struct TEQUAL expression { $$ = new NStructureAssignmentStatement(((NStructureAccess *) $1)->ident, *((NStructureAccess *) $1), *$3); }
-	   ;
-
-loop : TFOREACH TLPAREN identifier TAS identifier TRPAREN block { $$ = new NLoopStatement(*$3, *$5, *$7); }
-     ;
-
-struct_decl : TSTRUCT identifier TLBRACKET var_decls TRBRACKET { $$ = new NStructureDeclaration(*$2, *$4); }	
-	    ;
-
-list_decl : type identifier TLBRAC TRBRAC { Type *t = new Type($1, true); $$ = new NVariableDeclaration(*t, *$2); }
-	  | type identifier TLBRAC TRBRAC TEQUAL expression { Type *t = new Type($1, true); $$ = new NVariableDeclaration(*t, *$2, $6); }
-	  ;
-
-var_decls : { $$ = new VariableList(); }
-	  | var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
-	  | var_decls TCOMMA var_decl { $$->push_back($<var_decl>3); }
-	  ;
-
-var_decl : type identifier { $$ = new NVariableDeclaration(*(new Type($1)), *$2); }
-	 | type identifier TEQUAL expression { $$ = new NVariableDeclaration(*(new Type($1)), *$2, $4); }
-	 | TSTRUCT identifier identifier { $$ = new NVariableDeclaration(*(new StructType(*$2)), *$3); }
-	 | TSTRUCT identifier identifier TEQUAL identifier { $$ = new NVariableDeclaration(*(new StructType(*$2)), *$3, $5); }
-	 ;
-
-func_decl : def type identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration(*(new Type($2)), *$3, *$5, $7); }
-	  | def type TLBRAC TRBRAC identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration(*(new Type($2, true)), *$5, *$7, $9); }
-	  ;
-
-def : TDEF
-    | TSDEF
-    ;
+    	| statements { rootBlock = $1; }
+    	;
 
 block : TLBRACKET statements TRBRACKET { $$ = $2; }
       | TLBRACKET TRBRACKET { $$ = new NBlock(); }
       ;
 
-func_decl_arg_list : /* Empty */ { $$ = new VariableList(); }
-		   | var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
-		   | func_decl_arg_list TCOMMA var_decl { $$->push_back($<var_decl>3); }
-		   ;
+    statements : statement { $$ = new NBlock(); $$->statements.push_back($<statement>1); }
+               | statements statement { $1->statements.push_back($<statement>2); }
+               ;
 
-expression : expression TADD term { $$ = new NBinaryOperator(*$1, $2, *$3); }
-           | expression TSUB term { $$ = new NBinaryOperator(*$1, $2, *$3); }
-           | term { }
-           ;
+        statement : var_decl { }
+                  | struct_decl { if(!rootCtx.registerStruct((NStructureDeclaration *) $1)) yyerror("Duplicate struct declaration!"); $$ = $1; }
+                  | func_decl { if(!rootCtx.registerFunc((NFunctionDeclaration *) $1)) yyerror("Duplicate function declaration!"); $$ = $1; }
+                  | assignment { }
+                  | list_decl { }
+                  | conditional { }
+                  | loop { }
+                  | return { }
+                  ;
 
-term : term TMUL factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
-     | term TDIV factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
-     | term TMOD factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
-     | term TAND factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
-     | term TOR factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
-     | term comparison factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
-     | factor { }
-     ;
+            var_decl : type identifier { $$ = new NVariableDeclaration(*(new Type($1)), *$2); }
+                     | type identifier TEQUAL expression { $$ = new NVariableDeclaration(*(new Type($1)), *$2, $4); }
+                     ;
 
-factor : var_access { }
-       | list { }
-       | value { }
-       | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
-       | TLPAREN expression TRPAREN { $$ = $2; }
-       ;
+                type : TTDOUBLE
+                     | TTINT
+                     | TTUINT
+                     | TTSTR
+                     | TTVOID
+                     | TTBOOL
+                     ;
 
-var_access : identifier { $$ = new NVariableAccess(*$1); }
-	   | list_access { }
-	   | struct { }
-	   ;
+            struct_decl : TSTRUCT identifier TLBRACKET var_decls TRBRACKET { $$ = new NStructureDeclaration(*$2, *$4); }	
+                        ;
 
-list : TLBRAC func_call_arg_list TRBRAC { $$ = new NList(*$2); }
-     ;
+                var_decls : { $$ = new VariableList(); }
+                      | var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
+                      | var_decls TCOMMA var_decl { $$->push_back($<var_decl>3); }
+                      ;
 
-func_call_arg_list : /* Empty */ { $$ = new ExpressionList(); }
-		   | expression { $$ = new ExpressionList(); $$->push_back($<expression>1); }
-		   | func_call_arg_list TCOMMA expression { $$->push_back($<expression>3); }
-		   ;
+            func_decl : def type identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration(*(new Type($2)), *$3, *$5, $7); }
+                      | def type TLBRAC TRBRAC identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration(*(new Type($2, true)), *$5, *$7, $9); }
+                      ;
 
-numeric : TDOUBLE { $$ = new NDouble(atof($1->c_str())); $$->type = *(new Type(TTDOUBLE)); delete $1; }
-	| TSUB TDOUBLE { NDouble *zero = new NDouble(0); zero->type = *(new Type(TTDOUBLE)); NDouble *d = new NDouble(atof($2->c_str())); d->type = Type(TTDOUBLE); delete $2; $$ = new NBinaryOperator(*zero, $1, *d); } 
-	| TINT { $$ = new NInt(atoi($1->c_str())); $$->type = *(new Type(TTINT)); delete $1; }
-	| TSUB TINT { NInt *zero = new NInt(0); zero->type = TTINT; NInt *i = new NInt(atoi($2->c_str())); i->type = *(new Type(TTINT)); delete $2; $$ = new NBinaryOperator(*zero, $1, *i); } 
-	;
+                def : TDEF
+                    | TSDEF
+                    ;
 
-value : numeric { $$ = $1; }
-      | TSTRING { std::string str = $1->c_str(); $$ = new NString(str); $$->type = *(new Type(TTSTR)); delete $1; }
-      | TTRUE { $$ = new NBool(true); $$->type = *(new Type(TTBOOL)); }
-      | TFALSE { $$ = new NBool(false); $$->type = *(new Type(TTBOOL)); }
-      ;
+                func_decl_arg_list : /* Empty */ { $$ = new VariableList(); }
+                                   | var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
+                                   | func_decl_arg_list TCOMMA var_decl { $$->push_back($<var_decl>3); }
+                                   ;
 
-list_access : identifier TLBRAC expression TRBRAC { $$ = new NListAccess(*$1, *$3); } /* Array access */
-     	    ;
+            assignment : identifier TEQUAL expression { $$ = new NAssignmentStatement(*$1, *$3); }
+                       | list_access TEQUAL expression { $$ = new NListAssignmentStatement(((NListAccess *) $1)->ident, *((NListAccess *) $1), *$3); }
+                       | struct TEQUAL expression { $$ = new NStructureAssignmentStatement(((NStructureAccess *) $1)->ident, *((NStructureAccess *) $1), *$3); }
+                       ;
 
-struct : identifier TPERIOD identifier { $$ = new NStructureAccess(*$1, *$3); } /* Structure access */
-       ;
+            list_decl : type identifier TLBRAC TRBRAC { Type *t = new Type($1, true); $$ = new NVariableDeclaration(*t, *$2); }
+                      | type identifier TLBRAC TRBRAC TEQUAL expression { Type *t = new Type($1, true); $$ = new NVariableDeclaration(*t, *$2, $6); }
+                      ;
 
-identifier : TIDENTIFIER { std::string str = $1->c_str(); $$ = new NIdentifier(str); delete $1; }
-	   ;
+            conditional : TIF TLPAREN expression TRPAREN block TELSE conditional { $$ = new NIfStatement(*$3, *$5, $7); } /* else if */
+                    | TIF TLPAREN expression TRPAREN block TELSE block { $$ = new NIfStatement(*$3, *$5, $7); } /* else */
+                    | TIF TLPAREN expression TRPAREN block { $$ = new NIfStatement(*$3, *$5); } /* vanilla if */
+                    ;
+
+            loop : TFOREACH TLPAREN identifier TAS identifier TRPAREN block { $$ = new NLoopStatement(*$3, *$5, *$7); }
+                 ;
+
+            return : TRETURN expression { $$ = new NReturn(*$2); }
+                   ;
 
 
-comparison : TCEQ
-	   | TCNEQ	
-	   | TCGT
-	   | TCLT
-	   | TCGE
-	   | TCLE
-       ;
+            expression : expression TADD term { $$ = new NBinaryOperator(*$1, $2, *$3); }
+                       | expression TSUB term { $$ = new NBinaryOperator(*$1, $2, *$3); }
+                       | term { }
+                       ;
 
-type : TTDOUBLE
-     | TTINT
-     | TTUINT
-     | TTSTR
-     | TTVOID
-     | TTBOOL
-     ;
+                term : term TMUL factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
+                     | term TDIV factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
+                     | term TMOD factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
+                     | term TAND factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
+                     | term TOR factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
+                     | term comparison factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
+                     | factor { }
+                     ;
+
+                    comparison : TCEQ
+                               | TCNEQ	
+                               | TCGT
+                               | TCLT
+                               | TCGE
+                               | TCLE
+                               ;
+
+                    factor : var_access { }
+                           | list { }
+                           | value { }
+                           | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
+                           | TLPAREN expression TRPAREN { $$ = $2; }
+                           ;
+
+                        var_access : identifier { $$ = new NVariableAccess(*$1); }
+                                   | list_access { }
+                                   | struct { }
+                                   ;
+                            list_access : identifier TLBRAC expression TRBRAC { $$ = new NListAccess(*$1, *$3); } /* Array access */
+                                        ;
+
+                            identifier : TIDENTIFIER { std::string str = $1->c_str(); $$ = new NIdentifier(str); delete $1; }
+                                       ;
+
+                            struct : identifier TPERIOD identifier { $$ = new NStructureAccess(*$1, *$3); } /* Structure access */
+                                   ;
+
+                        list : TLBRAC func_call_arg_list TRBRAC { $$ = new NList(*$2); }
+                             ;
+
+                            func_call_arg_list : /* Empty */ { $$ = new ExpressionList(); }
+                                       | expression { $$ = new ExpressionList(); $$->push_back($<expression>1); }
+                                       | func_call_arg_list TCOMMA expression { $$->push_back($<expression>3); }
+                                       ;
+
+                        value : numeric { $$ = $1; }
+                              | TSTRING { std::string str = $1->c_str(); $$ = new NString(str); $$->type = *(new Type(TTSTR)); delete $1; }
+                              | TTRUE { $$ = new NBool(true); $$->type = *(new Type(TTBOOL)); }
+                              | TFALSE { $$ = new NBool(false); $$->type = *(new Type(TTBOOL)); }
+                              ;
+
+                            numeric : TDOUBLE { $$ = new NDouble(atof($1->c_str())); $$->type = *(new Type(TTDOUBLE)); delete $1; }
+                                    | TSUB TDOUBLE %prec TUMINUS { NDouble *zero = new NDouble(0); 
+                                                                   zero->type = *(new Type(TTDOUBLE)); 
+                                                                   NDouble *d = new NDouble(atof($2->c_str())); 
+                                                                   d->type = Type(TTDOUBLE); 
+                                                                   delete $2; $$ = new NBinaryOperator(*zero, $1, *d); } 
+                                    | TADD TDOUBLE %prec TUPLUS {  NDouble *zero = new NDouble(0); 
+                                                                   zero->type = *(new Type(TTDOUBLE)); 
+                                                                   NDouble *d = new NDouble(atof($2->c_str())); 
+                                                                   d->type = Type(TTDOUBLE); 
+                                                                   delete $2; 
+                                                                   $$ = new NBinaryOperator(*zero, $1, *d); } 
+                                    | TINT { $$ = new NInt(atoi($1->c_str())); $$->type = *(new Type(TTINT)); delete $1; }
+                                    | TSUB TINT %prec TUMINUS { NInt *zero = new NInt(0); 
+                                                                zero->type = TTINT; 
+                                                                NInt *i = new NInt(atoi($2->c_str())); 
+                                                                i->type = *(new Type(TTINT)); 
+                                                                delete $2; 
+                                                                $$ = new NBinaryOperator(*zero, $1, *i); } 
+                                    | TADD TINT %prec TUPLUS { NInt *zero = new NInt(0); 
+                                                               zero->type = TTINT; 
+                                                               NInt *i = new NInt(atoi($2->c_str())); 
+                                                               i->type = *(new Type(TTINT)); 
+                                                               delete $2; 
+                                                               $$ = new NBinaryOperator(*zero, $1, *i); } 
+                                ;
 
 %%
