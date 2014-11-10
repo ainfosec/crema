@@ -156,8 +156,7 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                            | value { }
                            | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
                            | TLPAREN expression TRPAREN { $$ = $2; }
-                           | TSUB TLPAREN expression TRPAREN %prec TUMINUS { }
-                           | TADD TLPAREN expression TRPAREN %prec TUPLUS { } 
+			   | TSUB TLPAREN expression TRPAREN %prec TUMINUS { NInt *zero = new NInt(0); zero->type = *(new Type(TTINT)); $$ = new NBinaryOperator(*zero, $1, *$3); }
                            ;
 
                         var_access : identifier { $$ = new NVariableAccess(*$1); }
