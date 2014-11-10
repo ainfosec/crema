@@ -30,7 +30,8 @@ void CodeGenContext::codeGen(NBlock * rootBlock)
 {
     // Create the root "function" for top level functionality
     llvm::ArrayRef<llvm::Type *> argTypes;
-    llvm::FunctionType *ftype = llvm::FunctionType::get(llvm::Type::getVoidTy(llvm::getGlobalContext()), argTypes, false);
+    //llvm::FunctionType *ftype = llvm::FunctionType::get(llvm::Type::getVoidTy(llvm::getGlobalContext()), argTypes, false);
+    llvm::FunctionType *ftype = llvm::FunctionType::get(llvm::Type::getInt64Ty(llvm::getGlobalContext()), argTypes, false);
     mainFunction = llvm::Function::Create(ftype, llvm::GlobalValue::InternalLinkage, "main", rootModule);
     llvm::BasicBlock *bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "entry", mainFunction, 0);
 
@@ -58,6 +59,7 @@ static inline llvm::Value * cmpOpInstCreate(llvm::Instruction::OtherOps i, unsig
 */
 llvm::GenericValue CodeGenContext::runProgram()
 {
+    LLVMInitializeNativeTarget();
     llvm::ExecutionEngine *ee = llvm::ExecutionEngine::create(rootModule, false);
     llvm::ArrayRef<llvm::GenericValue> noargs;
     llvm::GenericValue retVal = ee->runFunction(mainFunction, noargs);
@@ -96,7 +98,6 @@ void CodeGenContext::addVariable(NVariableDeclaration * var, llvm::Value * value
     variables.back()[var->ident.value] = *(new std::pair<NVariableDeclaration *, llvm::Value *>(var, value));
 }
 
-
 /**
    An error function for code generation routines
 
@@ -120,9 +121,78 @@ llvm::Value * NBlock::codeGen(CodeGenContext & context)
     return last;
 }
 
+llvm::Value * NIfStatement::codeGen(CodeGenContext & context)
+{
+    llvm::Value * cond = condition.codeGen(context);
+    switch (condition.type.typecode)
+    {
+    case DOUBLE:
+	cond = llvm::CmpInst::Create(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_ONE, llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat(0.0)), cond, "", context.blocks.top());
+	break;
+    case UINT:
+    case INT:
+	cond = llvm::CmpInst::Create(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, 0, false)), cond, "", context.blocks.top());
+	break;
+    default:
+	cond = NULL;
+	std::cout << "Error, unable to emit conditional bytecode for type: " << condition.type << std::endl;
+	return cond;
+	break;
+    }
+
+    llvm::Function * parent = context.blocks.top()->getParent();
+    llvm::BasicBlock * tb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "then", parent);
+    llvm::BasicBlock * eb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "else");
+    llvm::BasicBlock * ifcb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "ifcont");
+
+    llvm::BranchInst::Create(tb, eb, cond, context.blocks.top());
+    
+    context.Builder->SetInsertPoint(tb);
+    context.blocks.push(tb);
+    context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
+    
+    llvm::Value * tv = thenblock.codeGen(context);
+
+    context.Builder->CreateBr(ifcb);
+    tb = context.Builder->GetInsertBlock();
+    context.blocks.pop();
+    context.variables.pop_back();
+
+    parent->getBasicBlockList().push_back(eb);
+    context.Builder->SetInsertPoint(eb);
+
+    context.blocks.push(eb);
+    context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
+
+    llvm::Value * ev = NULL;
+    if (elseblock)
+    {
+	ev = elseblock->codeGen(context);
+    }
+    else if(elseif)
+    {
+	ev = elseif->codeGen(context);
+    }
+    context.Builder->CreateBr(ifcb);
+    eb = context.Builder->GetInsertBlock();
+    context.blocks.pop();
+    context.variables.pop_back();
+
+    parent->getBasicBlockList().push_back(ifcb);
+    context.Builder->SetInsertPoint(ifcb);
+    llvm::PHINode *PN = context.Builder->CreatePHI(llvm::Type::getVoidTy(llvm::getGlobalContext()), 2, "iftmp");
+
+    PN->addIncoming(tv, tb);
+    PN->addIncoming(ev, eb);
+
+    return PN;
+}
+
 llvm::Value * NVariableAccess::codeGen(CodeGenContext & context)
 {
-    return new llvm::LoadInst(context.findVariable(ident.value), "", false, context.blocks.top());
+    llvm::Value * var = context.findVariable(ident.value);
+    llvm::Value * li = new llvm::LoadInst(var, "", false, context.blocks.top());
+    return li;
 }
 
 llvm::Value * NAssignmentStatement::codeGen(CodeGenContext & context)
@@ -237,14 +307,17 @@ llvm::Value * NFunctionDeclaration::codeGen(CodeGenContext & context)
 
     llvm::Function *func = llvm::Function::Create(ft, llvm::GlobalValue::InternalLinkage, ident.value.c_str(), context.rootModule);
     llvm::BasicBlock *bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "entry", func, 0);
-
+    
     context.blocks.push(bb);
     context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
 
-    for (int i = 0; i < variables.size(); i++)
+    int i = 0;
+    for (llvm::Function::arg_iterator args = func->arg_begin(); args != func->arg_end(); ++args)
     {
-	variables[i]->codeGen(context);
+	new llvm::StoreInst(args, variables[i]->codeGen(context), false, context.blocks.top());	
+	i++;
     }
+
     body->codeGen(context);
 
     // Add duplicate return in the event there isn't one defined
@@ -270,7 +343,8 @@ llvm::Value * NFunctionCall::codeGen(CodeGenContext & context)
 
 llvm::Value * NReturn::codeGen(CodeGenContext & context)
 {
-    return llvm::ReturnInst::Create(llvm::getGlobalContext(), retExpr.codeGen(context), context.blocks.top());
+    llvm::Value *re = retExpr.codeGen(context);
+    return llvm::ReturnInst::Create(llvm::getGlobalContext(), re, context.blocks.top());
 }
 
 llvm::Value * NVariableDeclaration::codeGen(CodeGenContext & context)
