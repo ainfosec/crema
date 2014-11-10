@@ -37,10 +37,10 @@ int main(int argc, char **argv)
     std::cout << "Dumping generated LLVM bytecode" << std::endl;
     rootCodeGenCtx.dump();
 
-/*
+
     std::cout << "Running program:" << std::endl;
-    rootCodeGenCtx.runProgram();
+    std::cout << "Return value: " << rootCodeGenCtx.runProgram().IntVal.toString(10, true) << std::endl;
     std::cout << "Program run successfully!" << std::endl;
-*/    
+    
     return 0;
 }
