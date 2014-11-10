@@ -156,21 +156,20 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                            | value { }
                            | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
                            | TLPAREN expression TRPAREN { $$ = $2; }
-			   | TSUB TLPAREN expression TRPAREN %prec TUMINUS { NInt *zero = new NInt(0); zero->type = *(new Type(TTINT)); $$ = new NBinaryOperator(*zero, $1, *$3); }
+            			   | TSUB TLPAREN expression TRPAREN %prec TUMINUS { NInt *zero = new NInt(0); zero->type = *(new Type(TTINT)); $$ = new NBinaryOperator(*zero, $1, *$3); }
                            ;
 
                         var_access : identifier { $$ = new NVariableAccess(*$1); }
                                    | list_access { }
                                    | struct { }
-                                   | TSUB var_access %prec TUMINUS { }
-                                   | TADD var_access %prec TUPLUS { }
+                                   | TSUB var_access %prec TUMINUS { NInt *zero = new NInt(0); zero->type = *(new Type(TTINT)); $$ = new NBinaryOperator(*zero, $1, *$2); }
                                    ;
-
-                            list_access : identifier TLBRAC expression TRBRAC { $$ = new NListAccess(*$1, *$3); } /* Array access */
-                                        ;
 
                             identifier : TIDENTIFIER { std::string str = $1->c_str(); $$ = new NIdentifier(str); delete $1; }
                                        ;
+
+                            list_access : identifier TLBRAC expression TRBRAC { $$ = new NListAccess(*$1, *$3); } /* Array access */
+                                        ;
 
                             struct : identifier TPERIOD identifier { $$ = new NStructureAccess(*$1, *$3); } /* Structure access */
                                    ;
@@ -195,12 +194,6 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                                                                    NDouble *d = new NDouble(atof($2->c_str())); 
                                                                    d->type = Type(TTDOUBLE); 
                                                                    delete $2; $$ = new NBinaryOperator(*zero, $1, *d); } 
-                                    | TADD TDOUBLE %prec TUPLUS {  NDouble *zero = new NDouble(0); 
-                                                                   zero->type = *(new Type(TTDOUBLE)); 
-                                                                   NDouble *d = new NDouble(atof($2->c_str())); 
-                                                                   d->type = Type(TTDOUBLE); 
-                                                                   delete $2; 
-                                                                   $$ = new NBinaryOperator(*zero, $1, *d); } 
                                     | TINT { $$ = new NInt(atoi($1->c_str())); $$->type = *(new Type(TTINT)); delete $1; }
                                     | TSUB TINT %prec TUMINUS { NInt *zero = new NInt(0); 
                                                                 zero->type = TTINT; 
@@ -208,12 +201,6 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                                                                 i->type = *(new Type(TTINT)); 
                                                                 delete $2; 
                                                                 $$ = new NBinaryOperator(*zero, $1, *i); } 
-                                    | TADD TINT %prec TUPLUS { NInt *zero = new NInt(0); 
-                                                               zero->type = TTINT; 
-                                                               NInt *i = new NInt(atoi($2->c_str())); 
-                                                               i->type = *(new Type(TTINT)); 
-                                                               delete $2; 
-                                                               $$ = new NBinaryOperator(*zero, $1, *i); } 
                                     ;
 
 %%
