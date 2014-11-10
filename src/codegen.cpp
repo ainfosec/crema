@@ -296,6 +296,13 @@ default:
     }
 }
 
+llvm::Value * NListAccess::codeGen(CodeGenContext & context)
+{
+    llvm::Value * var = context.findVariable(ident.value);
+    llvm::Value * li = llvm::ExtractElementInst::Create(var, index.codeGen(context), "", context.blocks.top());
+    return li;
+}
+
 llvm::Value * NFunctionDeclaration::codeGen(CodeGenContext & context)
 {
     std::vector<llvm::Type *> v;

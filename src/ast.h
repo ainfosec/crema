@@ -79,7 +79,7 @@ class NListAssignmentStatement : public NAssignmentStatement {
 public:
     NListAccess & list; /**< NListAccess for storing information about list index */
 NListAssignmentStatement(NIdentifier & ident, NListAccess & list, NExpression & expr) : NAssignmentStatement(ident, expr), list(list) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    virtual llvm::Value * codeGen(CodeGenContext & context) { }
     std::ostream & print(std::ostream & os) const;
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return expr.checkRecursion(ctx, func); }
 };
@@ -215,7 +215,9 @@ public:
     NIdentifier & ident; /**< Name of list variable to access */
 NListAccess(NIdentifier & ident, NExpression & index) : ident(ident), index(index) { }
     std::ostream & print(std::ostream & os) const;
+    llvm::Value * codeGen(CodeGenContext & context);
     Type & getType(SemanticContext * ctx) const;
+    bool semanticAnalysis(SemanticContext * ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
 };
 

@@ -314,6 +314,26 @@ bool NVariableAccess::semanticAnalysis(SemanticContext * ctx)
   return false;
 }
 
+bool NListAccess::semanticAnalysis(SemanticContext * ctx)
+{
+    NVariableDeclaration *var = ctx->searchVars(ident);
+    if (var)
+    {
+	if (!var->type.list)
+	{
+	    return false;
+	}
+	Type & t = index.getType(ctx);
+	if (t.typecode != INT && t.typecode != UINT)
+	{
+	    return false;
+	}
+	return true;
+    }
+    return false;
+    
+}
+
 Type & NListAccess::getType(SemanticContext * ctx) const
 {
   NVariableDeclaration *var = ctx->searchVars(ident);
