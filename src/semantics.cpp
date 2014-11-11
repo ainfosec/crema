@@ -256,6 +256,23 @@ bool NAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
   return true;
 }
 
+bool NListAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
+{
+  NVariableDeclaration *var = ctx->searchVars(ident);
+  if (!var)
+    {
+      std::cout << "Assignment to undefined variable " << ident << std::endl;
+      return false;
+    }
+  Type *t = new Type(var->type, false);
+  if (*t < expr.getType(ctx))
+    {
+      std::cout << "Type mismatch for assignment to " << ident << std::endl;
+      return false;
+    }
+  return true;
+}
+
 bool NReturn::semanticAnalysis(SemanticContext * ctx)
 {
   if (retExpr.getType(ctx) > ctx->currType.back())
