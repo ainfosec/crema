@@ -49,6 +49,9 @@
 %type <decl_args> func_decl_arg_list var_decls
 
 %right TEQUAL
+%left TBAND
+%left TBXOR
+%left TBOR
 %left TADD TSUB
 %left TMOD TMUL TDIV
 %nonassoc TUMINUS 
@@ -133,7 +136,8 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                    ;
 
 
-            expression : expression TADD term { $$ = new NBinaryOperator(*$1, $2, *$3); }
+            expression : expression bitwise term { $$ = new NBinaryOperator(*$1, $2, *$3); }
+                       | expression TADD term { $$ = new NBinaryOperator(*$1, $2, *$3); }
                        | expression TSUB term { $$ = new NBinaryOperator(*$1, $2, *$3); }
                        | term { }
                        ;
@@ -142,7 +146,6 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                      | term TDIV factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
                      | term TMOD factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
                      | term comparison factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
-                     | term bitwise factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
                      | factor { }
                      ;
 
