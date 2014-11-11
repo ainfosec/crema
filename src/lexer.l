@@ -17,7 +17,7 @@ extern "C" int yywrap() { }
 "return"		      return TOK(TRETURN);
 "sdef"			      return TOK(TSDEF);
 "def"		              return TOK(TDEF);
-"struct"		      return TOK(TSTRUCT);
+"struct"		      return TOK(TTSTRUCT);
 "if"			      return TOK(TIF);
 "else"		              return TOK(TELSE);
 "foreach"		      return TOK(TFOREACH);
@@ -42,7 +42,6 @@ extern "C" int yywrap() { }
 \"[^\"\n]*\"		      SAVE_VAL; return TSTRING;
 "="			      return TOK(TEQUAL);
 "=="			      return TOK(TCEQ);
-"!"			      return TOK(TNOT);
 "!="			      return TOK(TCNEQ);
 "<"			      return TOK(TCLT);
 "<="			      return TOK(TCLE);
@@ -57,8 +56,12 @@ extern "C" int yywrap() { }
 "/"			      return TOK(TDIV);
 "+"			      return TOK(TADD);
 "-"			      return TOK(TSUB);
-"||"			      return TOK(TOR);
-"&&"			      return TOK(TAND);
+"&"               return TOK(TBAND);
+"^"               return TOK(TBXOR);
+"|"               return TOK(TBOR);
+"||"			  return TOK(TLOR);
+"&&"			  return TOK(TLAND);
+"!"			      return TOK(TLNOT);
 "{"			      return TOK(TLBRACKET);
 "}"			      return TOK(TRBRACKET);
 ","			      return TOK(TCOMMA);
