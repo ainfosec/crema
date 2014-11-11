@@ -28,15 +28,19 @@
 }
 
 /* Terminal types */
-%token <string> TIDENTIFIER TINT TDOUBLE TSTRING
-%token <token> TRETURN TSDEF TDEF TIF TELSE TFOREACH TAS TCEQ
-%token <token> TCNEQ TCLE TCGE TCLT TCGT TTVOID TTINT TTUINT TTSTR TSTRUCT
-%token <token> TTDOUBLE TEQUAL TLPAREN TRPAREN TLBRAC TRBRAC TMOD TPERIOD
-%token <token> TMUL TADD TDIV TSUB TRBRACKET TLBRACKET TCOMMA TTBOOL TTRUE TFALSE
-%token <token> TAND TNOT TOR TUMINUS TUPLUS
+%token <string> TIDENTIFIER TINT TDOUBLE TSTRING                                    /* token strings */
+%token <token> TRETURN TSDEF TDEF TIF TELSE TFOREACH TAS TTRUE TFALSE               /* keywords */
+%token <token> TMUL TADD TDIV TSUB TMOD                                             /* binary operators */
+%token <token> TCEQ TCNEQ TCLE TCGE TCLT TCGT                                       /* comparison operators */
+%token <token> TEQUAL                                                               /* assignment operator */
+%token <token> TTBOOL TTDOUBLE TTINT TTSTR TTSTRUCT TTUINT TTVOID                   /* type tokens */
+%token <token> TLBRAC TRBRAC TLBRACKET TRBRACKET TLPAREN TRPAREN TCOMMA TPERIOD     /* {} [] () , . */
+%token <token> TUMINUS                                                              /* unary operators */
+%token <token> TLAND TLOR TLNOT                                                     /* logical operators */ 
+%token <token> TBAND TBXOR TBOR                                                     /* bitwise operators */
 
 /* Non-terminal types */
-%type <token> type comparison def
+%type <token> type bitwise comparison def
 %type <ident> identifier
 %type <statement> statement struct_decl var_decl list_decl func_decl assignment return loop conditional
 %type <expression> expression value numeric list_access struct list var_access factor term
@@ -47,7 +51,7 @@
 %right TEQUAL
 %left TADD TSUB
 %left TMOD TMUL TDIV
-%nonassoc TUMINUS TUPLUS
+%nonassoc TUMINUS 
 
 %start program
 
@@ -87,7 +91,7 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                      | TTBOOL
                      ;
 
-            struct_decl : TSTRUCT identifier TLBRACKET var_decls TRBRACKET { $$ = new NStructureDeclaration(*$2, *$4); }	
+            struct_decl : TTSTRUCT identifier TLBRACKET var_decls TRBRACKET { $$ = new NStructureDeclaration(*$2, *$4); }	
                         ;
 
                 var_decls : { $$ = new VariableList(); }
@@ -137,9 +141,8 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                 term : term TMUL factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
                      | term TDIV factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
                      | term TMOD factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
-                     | term TAND factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
-                     | term TOR factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
                      | term comparison factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
+                     | term bitwise factor { $$ = new NBinaryOperator(*$1, $2, *$3); }
                      | factor { }
                      ;
 
@@ -149,7 +152,14 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                                | TCLT
                                | TCGE
                                | TCLE
+                               | TLAND
+                               | TLOR
                                ;
+
+                    bitwise : TBAND
+                            | TBXOR
+                            | TBOR
+                            ;
 
                     factor : var_access { }
                            | list { }

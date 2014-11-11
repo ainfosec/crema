@@ -128,13 +128,22 @@ std::ostream & NBinaryOperator::print(std::ostream & os) const
   case TMOD:
       symbol = "%";
       break;
-  case TNOT:
+  case TBAND:
+      symbol = "&";
+      break;
+  case TBXOR:
+      symbol = "^";
+      break;
+  case TBOR:
+      symbol = "|";
+      break;
+  case TLNOT:
       symbol = "!";
       break;
-  case TOR:
+  case TLOR:
       symbol = "||";
       break;
-  case TAND:
+  case TLAND:
       symbol = "&&";
       break;
   default:

@@ -223,6 +223,15 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
     case TMOD:
 	return binOpInstCreate(llvm::Instruction::SRem, context, lhs, rhs);
 	break;
+    case TBAND:
+    return binOpInstCreate(llvm::Instruction::And, context, lhs, rhs);
+    break;
+    case TBOR:
+    return binOpInstCreate(llvm::Instruction::Or, context, lhs, rhs);
+    break;
+    case TBXOR:
+    return binOpInstCreate(llvm::Instruction::Xor, context, lhs, rhs);
+    break;
 
 	// Comparison operations
     case TCEQ:
