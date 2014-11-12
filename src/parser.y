@@ -100,6 +100,8 @@ var_decls : { $$ = new VariableList(); }
 
 var_decl : type identifier { $$ = new NVariableDeclaration(*(new Type($1)), *$2); }
 	 | type identifier TEQUAL expression { $$ = new NVariableDeclaration(*(new Type($1)), *$2, $4); }
+	 | TSTRUCT identifier identifier { $$ = new NVariableDeclaration(*(new StructType(*$2)), *$3); }
+	 | TSTRUCT identifier identifier TEQUAL identifier { $$ = new NVariableDeclaration(*(new StructType(*$2)), *$3, $5); }
 	 ;
 
 func_decl : def type identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration(*(new Type($2)), *$3, *$5, $7); }

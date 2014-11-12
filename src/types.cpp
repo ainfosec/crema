@@ -177,6 +177,12 @@ std::ostream & Type::print(std::ostream & os) const
     return os;
 }
 
+std::ostream & StructType::print(std::ostream & os) const
+{
+    os << "STRUCT " << ident;
+    return os;
+}
+
 /**
    Function to convert a Crema Type to an llvm::Type
 

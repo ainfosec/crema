@@ -14,6 +14,8 @@
 #include <iostream>
 #include <llvm/IR/Type.h>
 
+class NIdentifier;
+
 /**
  *  Enumeration of types available to Crema programs */
 enum TypeCodes {
@@ -23,22 +25,24 @@ enum TypeCodes {
     VOID,
     BOOL,
     UINT,
+    STRUCT,
     INVALID
 };
 
 /**
  *  Root type class */
 class Type {
-private:
+protected:
     void setType(int type);
 public:
     bool list; /**< Bool value if the type is a list-type */
+    bool structt; /**< Bool value if the type is a struct type */
     TypeCodes typecode; /**< typecode for the Type */
     virtual ~Type() { }
 Type() : typecode(INVALID) { }
-    Type(int type) { setType(type); list = false; }
-    Type(int type, bool l) { setType(type); list = l; }
-    Type(Type & t, bool l) { typecode = t.typecode; list = l; }
+    Type(int type) { setType(type); list = false; structt = false; }
+    Type(int type, bool l) { setType(type); list = l; structt = false; }
+    Type(Type & t, bool l) { typecode = t.typecode; list = l; structt = false; }
     bool isList() { return list; }
     llvm::Type * toLlvmType();
     std::ostream & print(std::ostream & os) const;
@@ -49,6 +53,14 @@ Type() : typecode(INVALID) { }
     friend bool operator>=(Type & t1, Type & t2);
     friend bool operator<(Type & t1, Type & t2);
     friend bool operator<=(Type & t1, Type & t2);
+};
+
+class StructType : public Type
+{
+public:
+    NIdentifier & ident;
+StructType(NIdentifier & ident) : ident(ident) { setType(STRUCT); structt = true; }
+    std::ostream & print(std::ostream & os) const;
 };
 
 #endif // CREMA_TYPE_H_
