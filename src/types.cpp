@@ -196,20 +196,20 @@ llvm::Type * Type::toLlvmType()
     switch(typecode)
     {
     case INT:
-	return llvm::Type::getInt64Ty(llvm::getGlobalContext());
-	break;
+    	return llvm::Type::getInt64Ty(llvm::getGlobalContext());
+	    break;
     case DOUBLE:
-	return llvm::Type::getDoubleTy(llvm::getGlobalContext());
-	break;
+    	return llvm::Type::getDoubleTy(llvm::getGlobalContext());
+    	break;
     case VOID:
-	return llvm::Type::getVoidTy(llvm::getGlobalContext());
-	break;
+    	return llvm::Type::getVoidTy(llvm::getGlobalContext());
+    	break;
     case BOOL:
-	return llvm::Type::getInt8Ty(llvm::getGlobalContext());
-	break;
+    	return llvm::Type::getInt8Ty(llvm::getGlobalContext());
+    	break;
     default:
-	return NULL;
-	break;
+    	return NULL;
+    	break;
     }
     return NULL;
 }
@@ -224,22 +224,22 @@ void Type::setType(int type)
     switch(type)
     {
     case TTINT:
-	typecode = INT;
-	break;
+    	typecode = INT;
+    	break;
     case TTUINT:
-	typecode = UINT;
-	break;
+    	typecode = UINT;
+    	break;
     case TTDOUBLE:
-	typecode = DOUBLE;
-	break;
+    	typecode = DOUBLE;
+    	break;
     case TTBOOL:
-	typecode = BOOL;
-	break;
+    	typecode = BOOL;
+    	break;
     case TTSTR:
-	typecode = STRING;
-	break;
+    	typecode = STRING;
+    	break;
     case TTVOID:
-	typecode = VOID;
-	break;
+    	typecode = VOID;
+    	break;
     }
 }
