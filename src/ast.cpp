@@ -48,7 +48,7 @@ std::ostream & NBlock::print(std::ostream & os) const
 
 std::ostream & NVariableDeclaration::print(std::ostream & os) const
 {
-  if (!type.list)
+  if (!type.isList)
   {
       os << "Variable declared --- (" << type << " " << ident << ")";
   }
