@@ -21,14 +21,23 @@ int main(int argc, const char *argv[])
     ez::ezOptionParser opt;
     opt.overview = "Crema Compiler for Sub-Turing Complete Programs";
     opt.syntax = "cremacc [OPTIONS]";
-    opt.footer = "(C) 2014 Assured Information Security, Inc.\n";
-    
+    opt.footer = "\n(C) 2014 Assured Information Security, Inc.\n";
+
+    opt.add("", 0, 0, 0, "Prints this help", "-h");
     opt.add("", 0, 0, 0, "Parse only: Will halt after parsing and pretty-printing the AST for the input program", "-p");
     opt.add("", 0, 0, 0, "Semantic check only: Will halt after parsing, pretty-printing and performing semantic checks on the AST for the input program", "-s");
     opt.add("", 0, 0, 0, "Run generated code", "-r");
     opt.add("", 0, 1, 0, "Read input from file instead of stdin", "-f"); // TODO!
 
     opt.parse(argc, argv);
+
+    if (opt.isSet("-h"))
+    {
+	std::string usage;
+	opt.getUsage(usage);
+	std::cout << usage;
+	return 0;
+    }
     
     // Parse input
     yyparse();
