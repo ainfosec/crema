@@ -10,37 +10,65 @@
 #include <iostream>
 #include "ast.h"
 #include "codegen.h"
+#include "ezOptionParser.hpp"
 
 extern NBlock *rootBlock;
 extern int yyparse();
 
-int main(int argc, char **argv)
+int main(int argc, const char *argv[])
 {
+    // Handling command-line options
+    ez::ezOptionParser opt;
+    opt.overview = "Crema Compiler for Sub-Turing Complete Programs";
+    opt.syntax = "cremacc [OPTIONS]";
+    opt.footer = "(C) 2014 Assured Information Security, Inc.\n";
+    
+    opt.add("", 0, 0, 0, "Parse only: Will halt after parsing and pretty-printing the AST for the input program", "-p");
+    opt.add("", 0, 0, 0, "Semantic check only: Will halt after parsing, pretty-printing and performing semantic checks on the AST for the input program", "-s");
+    opt.add("", 0, 0, 0, "Run generated code", "-r");
+    opt.add("", 0, 1, 0, "Read input from file instead of stdin", "-f"); // TODO!
+
+    opt.parse(argc, argv);
+    
+    // Parse input
     yyparse();
+    if (opt.isSet("-p"))
+    {
+	return 0;
+    }
+
+    // Perform semantic checks
     if (rootBlock)
-      {
+    {
 	std::cout << *rootBlock << std::endl;
 	if (rootBlock->semanticAnalysis(&rootCtx))
-	  {
+	{
 	    std::cout << "Passed semantic analysis!" << std::endl;
-	  }
+	}
 	else
-	  {
+	{
 	    std::cout << "Failed semantic analysis!" << std::endl;
 	    return -1;
-	  }
-      }
+	}
+    }
+    if (opt.isSet("-s"))
+    {
+	return 0;
+    }
 
+    // Code Generation
     std::cout << "Generating LLVM IR bytecode" << std::endl;
     rootCodeGenCtx.codeGen(rootBlock);
     
     std::cout << "Dumping generated LLVM bytecode" << std::endl;
     rootCodeGenCtx.dump();
 
-
-    std::cout << "Running program:" << std::endl;
-    std::cout << "Return value: " << rootCodeGenCtx.runProgram().IntVal.toString(10, true) << std::endl;
-    std::cout << "Program run successfully!" << std::endl;
-    
+    // LLVM IR JIT Execution
+    if (opt.isSet("-r"))
+    {
+	std::cout << "Running program:" << std::endl;
+	std::cout << "Return value: " << rootCodeGenCtx.runProgram().IntVal.toString(10, true) << std::endl;
+	std::cout << "Program run successfully!" << std::endl;
+    }
     return 0;
 }

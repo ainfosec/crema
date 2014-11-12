@@ -22,7 +22,7 @@ for FILE in $(ls fail/)
 do
     echo -n "Running test" $FILE "... "
     ((TOTALTESTS++))
-    CREMA=$(../src/cremacc < "fail/"$FILE &> /dev/null)
+    CREMA=$(../src/cremacc -s < "fail/"$FILE &> /dev/null)
     if [[ $? -ne 0 ]]
     then
 	echo "passed!"
@@ -38,7 +38,7 @@ for FILE in $(ls success/)
 do
     echo -n "Running test" $FILE "... "
     ((TOTALTESTS++))
-    CREMA=$(../src/cremacc < "success/"$FILE &> /dev/null)
+    CREMA=$(../src/cremacc -s < "success/"$FILE &> /dev/null)
     if [[ $? -eq 0 ]]
     then
 	echo "passed!"
