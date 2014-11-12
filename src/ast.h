@@ -93,6 +93,7 @@ public:
 NStructureAssignmentStatement(NIdentifier & ident, NStructureAccess & structure, NExpression & expr) : NAssignmentStatement(ident, expr), structure(structure) { }
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
     std::ostream & print(std::ostream & os) const;
+    bool semanticAnalysis(SemanticContext * ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return expr.checkRecursion(ctx, func); }
 };
 
@@ -180,6 +181,7 @@ public:
 NStructureDeclaration(NIdentifier & ident, VariableList & members) : ident(ident), members(members) { }
     virtual llvm::Value* codeGen(CodeGenContext & context) { }
     std::ostream & print(std::ostream & os) const;
+    bool semanticAnalysis(SemanticContext * ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
 };
 
@@ -205,6 +207,8 @@ public:
     NIdentifier & ident; /**< Name of structure variable */
 NStructureAccess(NIdentifier & ident, NIdentifier & member) : ident(ident), member(member) { }
     std::ostream & print(std::ostream & os) const;
+    Type & getType(SemanticContext * ctx) const;
+    bool semanticAnalysis(SemanticContext * ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
 };
 

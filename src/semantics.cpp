@@ -250,9 +250,29 @@ bool NAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
 
   if (var->type < expr.getType(ctx))
     {
-      std::cout << "Type mismatch for assignment to " << ident << std::endl;
+	std::cout << "Type mismatch (" << var->type << " vs. " << expr.getType(ctx) << ") for assignment to " << ident << std::endl;
       return false;
     }
+  return true;
+}
+
+bool NStructureAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
+{
+  NVariableDeclaration *var = ctx->searchVars(ident);
+  if (!var)
+    {
+      std::cout << "Assignment to undefined variable " << ident << std::endl;
+      return false;
+    }
+  if (!var->type.structt)
+  {
+      return false;
+  }
+  if (structure.getType(ctx) < expr.getType(ctx))
+  {
+      std::cout << "Type mismatch (" << var->type << " vs. " << expr.getType(ctx) << ") for assignment to " << ident << std::endl;
+      return false;
+  }
   return true;
 }
 
@@ -267,7 +287,7 @@ bool NListAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
   Type *t = new Type(var->type, false);
   if (*t < expr.getType(ctx))
     {
-      std::cout << "Type mismatch for assignment to " << ident << std::endl;
+      std::cout << "Type mismatch (" << *t << " vs. " << expr.getType(ctx) << ") for assignment to " << ident << std::endl;
       return false;
     }
   return true;
@@ -465,6 +485,17 @@ bool NIfStatement::semanticAnalysis(SemanticContext * ctx)
 
 bool NVariableDeclaration::semanticAnalysis(SemanticContext * ctx)
 {
+    if (type.structt)
+    {
+	StructType *st = (StructType *) &type;
+	NStructureDeclaration *sd = ctx->searchStructs(st->ident);
+	if (NULL == sd)
+	{
+	    std::cout << "Declaring variable of undefined struct type: " << st->ident << std::endl;
+	    return false;
+	}
+    }
+    
     if (!ctx->registerVar(this)) 
     {
 	std::cout << "Duplicate var decl for " << ident << std::endl;
@@ -483,4 +514,71 @@ bool NVariableDeclaration::semanticAnalysis(SemanticContext * ctx)
     return true;
 }
 
+bool NStructureDeclaration::semanticAnalysis(SemanticContext * ctx)
+{
+    ctx->newScope(*(new Type()));
+    for (int i = 0; i < members.size(); i++)
+    {
+	if (!ctx->registerVar(members[i]))
+	{
+	    std::cout << "Duplicate struct member declaration for struct " << ident << std::endl;
+	    ctx->delScope();
+	    return false;
+	}
+    }
+    ctx->delScope();
+    return true;
+}
 
+Type & NStructureAccess::getType(SemanticContext * ctx) const
+{
+  NVariableDeclaration *var = ctx->searchVars(ident);
+  if (!var)
+  {
+      return *(new Type());
+  }
+  if (!(var->type.structt))
+  {
+      return *(new Type());
+  }
+  StructType *st = (StructType *) &(var->type);
+  NStructureDeclaration *sd = ctx->searchStructs(st->ident);
+  if (!sd)
+  {
+      return *(new Type());
+  }
+  for (int i = 0; i < sd->members.size(); i++)
+  {
+      if (member == sd->members[i]->ident)
+      {
+	  return sd->members[i]->type;
+      }
+  }
+  return *(new Type());
+}
+
+bool NStructureAccess::semanticAnalysis(SemanticContext * ctx)
+{
+    NVariableDeclaration * var = ctx->searchVars(ident);
+    if (NULL == var)
+    {
+	std::cout << "Structure variable " << ident << " cannot be found!" << std::endl;
+	return false;
+    }
+    StructType *st = (StructType *) &(var->type);
+    NStructureDeclaration * s = ctx->searchStructs(st->ident);
+    if (NULL == s)
+    {
+	std::cout << "Reference to undefined structure " << st->ident << std::endl;
+	return false;
+    }
+    for (int i = 0; i < s->members.size(); i++)
+    {
+	if (s->members[i]->ident == member)
+	{
+	    return true;
+	}
+    }
+    std::cout << "Reference to non-existent member " << member << " of structure variable " << ident << std::endl;
+    return false;
+}

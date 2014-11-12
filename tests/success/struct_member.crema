@@ -1,7 +1,9 @@
-struct foo {
+struct bar {
   int a,
   int b
 }
+
+struct bar foo 
 
 foo.a = 34
 int a = foo.a - 2
