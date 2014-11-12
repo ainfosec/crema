@@ -467,7 +467,7 @@ bool NLoopStatement::semanticAnalysis(SemanticContext * ctx)
 	std::cout << "List variable " << list << " not defined!" << std::endl;
 	return false;
     }
-    if (!l->type.list)
+    if (!l->type.isList)
     {
 	std::cout << "Variable " << list << " not a list!" << std::endl;
 	return false;

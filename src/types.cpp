@@ -21,7 +21,7 @@
 */
 bool operator==(Type & t1, Type & t2)
 {
-    return (t1.typecode == t2.typecode) && (t1.list == t2.list);
+    return (t1.typecode == t2.typecode) && (t1.isList == t2.isList);
 }
 
 /**
@@ -49,7 +49,7 @@ bool operator!=(Type & t1, Type & t2)
 bool operator>(Type & t1, Type & t2)
 {
     // List types go with list types, singtons with singletons
-    if (t1.list != t2.list)
+    if (t1.isList != t2.isList)
     {
 	return false;
     }
@@ -173,7 +173,7 @@ std::ostream & Type::print(std::ostream & os) const
 	os << "UNKNOWN TYPE!";
 	break;
     }
-    if (list)
+    if (isList)
     {
 	os << "[]";
     }
