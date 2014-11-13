@@ -11,7 +11,9 @@
 #include "parser.h"
 
 /**
-   Overload for the == operator to allow for simple comparison of two NIdentifiers
+   Overload for the == operator to allow for simple comparison of two NIdentifiers.
+   The NIdentifier values being compared are of type string, which represent the names of 
+   variables, lists, structs, struct members, etc. 
 
    @param i1 First NIdentifier to compare
    @param i2 Second NIdentifier to compare
@@ -35,17 +37,39 @@ std::ostream & operator<<(std::ostream & os, const Node & node)
   return os;
 }
 
+/**
+   Print function for NBlock objects in the AST. Each block is composed of a vector of 
+   statements. This function iterators over the typedef std::vector<NStatement*> StatementList,
+   printing each each statement in a given block, and returning the output stream.
+
+   @param os Output stream to print to
+   @return Output stream passed in
+*/
 std::ostream & NBlock::print(std::ostream & os) const
 {
     os << "Block: {" << std::endl;
-    for (int i = 0; i < statements.size(); i++)
-    {
-      os << *(statements[i]) << std::endl;
-    }
+  
+    for (StatementList::const_iterator it = statements.begin(); it != statements.end(); ++it)
+      os << *(*it) << std::endl;
+
     os << "}" << std::endl;
     return os;
 }
 
+/**
+   Print function for NVariableDeclaration objects. There are three members of the 
+   NVariableDeclaration object that are printed: 
+   
+   1) Type 
+   2) NIdentifier (Variable name)
+   3) Associated value or RHS (optional)
+
+   The initializationExpression is the RHS in variable assignments (e.g. the 4 in int a = 4).
+   If initializationExpression is NULL, then the no value was assigned to variable (e.g. int a).
+
+   @param os Output stream to print to
+   @return Output stream passed in
+*/
 std::ostream & NVariableDeclaration::print(std::ostream & os) const
 {
   if (!type.isList)
@@ -64,14 +88,23 @@ std::ostream & NVariableDeclaration::print(std::ostream & os) const
   return os;
 }
 
+/**
+   Print function for NFunctionDeclaration objects. It first prints the return type
+   and name of the function followed by the arguments contained within the 
+   typedef std::vector<NVariableDeclaration *> VariableList. Then, the NBlock body 
+   of the function is printed.
+
+   @param os Output stream to print to
+   @return Output stream passed in
+*/
 std::ostream & NFunctionDeclaration::print(std::ostream & os) const
 {
   os << "Function declared --- (" << type << " " << ident << "(";
-  for (int i = 0; i < variables.size(); i++)
-    {
-      os << *(variables[i]) << " ";
-    }
-  os << ") " << *body << ")"; 
+
+  for (VariableList::const_iterator it = variables.begin(); it != variables.end(); ++it)
+      os << *(*it) << ") ";
+
+  os << *body << ")"; 
   os << std::endl;
   
   return os;
