@@ -243,16 +243,20 @@ bool NAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
 {
   NVariableDeclaration *var = ctx->searchVars(ident);
   if (!var)
-    {
+  {
       std::cout << "Assignment to undefined variable " << ident << std::endl;
       return false;
-    }
-
+  }
+  
   if (var->type < expr.getType(ctx))
-    {
-	std::cout << "Type mismatch (" << var->type << " vs. " << expr.getType(ctx) << ") for assignment to " << ident << std::endl;
+  {
+      std::cout << "Type mismatch (" << var->type << " vs. " << expr.getType(ctx) << ") for assignment to " << ident << std::endl;
       return false;
-    }
+  }
+  if (var->type != expr.getType(ctx))
+  {
+      std::cout << "Warning: Upcast from " << var->type << " to " << expr.getType(ctx) << std::endl;
+  }
   return true;
 }
 
@@ -270,8 +274,12 @@ bool NStructureAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
   }
   if (structure.getType(ctx) < expr.getType(ctx))
   {
-      std::cout << "Type mismatch (" << var->type << " vs. " << expr.getType(ctx) << ") for assignment to " << ident << std::endl;
+      std::cout << "Type mismatch (" << structure.getType(ctx) << " vs. " << expr.getType(ctx) << ") for assignment to " << ident << std::endl;
       return false;
+  }
+  if (structure.getType(ctx) != expr.getType(ctx))
+  {
+      std::cout << "Warning: Upcast from " << structure.getType(ctx) << " to " << expr.getType(ctx) << std::endl;
   }
   return true;
 }
@@ -286,20 +294,29 @@ bool NListAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
     }
   Type *t = new Type(var->type, false);
   if (*t < expr.getType(ctx))
-    {
+  {
       std::cout << "Type mismatch (" << *t << " vs. " << expr.getType(ctx) << ") for assignment to " << ident << std::endl;
       return false;
-    }
+  }
+  if (*t != expr.getType(ctx))
+  {
+      std::cout << "Warning: Upcast from " << *t << " to " << expr.getType(ctx) << std::endl;
+  }
   return true;
 }
 
 bool NReturn::semanticAnalysis(SemanticContext * ctx)
 {
   if (retExpr.getType(ctx) > ctx->currType.back())
-    {
+  {
       std::cout << "Returning type " << retExpr.getType(ctx) << " when a " << ctx->currType.back() << " was expected" << std::endl;
       return false;
-    }
+  }
+  if (retExpr.getType(ctx) != ctx->currType.back())
+  {
+      std::cout << "Warning: Upcast from " << retExpr.getType(ctx) << " to " << ctx->currType.back() << std::endl;
+  }
+
   return true;
 }
 
@@ -396,22 +413,26 @@ bool NFunctionCall::semanticAnalysis(SemanticContext * ctx)
 {
   NFunctionDeclaration *func = ctx->searchFuncs(ident);
   if (func)
-    {
+  {
       if (func->variables.size() != args.size())
-	{
+      {
 	  std::cout << "Call to " << ident << " with invalid number of arguments! " << func->variables.size() << " expected, " << args.size() << " provided" << std::endl;
 	  return false;
-	}
+      }
       for (int i = 0; i < args.size(); i++)
-	{
+      {
 	  if (args[i]->getType(ctx) > func->variables[i]->type)
-	    {
+	  {
 	      std::cout << "Type mismatch when calling function: " << ident << std::endl;
 	      return false;
-	    }
-	}
+	  }
+	  if (args[i]->getType(ctx) != func->variables[i]->type)
+	  {
+	      std::cout << "Warning: Type upcast for argument: " << ident << std::endl;
+	  }
+      }
       return true;
-    }
+  }
   std::cout << "Call to undefined function: " << ident << std::endl;
   return false;
 }
