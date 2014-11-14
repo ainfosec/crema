@@ -24,7 +24,7 @@ public:
     std::vector<NStructureDeclaration*> structs; /**< List of defined structures */
     FunctionList funcs; /**< List of defined functions */
     
-    SemanticContext() { newScope(*(new Type())); currScope = 0; } /**< Default constructor, creates the root (empty) scope */
+SemanticContext() { newScope(*(new Type())); currScope = 0; } /**< Default constructor, creates the root (empty) scope */
     void newScope(Type & type);
     void delScope();
     NStructureDeclaration * searchStructs(NIdentifier & ident);

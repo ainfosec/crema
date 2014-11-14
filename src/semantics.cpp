@@ -18,7 +18,14 @@
 SemanticContext rootCtx;
 
 /** 
-    Creates a new scope for variable declarations
+    Creates a new scope for variable declarations. 
+    'vars' is a std::vector<VariableList*> and VariableList is a 
+    typedef std::vector<NVariableDeclaration*>. So when newScope is called,
+    an empty vector of NVariableDeclarations is pushed to the back of the
+    vars vector. 'currType' is a std::vector<Type>. The new type being pushed 
+    to the back of currType contains a boolean 'isList' member and a
+    TypeCodes 'typecode' variable, which is an enum containing all the possible
+    types. currScope is incremented by one.
 
     @param type The return type of the scope (0 if void)
  */
@@ -30,7 +37,10 @@ void SemanticContext::newScope(Type & type)
 }
 
 /**
-   Deletes the most recent scope
+   Deletes the most recent scope.
+   Pops back the most recent VariableList (typedef std::vector<NVariableDeclaration*>)
+   from the vars vector and the most recent Type object from the currType vector. 
+   currScope is decremented by one.
 */
 void SemanticContext::delScope()
 {
@@ -40,7 +50,13 @@ void SemanticContext::delScope()
 }
 
 /**
-   Registers the variable into the current scope
+   Registers the variable into the current scope and returns true or false depending
+   on whether it was successfully added. The function looks to see if there is an 
+   existing variable name (ident) in the current scope by iterating through the 
+   VariableList (typedef std::vector<NVariableDeclaration*>) and comparing the 
+   argument member, var->ident, with the other ident members within the VariableList.
+   If there is no duplicate, the function will push_back the var class object to the
+   vars vector.
 
    @param var Pointer to the NVariableDeclaration to add to the current scope
    @return true if the variable was added, false if it is a duplicate
@@ -48,23 +64,22 @@ void SemanticContext::delScope()
 bool SemanticContext::registerVar(NVariableDeclaration * var)
 {
     if (NULL != searchFuncs(var->ident))
-    {
-	return false;
-    }
-    
+    	return false;
+  
   // Search through current scope for variable duplication
-  for (int j = 0; j < (vars[currScope])->size(); j++)
-    {
-      if (var->ident == vars[currScope]->at(j)->ident)
-	return false;
-    }
+  for (auto it : (*(vars[currScope])))
+    if ( var->ident == it->ident )
+        return false;
 
   vars[currScope]->push_back(var);
   return true;
 }
 
 /**
-   Registers the function into the global scope
+   Registers the function into the global scope and returns true or false depending
+   on whether it was successfully added. The function searches for the function name
+   being passed as an argument (func->ident) matches with exising functions in
+   the funcs vector. 
 
    @param func Pointer to the NFunctionDeclaration to add to the global scope
    @return true if the function was added, false if it is a duplicate
@@ -72,24 +87,22 @@ bool SemanticContext::registerVar(NVariableDeclaration * var)
 bool SemanticContext::registerFunc(NFunctionDeclaration * func)
 {
     if (NULL != searchVars(func->ident))
-    {
-	return false;
-    }
-
+    	return false;
 
   // Search through for duplicate function duplication
-  for (int j = 0; j < funcs.size(); j++)
-    {
-      if (func->ident == funcs[j]->ident)
-	return false;
-    }
+  for (auto it : funcs)
+      if ( func->ident == it->ident )
+          return false;
 
   funcs.push_back(func);
   return true;
 }
 
 /**
-   Registers the structure into the global scope
+   Registers the structure into the global scope and returns true or false depending 
+   on whether it was successfully added. The function searches for struct name 
+   being passed as an argument (s->ident) matches with existing struct names
+   in the structs vector.
 
    @param s Pointer to the NStructureDeclaration to add to the global scope
    @return true if the structure was added, false if it is a duplicate
@@ -97,18 +110,20 @@ bool SemanticContext::registerFunc(NFunctionDeclaration * func)
 bool SemanticContext::registerStruct(NStructureDeclaration * s)
 {
   // Search through for duplicate struct duplication
-  for (int j = 0; j < structs.size(); j++)
-    {
-      if (s->ident == structs[j]->ident)
-	return false;
-    }
+  for (auto it : structs)
+      if ( s->ident == it->ident )
+          return false;
 
   structs.push_back(s);
   return true;
 }
 
 /**
-  Searches the local, then parent scopes for a variable declaration
+  Searches the local, then parent scopes for a variable declaration. The search begins
+  at the back of the std::vector<Variable*> vars vector. At each vars element the inner
+  for loop looks for matches between the function argument ident and the ident member of the 
+  NVariableDeclaration class. The function then returns a pointer to the class object of the
+  referenced variable.
 
   @param ident NIdentifier to search for in the stack of scopes
   @return Pointer to NVariableDeclaration of the referenced variable or NULL if it cannot be found
@@ -116,7 +131,7 @@ bool SemanticContext::registerStruct(NStructureDeclaration * s)
 NVariableDeclaration * SemanticContext::searchVars(NIdentifier & ident) 
 {
   // Search through stacks in reverse order
-  for (int i = vars.size() - 1; i >= 0; i--)
+  for (int i = vars.size()-1; i >= 0; i--)
     {
       // Search through current scope for variable
       for (int j = 0; j < (vars[i])->size(); j++)
@@ -130,36 +145,36 @@ NVariableDeclaration * SemanticContext::searchVars(NIdentifier & ident)
 }
 
 /**
-  Searches for a function declaration
+  Searches for a function declaration. A std::vector<T>::iterator iterates over the funcs
+  vector and the if statement compares the name of the argument ident with each function name
+  funcs[index]->ident. 
 
   @param ident NIdentifier to search for in the global function scope
   @return Pointer to NFunctionDeclaration of the referenced function or NULL if it cannot be found
 */
 NFunctionDeclaration * SemanticContext::searchFuncs(NIdentifier & ident) 
 {
-  for (int i = 0; i < funcs.size(); i++)
-    {
-      if (ident == funcs[i]->ident)
-	return funcs[i];
-    }
+  for (auto it : funcs)
+      if (ident == it->ident)
+          return it;
 
   return NULL;
 }
 
 
 /**
-  Searches for a structure declaration
+  Searches for a structure declaration. A std::vector<T>::iterator moves over the structs
+  vector and the if statement compares the name of the argument ident with each struct name
+  struct[index]->ident.
 
   @param ident NIdentifier to search for in the global structure scope
   @return Pointer to NStructureDeclaration of the referenced structure or NULL if it cannot be found
 */
 NStructureDeclaration * SemanticContext::searchStructs(NIdentifier & ident) 
 {
-  for (int i = 0; i < structs.size(); i++)
-    {
-      if (ident == structs[i]->ident)
-	return structs[i];
-    }
+  for (auto it : structs)
+      if (ident == it->ident)
+          return it;
 
   return NULL;
 }
@@ -175,11 +190,11 @@ bool NBlock::semanticAnalysis(SemanticContext * ctx)
 {
   // Points to the last element in the vector<int> currType.
   ctx->newScope(ctx->currType.back());
-  for (int i = 0; i < statements.size(); i++)
-    {
-      if (!((*(statements[i])).semanticAnalysis(ctx)))
-	return false;
-    }
+  //for (auto it = statements.begin(); it != statements.end(); ++it)
+  for( auto it : statements )
+      if (!((*it).semanticAnalysis(ctx)))
+          return false;
+
   ctx->delScope();
   return true;
 }
@@ -194,12 +209,10 @@ bool NBlock::semanticAnalysis(SemanticContext * ctx)
 */
 bool NBlock::checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func)
 {
-  for (int i = 0; i < statements.size(); i++)
-    {
-      if (((*(statements[i])).checkRecursion(ctx, func)))
-	return true;
-    }
-  return false;
+    for (auto it : statements)
+        if ((*it).checkRecursion(ctx, func))
+            return true;
+    return false;
 }
 
 bool NFunctionCall::checkRecursion(SemanticContext * ctx, NFunctionDeclaration * func)
