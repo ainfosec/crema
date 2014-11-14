@@ -190,7 +190,7 @@ bool NBlock::semanticAnalysis(SemanticContext * ctx)
 {
   // Points to the last element in the vector<int> currType.
   ctx->newScope(ctx->currType.back());
-  //for (auto it = statements.begin(); it != statements.end(); ++it)
+  
   for( auto it : statements )
       if (!((*it).semanticAnalysis(ctx)))
           return false;
@@ -215,12 +215,20 @@ bool NBlock::checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func)
     return false;
 }
 
+/**
+   Checks the name of the function being called (ident) with the name of the member
+   within the NFunctionCall object (func->ident), and returns true if the names match.
+   Otherwise, other function names are searched within the body and checkRecursion is
+   called again recursively.
+
+   @param ctx Pointer to the SemanticContext on which to perform the checks
+   @param func Pointer to the NFunctionDeclaration that is being checked
+   @return true if there is a recursive call, false otherwise
+*/
 bool NFunctionCall::checkRecursion(SemanticContext * ctx, NFunctionDeclaration * func)
 {
   if (func->ident == ident)
-    {
       return true;
-    }
   
   return ctx->searchFuncs(ident)->body->checkRecursion(ctx, func);
 }
@@ -271,6 +279,16 @@ upcast:
     return (t1 > t2) ? t1 : t2;
 }
 
+/**
+   An NVariableDeclaration pointer, var, is created and assiged to
+   the NVariableDeclaration object result of the searchVars function,
+   which searches for the variable name (ident) within the context, ctx.
+   If neither the variable name is not found or there is a type mismatch,
+   semanticAnalysis returns false. True, otherwise.
+
+   @param ctx Pointer to the SemanticContext on which to perform the checks
+   @return true if the variable and correct type are found, false otherwise.
+*/
 bool NAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
 {
   NVariableDeclaration *var = ctx->searchVars(ident);
@@ -337,6 +355,14 @@ bool NListAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
   return true;
 }
 
+/**
+   If the return expression type is further up the stack than the current 
+   context type, this function will return false. True, otherwise.
+
+   @param ctx Pointer to the SemanticContext on which to perform the checks
+   @return true if the type of the returned expression agrees with the current
+   context at the back of the stack.
+*/
 bool NReturn::semanticAnalysis(SemanticContext * ctx)
 {
   if (retExpr.getType(ctx) > ctx->currType.back())
