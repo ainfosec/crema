@@ -226,6 +226,25 @@ bool NBinaryOperator::semanticAnalysis(SemanticContext * ctx)
 Type & NBinaryOperator::getType(SemanticContext * ctx) const
 {
     Type & t1 = lhs.getType(ctx), & t2 = rhs.getType(ctx);
+    switch (op)
+    {
+	// Comparisons return a BOOL
+    case TCEQ:
+    case TCNEQ:
+    case TCLE:
+    case TCLT:
+    case TCGE:
+    case TCGT:
+    case TOR:
+    case TAND:
+	return *(new Type(TTBOOL));
+	break;
+	// Mathematical binary operations return the greater of the two types as long as they can be combined
+    default:
+	break;
+    }
+
+upcast:
     if (!(t1 >= t2 || t2 >= t1))
     {
 	return *(new Type());
