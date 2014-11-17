@@ -256,8 +256,8 @@ Type & NBinaryOperator::getType(SemanticContext * ctx) const
     case TCLT:
     case TCGE:
     case TCGT:
-    case TOR:
-    case TAND:
+    case TLOR:
+    case TLAND:
 	return *(new Type(TTBOOL));
 	break;
 	// Mathematical binary operations return the greater of the two types as long as they can be combined
@@ -431,7 +431,7 @@ bool NListAccess::semanticAnalysis(SemanticContext * ctx)
     NVariableDeclaration *var = ctx->searchVars(ident);
     if (var)
     {
-	if (!var->type.list)
+	if (!var->type.isList)
 	{
 	    return false;
 	}
