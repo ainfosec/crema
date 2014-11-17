@@ -15,6 +15,16 @@
 
 CodeGenContext rootCodeGenCtx; 
 
+/**
+   This constructor creates an llvm::Module object called 'rootModule' and a llvm::IRBuilder
+   object called 'Builder'. A Module instance is used to store all the information related to
+   an LLVM module. Modules are the top-level container of all other LLVM IR objects. Each
+   module contains a list of global variables, functions, and libraries that it depends on, 
+   a symbol table, and data about the target's characteristics. The IRBuilder provides a uniform
+   API for creating instructions and inserting them into a basic block. Use mutators 
+   (e.g. setVolatile) on instructions after they have been created for access to extra instruction
+   properties.
+*/
 CodeGenContext::CodeGenContext()
 {
     rootModule = new llvm::Module("Crema JIT", llvm::getGlobalContext());
@@ -22,7 +32,21 @@ CodeGenContext::CodeGenContext()
 }
 
 /**
-   Function to generate the LLVM IR bytecode for the program
+   Function to generate the LLVM IR bytecode for the program. 
+   llvm::ArrayRef<T> -- constant reference to an array and allows various APIs to take consecutive
+    elements easily and conveniently.
+   llvm::Type -- instances are immutable and only one instance of a particular type is ever created.
+    Thus, seeing if two types are equal is a pointer comparison. Once allocated, Types are never 
+    freed.
+   llvm::FunctionType -- derived from llvm::Type
+   llvm::Function -- derived from llvm::GlobalObject, immutable at runtime, because addess is 
+    immutable.
+   llvm::BasicBlock -- a container of instructions that execute sequentially. A well-formed basic
+    block has a list of non-terminating instructions followed by a single TerminatorInt instruction.
+   variables is of type vector<map, pair, llvm::Value *>
+   blocks is of type stack<llvm::BasicBlock *>
+   llvm::ReturnInst -- return a value (possibly void) from a function, and execution does not 
+    continue
 
    @param rootBlock Pointer to the root NBlock for the program
 */
@@ -43,6 +67,16 @@ void CodeGenContext::codeGen(NBlock * rootBlock)
     blocks.pop();
 }
 
+/**
+   This function returns an instance of the llvm::BinaryOperator object generated with the Create function. 
+   This is a construction of a binary instruction given the opcode and the two operands. 
+
+   @param llvm::Instruction::BinaryOps i -- enum containing #defines and #includes
+   @param CodeGenContext & context -- reference to the context of the operator statement  
+   @param NExpression & lhs -- lhs operand
+   @param NExpression & rhs -- rhs operand
+   @return llvm::Value * -- Pointer to an llvm::BinaryOperator instance containing instructions.
+*/
 static inline llvm::Value * binOpInstCreate(llvm::Instruction::BinaryOps i, CodeGenContext & context, NExpression & lhs, NExpression & rhs)
 {
     return llvm::BinaryOperator::Create(i, lhs.codeGen(context), rhs.codeGen(context), "", context.blocks.top());
