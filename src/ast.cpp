@@ -230,6 +230,21 @@ std::ostream & NBinaryOperator::print(std::ostream & os) const
   case TCEQ:
       symbol = "==";
       break;
+  case TCNEQ:
+      symbol = "!=";
+      break;
+  case TCGT:
+      symbol = ">";
+      break;
+  case TCLT:
+      symbol = "<";
+      break;
+  case TCGE:
+      symbol = ">=";
+      break;
+  case TCLE:
+      symbol = "<=";
+      break;
   default:
       symbol = "UNKNOWN OP";
       break;

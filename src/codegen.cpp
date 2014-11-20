@@ -67,6 +67,14 @@ void CodeGenContext::codeGen(NBlock * rootBlock)
     blocks.pop();
 }
 
+/** 
+   This function is a quick and dirty way to execute an 'sitofp' instruction to double
+*/
+static inline llvm::CastInst* convertToFP(llvm::Value * toConvert, CodeGenContext & context)
+{
+    return new llvm::SIToFPInst(toConvert, llvm::Type::getDoubleTy(llvm::getGlobalContext()), "", context.blocks.top());
+}
+
 /**
    This function returns an instance of the llvm::BinaryOperator object generated with the Create function. 
    This is a construction of a binary instruction given the opcode and the two operands. 
@@ -79,7 +87,17 @@ void CodeGenContext::codeGen(NBlock * rootBlock)
 */
 static inline llvm::Value * binOpInstCreate(llvm::Instruction::BinaryOps i, CodeGenContext & context, NExpression & lhs, NExpression & rhs)
 {
-    return llvm::BinaryOperator::Create(i, lhs.codeGen(context), rhs.codeGen(context), "", context.blocks.top());
+    // double > int
+    // this series of if-else statements needs to be carried out more thoughtfully to carry
+    // multiple types over implicit conversion. currently, it's using the convertToFP 
+    // function (see above) to do the SIToFP casting. a better solution is needed to decide
+    // how the casting will work.
+    if (rhs.type < lhs.type)
+        return llvm::BinaryOperator::Create(i, lhs.codeGen(context), convertToFP(rhs.codeGen(context), context), "", context.blocks.top());
+    else if (lhs.type < rhs.type)
+        return llvm::BinaryOperator::Create(i, convertToFP(lhs.codeGen(context), context), rhs.codeGen(context), "", context.blocks.top());
+    else
+        return llvm::BinaryOperator::Create(i, lhs.codeGen(context), rhs.codeGen(context), "", context.blocks.top());
 }
 
 /**
@@ -95,8 +113,14 @@ static inline llvm::Value * binOpInstCreate(llvm::Instruction::BinaryOps i, Code
 */
 static inline llvm::Value * cmpOpInstCreate(llvm::Instruction::OtherOps i, unsigned short p, CodeGenContext & context, NExpression & lhs, NExpression & rhs)
 {
+    // ********* NOTE **********
+    // The OtherOps needs to be
+    // mapped to the appropriate
+    // tokens.
+    // *************************
     return llvm::CmpInst::Create(i, p, lhs.codeGen(context), rhs.codeGen(context), "", context.blocks.top());
 }
+
 
 /**
    Function to execute a program after it's been generated using the LLVM JIT
