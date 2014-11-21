@@ -17,6 +17,15 @@
  * The root SemanticContext object to use when performing semantic analysis */
 SemanticContext rootCtx;
 
+SemanticContext::SemanticContext() 
+{ 
+  Type t;
+  t.list = false;
+  t.typecode = INT;
+  newScope(t); 
+  currScope = 0; 
+} 
+
 /** 
     Creates a new scope for variable declarations
 
