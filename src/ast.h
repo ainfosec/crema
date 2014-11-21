@@ -179,7 +179,7 @@ public:
     VariableList members; /**< List of variable members of structure */
     NIdentifier & ident; /**< Name of structure */
 NStructureDeclaration(NIdentifier & ident, VariableList & members) : ident(ident), members(members) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     std::ostream & print(std::ostream & os) const;
     bool semanticAnalysis(SemanticContext * ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }

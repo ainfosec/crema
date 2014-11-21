@@ -14,6 +14,7 @@
 #include "types.h"
 
 CodeGenContext rootCodeGenCtx; 
+std::map<std::string, llvm::StructType * > structs;
 
 CodeGenContext::CodeGenContext()
 {
@@ -120,6 +121,16 @@ llvm::Value * NBlock::codeGen(CodeGenContext & context)
     return last;
 }
 
+llvm::Value * NStructureDeclaration::codeGen(CodeGenContext & context)
+{
+  std::vector<llvm::Type *> vec;
+  for (int i = 0; i < members.size(); i++)
+    {
+      vec.push_back(members[i]->type.toLlvmType());
+    }
+  llvm::ArrayRef<llvm::Type *> mems(vec);
+  structs[ident.value] = llvm::StructType::create(llvm::getGlobalContext(), mems, ident.value, false);
+}
 llvm::Value * NIfStatement::codeGen(CodeGenContext & context)
 {
     llvm::Value * cond = condition.codeGen(context);
@@ -359,7 +370,16 @@ llvm::Value * NReturn::codeGen(CodeGenContext & context)
 
 llvm::Value * NVariableDeclaration::codeGen(CodeGenContext & context)
 {
-    llvm::AllocaInst *a = new llvm::AllocaInst(type.toLlvmType(), ident.value, context.blocks.top());
+  llvm::AllocaInst * a;
+  if (type.structt) 
+    {
+      StructType *st = (StructType *) &type;
+      a = new llvm::AllocaInst(structs[st->ident.value], ident.value, context.blocks.top());
+    }
+  else 
+    {
+      a = new llvm::AllocaInst(type.toLlvmType(), ident.value, context.blocks.top());
+    }
     context.addVariable(this, a);
 
     if (NULL != initializationExpression)
