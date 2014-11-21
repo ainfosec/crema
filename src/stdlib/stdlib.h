@@ -21,6 +21,7 @@ struct list_s {
 };
 
 typedef struct list_s list_t;
+typedef list_t string_t;
 
 #define DEFAULT_RESIZE_AMT 3
 
@@ -30,6 +31,16 @@ void list_insert(list_t * list, unsigned int idx, void * elem);
 void * list_retrieve(list_t * list, unsigned int idx);
 void list_append(list_t * list, void * elem);
 void list_concat(list_t * list1, list_t * list2);
+void list_delete(list_t * list, unsigned int idx);
+
+string_t * str_create();
+void str_free(string_t * str);
+void str_insert(string_t * str, unsigned int idx, char elem);
+char str_retrieve(string_t * str, unsigned int idx);
+void str_append(string_t * str, char elem);
+void str_concat(string_t * str1, string_t * str2);
+void str_print(string_t * str);
+void str_delete(string_t * str, unsigned int idx);
 
 list_t * int_list_create();
 void int_list_insert(list_t * list, unsigned int idx, int64_t val);

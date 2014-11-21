@@ -51,6 +51,25 @@ void list_free(list_t * list)
   free(list);
 }
 
+void list_delete(list_t * list, unsigned int idx)
+{
+  if (list == NULL)
+    {
+      return;
+    }
+  if (idx < list->len)
+    {
+      memmove(list->arr + (idx * list->elem_sz), list->arr + ((idx + list->elem_sz) * list->elem_sz), list->len - idx);
+      list->len--;
+    }
+}
+
+void str_delete(string_t * str, unsigned int idx)
+{
+  list_delete(str, idx);
+  ((char *) str->arr)[str->len] = '\0';
+}
+
 void list_insert(list_t * list, unsigned int idx, void * elem)
 {
   if (list == NULL)
@@ -104,6 +123,57 @@ void list_concat(list_t * list1, list_t * list2)
     }
 }
 
+string_t * str_create()
+{
+  return list_create(sizeof(char));
+}
+
+string_t * str_from_cstring(char * s)
+{
+  string_t * str = list_create(sizeof(char));
+  list_resize(str, strlen(s) + 1);
+  strncpy(str->arr, s, strlen(s));
+  str->len = strlen(s);
+  str_insert(str, strlen(s), '\0');
+  return str;
+}
+
+void str_free(string_t * str)
+{
+  list_free(str);
+}
+
+void str_insert(string_t * str, unsigned int idx, char elem)
+{
+  list_insert(str, idx, (void *) &elem);
+}
+
+char str_retrieve(string_t * str, unsigned int idx)
+{
+  char * p = list_retrieve(str, idx);
+  if (p == NULL)
+    {
+      fprintf(stderr, "ERROR: Retrieving out of bounds list element!\n");
+      exit(-1);
+    }
+  return (char) *p;
+}
+
+void str_append(string_t * str, char elem)
+{
+  list_append(str, (void *) &elem);
+}
+
+void str_concat(string_t * str1, string_t * str2)
+{
+  list_concat(str1, str2);
+}
+
+void str_print(string_t * str)
+{
+  printf("%s", (char *) str->arr);
+}
+
 list_t * int_list_create()
 {
   return list_create(sizeof(int64_t));
@@ -134,9 +204,27 @@ list_t * double_list_create()
 {
   return list_create(sizeof(double));
 }
-void double_list_insert(list_t * list, unsigned int idx, double val);
-double double_list_retrieve(list_t * list, unsigned int idx);
-void double_list_append(list_t * list, double elem);
+
+void double_list_insert(list_t * list, unsigned int idx, double val)
+{
+  list_insert(list, idx, (void *) &val);
+}
+
+double double_list_retrieve(list_t * list, unsigned int idx)
+{
+  double *p = list_retrieve(list, idx);
+  if (p != NULL)
+    {
+      fprintf(stderr, "ERROR: Retrieving out of bounds list element!\n");
+      exit(-1);
+    }
+  return (double) *p;
+}
+
+void double_list_append(list_t * list, double elem)
+{
+  list_append(list, (void *) &elem);
+}
 
 list_t * crema_seq(int64_t start, int64_t end)
 {
