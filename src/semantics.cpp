@@ -20,7 +20,7 @@ SemanticContext rootCtx;
 SemanticContext::SemanticContext() 
 { 
   Type t;
-  t.list = false;
+  t.isList = false;
   t.typecode = INT;
   newScope(t); 
   currScope = 0; 
