@@ -35,15 +35,15 @@ class Type {
 protected:
     void setType(int type);
 public:
-    bool list; /**< Bool value if the type is a list-type */
-    bool structt; /**< Bool value if the type is a struct type */
+    bool isList; /**< Bool value if the type is a list-type */
+    bool isStruct; /**< Bool value if the type is a struct type */
     TypeCodes typecode; /**< typecode for the Type */
     virtual ~Type() { }
 Type() : typecode(INVALID) { }
-    Type(int type) { setType(type); list = false; structt = false; }
-    Type(int type, bool l) { setType(type); list = l; structt = false; }
-    Type(Type & t, bool l) { typecode = t.typecode; list = l; structt = false; }
-    bool isList() { return list; }
+    Type(int type) { setType(type); isList = false; isStruct = false; }
+    Type(int type, bool l) { setType(type); isList = l; isStruct = false; }
+    Type(Type & t, bool l) { typecode = t.typecode; isList = l; isStruct = false; }
+    bool getIsList() { return isList; }
     llvm::Type * toLlvmType();
     virtual std::ostream & print(std::ostream & os) const;
     friend std::ostream & operator<<(std::ostream & os, Type & type); 
@@ -59,7 +59,7 @@ class StructType : public Type
 {
 public:
     NIdentifier & ident;
-StructType(NIdentifier & ident) : ident(ident) { setType(STRUCT); structt = true; }
+StructType(NIdentifier & ident) : ident(ident) { setType(STRUCT); isStruct = true; }
     std::ostream & print(std::ostream & os) const;
 };
 

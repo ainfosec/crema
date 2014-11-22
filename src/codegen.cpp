@@ -16,6 +16,16 @@
 CodeGenContext rootCodeGenCtx; 
 std::map<std::string, llvm::StructType * > structs;
 
+/**
+   This constructor creates an llvm::Module object called 'rootModule' and a llvm::IRBuilder
+   object called 'Builder'. A Module instance is used to store all the information related to
+   an LLVM module. Modules are the top-level container of all other LLVM IR objects. Each
+   module contains a list of global variables, functions, and libraries that it depends on, 
+   a symbol table, and data about the target's characteristics. The IRBuilder provides a uniform
+   API for creating instructions and inserting them into a basic block. Use mutators 
+   (e.g. setVolatile) on instructions after they have been created for access to extra instruction
+   properties.
+*/
 CodeGenContext::CodeGenContext()
 {
     rootModule = new llvm::Module("Crema JIT", llvm::getGlobalContext());
@@ -23,7 +33,21 @@ CodeGenContext::CodeGenContext()
 }
 
 /**
-   Function to generate the LLVM IR bytecode for the program
+   Function to generate the LLVM IR bytecode for the program. 
+   llvm::ArrayRef<T> -- constant reference to an array and allows various APIs to take consecutive
+    elements easily and conveniently.
+   llvm::Type -- instances are immutable and only one instance of a particular type is ever created.
+    Thus, seeing if two types are equal is a pointer comparison. Once allocated, Types are never 
+    freed.
+   llvm::FunctionType -- derived from llvm::Type
+   llvm::Function -- derived from llvm::GlobalObject, immutable at runtime, because addess is 
+    immutable.
+   llvm::BasicBlock -- a container of instructions that execute sequentially. A well-formed basic
+    block has a list of non-terminating instructions followed by a single TerminatorInt instruction.
+   variables is of type vector<map, pair, llvm::Value *>
+   blocks is of type stack<llvm::BasicBlock *>
+   llvm::ReturnInst -- return a value (possibly void) from a function, and execution does not 
+    continue
 
    @param rootBlock Pointer to the root NBlock for the program
 */
@@ -44,18 +68,67 @@ void CodeGenContext::codeGen(NBlock * rootBlock)
     blocks.pop();
 }
 
-static inline llvm::Value * binOpInstCreate(llvm::Instruction::BinaryOps i, CodeGenContext & context, NExpression & lhs, NExpression & rhs)
+/** 
+   This function is a quick and dirty way to execute an 'sitofp' instruction to double
+*/
+static inline llvm::CastInst* convertToFP(llvm::Value * toConvert, CodeGenContext & context)
 {
-    return llvm::BinaryOperator::Create(i, lhs.codeGen(context), rhs.codeGen(context), "", context.blocks.top());
-}
-
-static inline llvm::Value * cmpOpInstCreate(llvm::Instruction::OtherOps i, unsigned short p, CodeGenContext & context, NExpression & lhs, NExpression & rhs)
-{
-    return llvm::CmpInst::Create(i, p, lhs.codeGen(context), rhs.codeGen(context), "", context.blocks.top());
+    return new llvm::SIToFPInst(toConvert, llvm::Type::getDoubleTy(llvm::getGlobalContext()), "", context.blocks.top());
 }
 
 /**
+   This function returns an instance of the llvm::BinaryOperator object generated with the Create function. 
+   This is a construction of a binary instruction given the opcode and the two operands. 
+
+   @param llvm::Instruction::BinaryOps i -- enum containing #defines and #includes
+   @param CodeGenContext & context -- reference to the context of the operator statement  
+   @param NExpression & lhs -- lhs operand
+   @param NExpression & rhs -- rhs operand
+   @return llvm::Value * -- Pointer to an llvm::BinaryOperator instance containing instructions.
+*/
+static inline llvm::Value * binOpInstCreate(llvm::Instruction::BinaryOps i, CodeGenContext & context, NExpression & lhs, NExpression & rhs)
+{
+    // double > int
+    // this series of if-else statements needs to be carried out more thoughtfully to carry
+    // multiple types over implicit conversion. currently, it's using the convertToFP 
+    // function (see above) to do the SIToFP casting. a better solution is needed to decide
+    // how the casting will work.
+    if (rhs.type < lhs.type)
+        return llvm::BinaryOperator::Create(i, lhs.codeGen(context), convertToFP(rhs.codeGen(context), context), "", context.blocks.top());
+    else if (lhs.type < rhs.type)
+        return llvm::BinaryOperator::Create(i, convertToFP(lhs.codeGen(context), context), rhs.codeGen(context), "", context.blocks.top());
+    else
+        return llvm::BinaryOperator::Create(i, lhs.codeGen(context), rhs.codeGen(context), "", context.blocks.top());
+}
+
+/**
+   Creates an llvm::CmpInst::Create object, which constructs a compare instruction, given the predicate and two operands. The instruction is then 
+   inserted into a BasicBlock before the specified instruction. 
+
+   @param llvm::Instruction::OtherOps i -- an enum data structure
+   @param unsigned short p -- an enum that lists the possible predicates for CmpInst subclasses
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @param NExpression & lhs -- lhs operand
+   @param NExpression & rhs -- rhs operand
+   @return llvm::Value * -- Pointer to an llvm::CmpInst instance containing instructions.
+*/
+static inline llvm::Value * cmpOpInstCreate(llvm::Instruction::OtherOps i, unsigned short p, CodeGenContext & context, NExpression & lhs, NExpression & rhs)
+{
+    // ********* NOTE **********
+    // The OtherOps needs to be
+    // mapped to the appropriate
+    // tokens.
+    // *************************
+    return llvm::CmpInst::Create(i, p, lhs.codeGen(context), rhs.codeGen(context), "", context.blocks.top());
+}
+
+
+/**
    Function to execute a program after it's been generated using the LLVM JIT
+   LLVMInitializeNativeTarget() -- initializes the native target corresponding to the host, useful to ensure target is linked correctly
+   llvm::ExecutionEngine -- abstract interface for implmentation execution of LLVM modules
+
+   @return llvm::GenericValue object -- struct data structure
 */
 llvm::GenericValue CodeGenContext::runProgram()
 {
@@ -68,21 +141,19 @@ llvm::GenericValue CodeGenContext::runProgram()
 }
 
 /**
-   Looks up a reference to a variable
+   Looks up a reference to a variable by iterating over the variables vector and searching for the string
+   name of the variable (ident). 
 
    @param ident String name of variable
-   @return Pointer to llvm::Value of that variable
+   @return Pointer to llvm::Value of that variable, NULL if variable not found.
 */
 llvm::Value * CodeGenContext::findVariable(std::string ident)
 {
-    std::vector<std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> > >::reverse_iterator scopes = variables.rbegin();
-    for ( ; scopes != variables.rend(); scopes++)
-    {
-	if ((*scopes).find(ident) != (*scopes).end())
-	{
-	    return (*scopes).find(ident)->second.second;
-	}
-    }
+    std::vector<std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> > >::reverse_iterator scopes;
+    for ( scopes = variables.rbegin(); scopes != variables.rend(); scopes++)
+       if ((*scopes).find(ident) != (*scopes).end())
+	      return (*scopes).find(ident)->second.second;
+    
     std::cout << "Unable to find variable " << ident << "!" << std::endl;
     return NULL;
 }
@@ -110,13 +181,18 @@ llvm::Value * CodeGenError(std::string & str)
     return NULL;
 }
 
+/**
+   Iterates over the StatementList statements vector (typedef std::vector<NStatement*> StatementList) and
+   returns a pointer to the last statement in the context.
+
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @return llvm::Value * -- Pointer to the last statement in the codeGen(context)
+*/
 llvm::Value * NBlock::codeGen(CodeGenContext & context)
 {
     llvm::Value * last;
-    for (int i = 0; i < statements.size(); i++)
-    {
-	last = statements[i]->codeGen(context);
-    }
+    for (auto it : statements)
+        last = (it)->codeGen(context);
     
     return last;
 }
@@ -131,197 +207,219 @@ llvm::Value * NStructureDeclaration::codeGen(CodeGenContext & context)
   llvm::ArrayRef<llvm::Type *> mems(vec);
   structs[ident.value] = llvm::StructType::create(llvm::getGlobalContext(), mems, ident.value, false);
 }
+
+/**
+   Generates the code for if/if-then/if-then-else statements. A switch statement assigns the value to an llvm::Value * cond variable.
+   Then pointers to the parent block and the then, else, and ifcond blocks are created. The code then goes through and builds the
+   set of instructions according to the construction of the if statement. 
+
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @return llvm::Value * -- Pointer to the llvm::Value object containing the generated code
+*/
 llvm::Value * NIfStatement::codeGen(CodeGenContext & context)
 {
     llvm::Value * cond = condition.codeGen(context);
     switch (condition.type.typecode)
     {
     case DOUBLE:
-	cond = llvm::CmpInst::Create(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_ONE, llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat(0.0)), cond, "", context.blocks.top());
-	break;
+    	cond = llvm::CmpInst::Create(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_ONE, llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat(0.0)), cond, "", context.blocks.top());
+	    break;
     case UINT:
     case INT:
-	cond = llvm::CmpInst::Create(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, 0, false)), cond, "", context.blocks.top());
-	break;
+	    cond = llvm::CmpInst::Create(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, 0, false)), cond, "", context.blocks.top());
+	    break;
     default:
-	cond = NULL;
-	std::cout << "Error, unable to emit conditional bytecode for type: " << condition.type << std::endl;
-	return cond;
-	break;
+	    cond = NULL;
+	    std::cout << "Error, unable to emit conditional bytecode for type: " << condition.type << std::endl;
+	    return cond;
+	    break;
     }
 
     llvm::Function * parent = context.blocks.top()->getParent();
-    llvm::BasicBlock * tb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "then", parent);
-    llvm::BasicBlock * eb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "else");
-    llvm::BasicBlock * ifcb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "ifcont");
+    llvm::BasicBlock * thenBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "then", parent);
+    llvm::BasicBlock * elseBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "else");
+    llvm::BasicBlock * ifcontBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "ifcont");
 
-    llvm::BranchInst::Create(tb, eb, cond, context.blocks.top());
+    llvm::BranchInst::Create(thenBlock, elseBlock, cond, context.blocks.top());
     
-    context.Builder->SetInsertPoint(tb);
-    context.blocks.push(tb);
+    context.Builder->SetInsertPoint(thenBlock);
+    context.blocks.push(thenBlock);
     context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
     
-    llvm::Value * tv = thenblock.codeGen(context);
+    llvm::Value * thenValue = thenblock.codeGen(context);
 
-    context.Builder->CreateBr(ifcb);
-    tb = context.Builder->GetInsertBlock();
+    context.Builder->CreateBr(ifcontBlock);
+    thenBlock = context.Builder->GetInsertBlock();
     context.blocks.pop();
     context.variables.pop_back();
 
-    parent->getBasicBlockList().push_back(eb);
-    context.Builder->SetInsertPoint(eb);
+    parent->getBasicBlockList().push_back(elseBlock);
+    context.Builder->SetInsertPoint(elseBlock);
 
-    context.blocks.push(eb);
+    context.blocks.push(elseBlock);
     context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
 
-    llvm::Value * ev = NULL;
+    llvm::Value * elseValue = NULL;
+    
     if (elseblock)
-    {
-	ev = elseblock->codeGen(context);
-    }
+       elseValue = elseblock->codeGen(context);
     else if(elseif)
-    {
-	ev = elseif->codeGen(context);
-    }
-    context.Builder->CreateBr(ifcb);
-    eb = context.Builder->GetInsertBlock();
+       elseValue  = elseif->codeGen(context);
+    
+    context.Builder->CreateBr(ifcontBlock);
+    elseBlock = context.Builder->GetInsertBlock();
     context.blocks.pop();
     context.variables.pop_back();
 
-    context.blocks.push(ifcb);
-    parent->getBasicBlockList().push_back(ifcb);
-    context.Builder->SetInsertPoint(ifcb);
+    context.blocks.push(ifcontBlock);
+    parent->getBasicBlockList().push_back(ifcontBlock);
+    context.Builder->SetInsertPoint(ifcontBlock);
 /*
     llvm::PHINode *PN = context.Builder->CreatePHI(llvm::Type::getVoidTy(llvm::getGlobalContext()), 2, "iftmp");
 
-    PN->addIncoming(tv, tb);
-    PN->addIncoming(ev, eb);
+    PN->addIncoming(thenValue, thenBlock);
+    PN->addIncoming(ev, elseBlock);
 
     return PN;
 */
     return cond;
 }
 
+/**
+   Generates the code to read a variable from memory. The 'false' flag indicates that the variable is NOT volatile.
+   
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @return llvm::Value * -- Pointer to the code of the loaded instruction that was generated.
+*/
 llvm::Value * NVariableAccess::codeGen(CodeGenContext & context)
 {
     llvm::Value * var = context.findVariable(ident.value);
-    llvm::Value * li = new llvm::LoadInst(var, "", false, context.blocks.top());
-    return li;
+    llvm::Value * loadedInst = new llvm::LoadInst(var, "", false, context.blocks.top());
+    return loadedInst;
 }
 
+/**
+   Generates the instruction code for storing to memory. The 'false' flag indicates that the variable is NOT volatile.
+   
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @return llvm::Value * -- Pointer to the code of the loaded instruction that was generated.
+*/
 llvm::Value * NAssignmentStatement::codeGen(CodeGenContext & context)
 {
     return new llvm::StoreInst(expr.codeGen(context), context.findVariable(ident.value), false, context.blocks.top());
 }
 
+/**
+   Generates the code for binary and comparison statements.
+
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @return llvm::Value * -- Pointer to the code of the binary or comparison expression that was generated.
+*/
 llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
 {
     switch (op)
     {
 	// Math operations
     case TADD:
-	return binOpInstCreate(llvm::Instruction::Add, context, lhs, rhs);
-	break;
+    	return binOpInstCreate(llvm::Instruction::Add, context, lhs, rhs);
+    	break;
     case TSUB:
-	return binOpInstCreate(llvm::Instruction::Sub, context, lhs, rhs);
-	break; 
+    	return binOpInstCreate(llvm::Instruction::Sub, context, lhs, rhs);
+    	break; 
     case TMUL:
-	return binOpInstCreate(llvm::Instruction::Mul, context, lhs, rhs);
-	break; 
+    	return binOpInstCreate(llvm::Instruction::Mul, context, lhs, rhs);
+    	break; 
     case TDIV:
-	return binOpInstCreate(llvm::Instruction::SDiv, context, lhs, rhs);
-	break; 
+    	return binOpInstCreate(llvm::Instruction::SDiv, context, lhs, rhs);
+    	break; 
     case TMOD:
-	return binOpInstCreate(llvm::Instruction::SRem, context, lhs, rhs);
-	break;
+    	return binOpInstCreate(llvm::Instruction::SRem, context, lhs, rhs);
+    	break;
+    case TBAND:
+       return binOpInstCreate(llvm::Instruction::And, context, lhs, rhs);
+       break;
+    case TBOR:
+       return binOpInstCreate(llvm::Instruction::Or, context, lhs, rhs);
+       break;
+    case TBXOR:
+        return binOpInstCreate(llvm::Instruction::Xor, context, lhs, rhs);
+        break;
 
 	// Comparison operations
     case TCEQ:
-	if (type.typecode == DOUBLE)
-	{
-	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OEQ, context, lhs, rhs);
-	}
-	if (type.typecode == INT)
-	{
-	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_EQ, context, lhs, rhs);
-	}
-	return NULL;
-	break;
+	    if (type.typecode == DOUBLE)
+	        return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OEQ, context, lhs, rhs);
+	    if (type.typecode == INT)
+	        return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_EQ, context, lhs, rhs);
+	    return NULL;
+	    break;
     case TCNEQ:
-	if (type.typecode == DOUBLE)
-	{
-	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_ONE, context, lhs, rhs);
-	}
-	if (type.typecode == INT)
-	{
-	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, context, lhs, rhs);
-	}
-	return NULL;
-	break;
+	    if (type.typecode == DOUBLE)
+	        return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_ONE, context, lhs, rhs);
+	    if (type.typecode == INT)
+	        return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, context, lhs, rhs);
+	    return NULL;
+	    break;
     case TCLT:
-	if (type.typecode == DOUBLE)
-	{
-	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OLT, context, lhs, rhs);
-	}
-	if (type.typecode == INT)
-	{
-	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLT, context, lhs, rhs);
-	}
-	return NULL;
-	break;
+	    if (type.typecode == DOUBLE)
+	        return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OLT, context, lhs, rhs);
+	    if (type.typecode == INT)
+	        return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLT, context, lhs, rhs);
+	    return NULL;
+	    break;
     case TCGT:
-	if (type.typecode == DOUBLE)
-	{
-	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OGT, context, lhs, rhs);
-	}
-	if (type.typecode == INT)
-	{
-	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGT, context, lhs, rhs);
-	}
-	return NULL;
-	break;
+	    if (type.typecode == DOUBLE)
+	        return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OGT, context, lhs, rhs);
+	    if (type.typecode == INT)
+	        return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGT, context, lhs, rhs);
+	    return NULL;
+	    break;
     case TCLE:
-	if (type.typecode == DOUBLE)
-	{
-	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OLE, context, lhs, rhs);
-	}
-	if (type.typecode == INT)
-	{
-	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLE, context, lhs, rhs);
-	}
-	return NULL;
-	break;
+	    if (type.typecode == DOUBLE)
+	        return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OLE, context, lhs, rhs);
+	    if (type.typecode == INT)
+	        return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLE, context, lhs, rhs);
+	    return NULL;
+	    break;
     case TCGE:
-	if (type.typecode == DOUBLE)
-	{
-	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OGE, context, lhs, rhs);
-	}
-	if (type.typecode == INT)
-	{
-	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGE, context, lhs, rhs);
-	}
-	return NULL;
-	break;
-default:
-	return NULL;
+	    if (type.typecode == DOUBLE)
+	        return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OGE, context, lhs, rhs);
+	    if (type.typecode == INT)
+	        return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGE, context, lhs, rhs);
+	    return NULL;
+	    break;
+    default:
+	    return NULL;
     }
 }
 
+/**
+   The llvm::ExtractElementInst class extracts a single scalar element from a VectorType value. This function
+   generates the code that extracts an element from a list.
+
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @return llvm::Value * -- Pointer to the code generated that will access a list elemnt.
+*/
 llvm::Value * NListAccess::codeGen(CodeGenContext & context)
 {
     llvm::Value * var = context.findVariable(ident.value);
-    llvm::Value * li = llvm::ExtractElementInst::Create(var, index.codeGen(context), "", context.blocks.top());
-    return li;
+    llvm::Value * listInst = llvm::ExtractElementInst::Create(var, index.codeGen(context), "", context.blocks.top());
+    return listInst;
 }
 
+/**
+   Generates the necessary code for defining a function. 
+
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @return llvm::Value * -- Pointer to the code generated that will declare a function.
+*/
 llvm::Value * NFunctionDeclaration::codeGen(CodeGenContext & context)
 {
     std::vector<llvm::Type *> v;
     // Loop through argument types
-    for (int i = 0; i < variables.size(); i++)
-    {
-	v.push_back(variables[i]->type.toLlvmType());
-    }
+    for (auto it : variables)
+        v.push_back(it->type.toLlvmType());
+    
     // Convert from std::vector to llvm::ArrayRef
     llvm::ArrayRef<llvm::Type *> argtypes(v);
     llvm::FunctionType *ft = llvm::FunctionType::get(type.toLlvmType(), argtypes, false);
@@ -350,28 +448,45 @@ llvm::Value * NFunctionDeclaration::codeGen(CodeGenContext & context)
     return func;
 }
 
+/**
+   Generates the necessary code needed to call a defined function. 
+   
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @return llvm::Value * -- Pointer to the code generated that will call a function.
+*/
 llvm::Value * NFunctionCall::codeGen(CodeGenContext & context)
 {
     llvm::Function *func = context.rootModule->getFunction(ident.value.c_str());
     std::vector<llvm::Value *> v;
-    for (int i = 0; i < args.size(); i++)
-    {
-	v.push_back(args[i]->codeGen(context));
-    }
+    for (auto it : args)
+        v.push_back(it->codeGen(context));
+    
     llvm::ArrayRef<llvm::Value *> llvmargs(v);
     return llvm::CallInst::Create(func, llvmargs, "", context.blocks.top());
 }
 
+/**
+   Generates the necessary code needed to execute a return statement.
+   
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @return llvm::Value * -- Pointer to the code generated that will execute a return statement.
+*/
 llvm::Value * NReturn::codeGen(CodeGenContext & context)
 {
     llvm::Value *re = retExpr.codeGen(context);
     return llvm::ReturnInst::Create(llvm::getGlobalContext(), re, context.blocks.top());
 }
 
+/**
+   Generates the code for allocating memory and declaring a variable.
+
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @return llvm::Value * -- Pointer to the code generated that will execute a return statement.
+*/
 llvm::Value * NVariableDeclaration::codeGen(CodeGenContext & context)
 {
   llvm::AllocaInst * a;
-  if (type.structt) 
+  if (type.isStruct) 
     {
       StructType *st = (StructType *) &type;
       a = new llvm::AllocaInst(structs[st->ident.value], ident.value, context.blocks.top());
@@ -390,17 +505,35 @@ llvm::Value * NVariableDeclaration::codeGen(CodeGenContext & context)
     
     return a;
 }
-					   
+
+/**
+   Generates code for floating point values.
+
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @return llvm::Value * -- Pointer to the code generated as a result of the floating point instance
+*/
 llvm::Value * NDouble::codeGen(CodeGenContext & context)
 {
     return llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat(value));
 }
 
+/**
+   Generates code for unsigned int values.
+
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @return llvm::Value * -- Pointer to the code generated as a result of the unsigned integer instance
+*/
 llvm::Value * NUInt::codeGen(CodeGenContext & context)
 {
     return llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, value, false));
 }
 
+/**
+   Generates code for signed integer values.
+
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @return llvm::Value * -- Pointer to the code generated as a result of the signed integer instance
+*/
 llvm::Value * NInt::codeGen(CodeGenContext & context)
 {
     return llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, value, true));
