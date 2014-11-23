@@ -45,6 +45,7 @@ Type() : typecode(INVALID) { }
     Type(Type & t, bool l) { typecode = t.typecode; isList = l; isStruct = false; }
     bool getIsList() { return isList; }
     llvm::Type * toLlvmType();
+    static Type & getLargerType(Type & t1, Type & t2);
     virtual std::ostream & print(std::ostream & os) const;
     friend std::ostream & operator<<(std::ostream & os, Type & type); 
     friend bool operator==(Type & t1, Type & t2);

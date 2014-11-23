@@ -126,7 +126,30 @@ bool operator<=(Type & t1, Type & t2)
     return (t1 == t2) || (t1 < t2);
 }
 
+/**
+   Returns the larger of two passed types
 
+   @param t1 First Type to be compared
+   @param t2 Second Type to be compared
+
+   @return Larger of the two Types
+*/
+Type & Type::getLargerType(Type & t1, Type & t2)
+{
+  if (t1 == t2)
+    {
+      return t1;
+    }
+  if (t1 > t2)
+    {
+      return t1;
+    }
+  if (t2 > t1)
+    { 
+      return t2;
+    }
+  return *(new Type());
+}
 
 /**
    Pretty-prints a Type object
