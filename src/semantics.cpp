@@ -283,15 +283,14 @@ Type & NBinaryOperator::getType(SemanticContext * ctx) const
     case TCGT:
     case TLOR:
     case TLAND:
-	    return *(new Type(TTBOOL));
-	    break;
+      type = *(new Type(TTBOOL));
+      return type;
+      break;
 	// Mathematical binary operations return the greater of the two types as long as they can be combined
     default:
 	    break;
     }
 
-    // Should consider alternate ways to implement this other than using the label, 'upcast'.
-upcast:
     if (!(t1 >= t2 || t2 >= t1))
     {
 	return *(new Type());
@@ -299,10 +298,12 @@ upcast:
 
     if (t1 == t2)
     {
+      type = t1;
 	return t1;
     }
 
-    return (t1 > t2) ? t1 : t2;
+    type = (t1 > t2) ? t1 : t2;
+    return type;
 }
 
 /**

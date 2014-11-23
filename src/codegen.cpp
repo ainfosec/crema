@@ -226,8 +226,10 @@ llvm::Value * NIfStatement::codeGen(CodeGenContext & context)
 	    break;
     case UINT:
     case INT:
-	    cond = llvm::CmpInst::Create(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, 0, false)), cond, "", context.blocks.top());
-	    break;
+	cond = llvm::CmpInst::Create(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, 0, false)), cond, "", context.blocks.top());
+	break;
+    case BOOL:
+      break;
     default:
 	    cond = NULL;
 	    std::cout << "Error, unable to emit conditional bytecode for type: " << condition.type << std::endl;
