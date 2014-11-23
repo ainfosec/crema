@@ -48,7 +48,7 @@ public:
     void dump() { rootModule->dump(); }
 };
 
-llvm::Value * CodeGenError(std::string & str);
+llvm::Value * CodeGenError(const char *);
 
 
 #endif // CREMA_CODEGEN_H_

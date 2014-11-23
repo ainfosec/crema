@@ -71,9 +71,33 @@ void CodeGenContext::codeGen(NBlock * rootBlock)
 /** 
    This function is a quick and dirty way to execute an 'sitofp' instruction to double
 */
-static inline llvm::CastInst* convertToFP(llvm::Value * toConvert, CodeGenContext & context)
+static inline llvm::CastInst* convertIToFP(llvm::Value * toConvert, CodeGenContext & context)
 {
     return new llvm::SIToFPInst(toConvert, llvm::Type::getDoubleTy(llvm::getGlobalContext()), "", context.blocks.top());
+}
+
+/**
+   A generic casting instruction generator 
+   
+   @param val llvm::Value to cast
+   @param expr Pointer to NExpression that generated the passed val
+   @param type Type to convert to
+   @param context CodeGenContext
+   
+   @return Generated llvm::Value * for casting instruction or error
+*/
+llvm::Value * convertToType(llvm::Value * val, NExpression * expr, Type & type, CodeGenContext & context)
+{
+  if (expr->type == type)
+    {
+      return val;
+    }
+  if (expr->type.typecode == INT && type.typecode == DOUBLE)
+    {
+      return convertIToFP(val, context);
+    }
+  //if (expr.type.typecode == UINT && type.typecode == DOUBLE)
+  return CodeGenError("Unable to generate casting instruction!");
 }
 
 /**
@@ -88,17 +112,12 @@ static inline llvm::CastInst* convertToFP(llvm::Value * toConvert, CodeGenContex
 */
 static inline llvm::Value * binOpInstCreate(llvm::Instruction::BinaryOps i, CodeGenContext & context, NExpression & lhs, NExpression & rhs)
 {
-    // double > int
-    // this series of if-else statements needs to be carried out more thoughtfully to carry
-    // multiple types over implicit conversion. currently, it's using the convertToFP 
-    // function (see above) to do the SIToFP casting. a better solution is needed to decide
-    // how the casting will work.
-    if (rhs.type < lhs.type)
-        return llvm::BinaryOperator::Create(i, lhs.codeGen(context), convertToFP(rhs.codeGen(context), context), "", context.blocks.top());
-    else if (lhs.type < rhs.type)
-        return llvm::BinaryOperator::Create(i, convertToFP(lhs.codeGen(context), context), rhs.codeGen(context), "", context.blocks.top());
-    else
-        return llvm::BinaryOperator::Create(i, lhs.codeGen(context), rhs.codeGen(context), "", context.blocks.top());
+  if (rhs.type == lhs.type)
+    {
+      return llvm::BinaryOperator::Create(i, lhs.codeGen(context), rhs.codeGen(context), "", context.blocks.top());
+    }
+  Type & lt = Type::getLargerType(lhs.type, rhs.type);
+  return llvm::BinaryOperator::Create(i, convertToType(lhs.codeGen(context), &lhs, lt, context), convertToType(rhs.codeGen(context), &rhs, lt, context), "", context.blocks.top());
 }
 
 /**
@@ -114,12 +133,17 @@ static inline llvm::Value * binOpInstCreate(llvm::Instruction::BinaryOps i, Code
 */
 static inline llvm::Value * cmpOpInstCreate(llvm::Instruction::OtherOps i, unsigned short p, CodeGenContext & context, NExpression & lhs, NExpression & rhs)
 {
-    // ********* NOTE **********
-    // The OtherOps needs to be
-    // mapped to the appropriate
-    // tokens.
-    // *************************
-    return llvm::CmpInst::Create(i, p, lhs.codeGen(context), rhs.codeGen(context), "", context.blocks.top());
+  // ********* NOTE **********
+  // The OtherOps needs to be
+  // mapped to the appropriate
+  // tokens.
+  // *************************
+  if (rhs.type == lhs.type)
+    {
+      return llvm::CmpInst::Create(i, p, lhs.codeGen(context), rhs.codeGen(context), "", context.blocks.top());
+    }
+  Type & lt = Type::getLargerType(lhs.type, rhs.type);
+  return llvm::CmpInst::Create(i, p, convertToType(lhs.codeGen(context), &lhs, lt, context), convertToType(rhs.codeGen(context), &rhs, lt, context), "", context.blocks.top());
 }
 
 
@@ -175,7 +199,7 @@ void CodeGenContext::addVariable(NVariableDeclaration * var, llvm::Value * value
    @param str A string to print as an error message
    @return NULL llvm:Value pointer
 */
-llvm::Value * CodeGenError(std::string & str)
+llvm::Value * CodeGenError(const char * str)
 {
     std::cout << "ERROR: " << str << std::endl;
     return NULL;
@@ -308,7 +332,7 @@ llvm::Value * NVariableAccess::codeGen(CodeGenContext & context)
 */
 llvm::Value * NAssignmentStatement::codeGen(CodeGenContext & context)
 {
-    return new llvm::StoreInst(expr.codeGen(context), context.findVariable(ident.value), false, context.blocks.top());
+  return new llvm::StoreInst(expr.codeGen(context), context.findVariable(ident.value), false, context.blocks.top());
 }
 
 /**
@@ -323,6 +347,9 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
     {
 	// Math operations
     case TADD:
+      if (Type::getLargerType(rhs.type, lhs.type).typecode == DOUBLE)
+    	return binOpInstCreate(llvm::Instruction::FAdd, context, lhs, rhs);
+      if (Type::getLargerType(rhs.type, lhs.type).typecode == INT)
     	return binOpInstCreate(llvm::Instruction::Add, context, lhs, rhs);
     	break;
     case TSUB:
@@ -349,12 +376,12 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
 
 	// Comparison operations
     case TCEQ:
-	    if (type.typecode == DOUBLE)
-	        return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OEQ, context, lhs, rhs);
-	    if (type.typecode == INT)
-	        return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_EQ, context, lhs, rhs);
-	    return NULL;
-	    break;
+      if (Type::getLargerType(lhs.type, rhs.type).typecode == DOUBLE)
+	return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OEQ, context, lhs, rhs);
+      if (Type::getLargerType(lhs.type, rhs.type).typecode == INT && rhs.type == lhs.type)
+	return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_EQ, context, lhs, rhs);
+      return NULL;
+      break;
     case TCNEQ:
 	    if (type.typecode == DOUBLE)
 	        return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_ONE, context, lhs, rhs);
