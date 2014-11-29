@@ -487,6 +487,7 @@ Type & NVariableAccess::getType(SemanticContext * ctx) const
   NVariableDeclaration *var = ctx->searchVars(ident);
   if (var)
     {
+      type = var->type;
       return var->type;
     }
   return *(new Type());
