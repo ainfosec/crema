@@ -566,6 +566,7 @@ Type & NFunctionCall::getType(SemanticContext * ctx) const
   NFunctionDeclaration *func = ctx->searchFuncs(ident);
   if (func)
     {
+      type = func->type;
       return func->type;
     }
   return *(new Type());
