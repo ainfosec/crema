@@ -517,15 +517,29 @@ llvm::Value * NReturn::codeGen(CodeGenContext & context)
 */
 llvm::Value * NVariableDeclaration::codeGen(CodeGenContext & context)
 {
-  llvm::AllocaInst * a;
+  llvm::Value * a;
   if (type.isStruct) 
     {
       StructType *st = (StructType *) &type;
-      a = new llvm::AllocaInst(structs[st->ident.value], ident.value, context.blocks.top());
+      if (context.blocks.top()->getParent()->getName().str() == "main")
+	{
+	  a = new llvm::GlobalVariable(*(context.rootModule), structs[st->ident.value], false, llvm::GlobalValue::CommonLinkage, llvm::UndefValue::get(structs[st->ident.value]), ident.value);
+	}
+      else 
+	{
+	  a = new llvm::AllocaInst(structs[st->ident.value], ident.value, context.blocks.top());
+	}
     }
   else 
     {
-      a = new llvm::AllocaInst(type.toLlvmType(), ident.value, context.blocks.top());
+      if (context.blocks.top()->getParent()->getName().str() == "main")
+	{
+	  a = new llvm::GlobalVariable(*(context.rootModule), type.toLlvmType(), false, llvm::GlobalValue::CommonLinkage, llvm::UndefValue::get(type.toLlvmType()), ident.value);
+	}
+      else 
+	{
+	  a = new llvm::AllocaInst(type.toLlvmType(), ident.value, context.blocks.top());
+	}
     }
     context.addVariable(this, a);
 
