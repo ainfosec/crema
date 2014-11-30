@@ -42,6 +42,7 @@ void SemanticContext::newScope(Type & type)
 {
   vars.push_back(new VariableList());
   currType.push_back(type);
+  funcReturns.push_back(false);
   currScope++;
 }
 
@@ -424,7 +425,7 @@ bool NReturn::semanticAnalysis(SemanticContext * ctx)
   {
       std::cout << "Warning: Upcast from " << retExpr.getType(ctx) << " to " << ctx->currType.back() << std::endl;
   }
-
+  ctx->funcReturns.back() = true;
   return true;
 }
 
@@ -651,7 +652,7 @@ bool NLoopStatement::semanticAnalysis(SemanticContext * ctx)
 */
 bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
 {
-  bool blockSA, blockRecur;
+  bool blockSA, blockRecur, fr;
   ctx->newScope(type);
   for (auto it : variables)
   {
@@ -668,8 +669,13 @@ bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
     {
       std::cout << "Recursive function call in " << ident << std::endl;
     }
+  fr = (type.typecode == VOID) ? true : ctx->funcReturns.back();
+  if (!fr) 
+    {
+      std::cout << "No return statement in " << type << " " << ident << std::endl;
+    }
   ctx->delScope();
-  return (blockSA && !blockRecur);
+  return (blockSA && !blockRecur && fr);
 }
 
 /**

@@ -56,7 +56,7 @@ void CodeGenContext::codeGen(NBlock * rootBlock)
     // Create the root "function" for top level functionality
     llvm::ArrayRef<llvm::Type *> argTypes;
     llvm::FunctionType *ftype = llvm::FunctionType::get(llvm::Type::getInt64Ty(llvm::getGlobalContext()), argTypes, false);
-    mainFunction = llvm::Function::Create(ftype, llvm::GlobalValue::InternalLinkage, "main", rootModule);
+    mainFunction = llvm::Function::Create(ftype, llvm::GlobalValue::ExternalLinkage, "main", rootModule);
     llvm::BasicBlock *bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "entry", mainFunction, 0);
 
     variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
@@ -150,7 +150,7 @@ static inline llvm::Value * cmpOpInstCreate(llvm::Instruction::OtherOps i, unsig
 /**
    Function to execute a program after it's been generated using the LLVM JIT
    LLVMInitializeNativeTarget() -- initializes the native target corresponding to the host, useful to ensure target is linked correctly
-   llvm::ExecutionEngine -- abstract interface for implmentation execution of LLVM modules
+   llvm::ExecutionEngine -- abstract interface for implementation execution of LLVM modules
 
    @return llvm::GenericValue object -- struct data structure
 */
@@ -455,7 +455,7 @@ llvm::Value * NFunctionDeclaration::codeGen(CodeGenContext & context)
 
     llvm::Function *func = llvm::Function::Create(ft, llvm::GlobalValue::InternalLinkage, ident.value.c_str(), context.rootModule);
     llvm::BasicBlock *bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "entry", func, 0);
-    
+
     context.blocks.push(bb);
     context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
 
@@ -468,8 +468,11 @@ llvm::Value * NFunctionDeclaration::codeGen(CodeGenContext & context)
 
     body->codeGen(context);
 
-    // Add duplicate return in the event there isn't one defined
-    llvm::ReturnInst::Create(llvm::getGlobalContext(), bb);
+    if (type.typecode == VOID)
+      {
+	// Add in a void return instruction for void functions
+	llvm::ReturnInst::Create(llvm::getGlobalContext(), bb);
+      }
 
     context.blocks.pop();
     context.variables.pop_back();
