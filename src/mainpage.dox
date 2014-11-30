@@ -1,0 +1,6 @@
+/**
+\mainpage 
+	  Crema is specifically designed as a sub-Turing complete programming language. These Doxygen pages are
+	  written for developers augmenting or working on the Crema compiler itself as opposed to those writing programs
+	  in the Crema language.
+*/
