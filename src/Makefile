@@ -3,7 +3,7 @@ CC := g++ #clang++
 DEP_FILES := parser.cpp lexer.cpp ast.cpp codegen.cpp types.cpp semantics.cpp
 CPP_FLAGS := `llvm-config --cxxflags`
 LD_FLAGS := `llvm-config --ldflags`
-LIBS := `llvm-config --libs core jit native`
+LIBS := `llvm-config --libs core jit native interpreter`
 
 all:
 	bison -d -o parser.cpp --defines=parser.h parser.y

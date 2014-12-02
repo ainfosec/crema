@@ -23,7 +23,7 @@
 #include <llvm/PassManager.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
-#include <llvm/ExecutionEngine/JIT.h>
+#include <llvm/ExecutionEngine/Interpreter.h>
 #include <llvm/Assembly/PrintModulePass.h>
 
 class NBlock;

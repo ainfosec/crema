@@ -156,8 +156,15 @@ static inline llvm::Value * cmpOpInstCreate(llvm::Instruction::OtherOps i, unsig
 */
 llvm::GenericValue CodeGenContext::runProgram()
 {
+    std::string err;
     LLVMInitializeNativeTarget();
-    llvm::ExecutionEngine *ee = llvm::ExecutionEngine::create(rootModule, false);
+    llvm::ExecutionEngine *ee = llvm::EngineBuilder(rootModule).setEngineKind(llvm::EngineKind::Interpreter).setErrorStr(&err).create();
+    if (!ee)
+    {
+	std::cout << "Error: " << err << std::endl;
+	exit(-1);
+    }
+    
     llvm::ArrayRef<llvm::GenericValue> noargs;
     llvm::GenericValue retVal = ee->runFunction(mainFunction, noargs);
     
