@@ -224,7 +224,7 @@ llvm::Value * NBlock::codeGen(CodeGenContext & context)
     llvm::Value * last;
     for (auto it : statements)
         last = (it)->codeGen(context);
-    
+
     return last;
 }
 
@@ -455,7 +455,7 @@ llvm::Value * NFunctionDeclaration::codeGen(CodeGenContext & context)
     // Loop through argument types
     for (auto it : variables)
         v.push_back(it->type.toLlvmType());
-    
+
     // Convert from std::vector to llvm::ArrayRef
     llvm::ArrayRef<llvm::Type *> argtypes(v);
     llvm::FunctionType *ft = llvm::FunctionType::get(type.toLlvmType(), argtypes, false);
@@ -476,14 +476,14 @@ llvm::Value * NFunctionDeclaration::codeGen(CodeGenContext & context)
     body->codeGen(context);
 
     if (type.typecode == VOID)
-      {
-	// Add in a void return instruction for void functions
-	llvm::ReturnInst::Create(llvm::getGlobalContext(), bb);
-      }
+    {
+	    // Add in a void return instruction for void functions
+	    llvm::ReturnInst::Create(llvm::getGlobalContext(), bb);
+    }
 
     context.blocks.pop();
     context.variables.pop_back();
-    
+
     return func;
 }
 
@@ -513,6 +513,12 @@ llvm::Value * NFunctionCall::codeGen(CodeGenContext & context)
 llvm::Value * NReturn::codeGen(CodeGenContext & context)
 {
     llvm::Value *re = retExpr.codeGen(context);
+
+    // upcasts the return value to floating point if function return is 
+    // declared as double, but integer is returned in body of function
+    if ( retExpr.type.toLlvmType() != context.blocks.top()->getParent()->getReturnType() )
+        return llvm::ReturnInst::Create(llvm::getGlobalContext(), convertIToFP(re,context), context.blocks.top());
+
     return llvm::ReturnInst::Create(llvm::getGlobalContext(), re, context.blocks.top());
 }
 
