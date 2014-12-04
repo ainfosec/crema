@@ -62,9 +62,11 @@ void CodeGenContext::codeGen(NBlock * rootBlock)
 
     variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
     blocks.push(bb);
-    // Call codeGen on our rootBlock
-    rootBlock->codeGen(*this);
-    
+    if (rootBlock)
+      {
+	// Call codeGen on our rootBlock
+	rootBlock->codeGen(*this);
+      }
     llvm::ReturnInst::Create(llvm::getGlobalContext(), llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, 0, true)), blocks.top());
     blocks.pop();
 }
