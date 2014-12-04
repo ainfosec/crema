@@ -104,9 +104,11 @@ std::ostream & NFunctionDeclaration::print(std::ostream & os) const
   for (VariableList::const_iterator it = variables.begin(); it != variables.end(); ++it)
       os << *(*it) << ") ";
 
-  os << *body << ")"; 
-  os << std::endl;
-  
+  if (body)
+    {
+      os << *body << ")"; 
+      os << std::endl;
+    }
   return os;
 }
 

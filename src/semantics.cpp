@@ -239,8 +239,11 @@ bool NFunctionCall::checkRecursion(SemanticContext * ctx, NFunctionDeclaration *
 {
   if (func->ident == ident)
       return true;
-  
-  return ctx->searchFuncs(ident)->body->checkRecursion(ctx, func);
+  if (ctx->searchFuncs(ident)->body)
+    {
+      return ctx->searchFuncs(ident)->body->checkRecursion(ctx, func);
+    }
+  return false;
 }
 
 /**
@@ -662,17 +665,25 @@ bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
           return false;
       }
   }
-
-  blockSA = body->semanticAnalysis(ctx);
-  blockRecur = body->checkRecursion(ctx, this);
-  if (blockRecur)
+  if (body)
     {
-      std::cout << "Recursive function call in " << ident << std::endl;
+      blockSA = body->semanticAnalysis(ctx);
+      blockRecur = body->checkRecursion(ctx, this);
+      if (blockRecur)
+	{
+	  std::cout << "Recursive function call in " << ident << std::endl;
+	}
+      fr = (type.typecode == VOID) ? true : ctx->funcReturns.back();
+      if (!fr) 
+	{
+	  std::cout << "No return statement in " << type << " " << ident << std::endl;
+	}
     }
-  fr = (type.typecode == VOID) ? true : ctx->funcReturns.back();
-  if (!fr) 
+  else
     {
-      std::cout << "No return statement in " << type << " " << ident << std::endl;
+      blockSA = true;
+      blockRecur = false;
+      fr = true;
     }
   ctx->delScope();
   return (blockSA && !blockRecur && fr);

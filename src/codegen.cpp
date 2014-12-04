@@ -29,6 +29,7 @@ std::map<std::string, std::pair<NStructureDeclaration *, llvm::StructType *> > s
 CodeGenContext::CodeGenContext()
 {
     rootModule = new llvm::Module("Crema JIT", llvm::getGlobalContext());
+    rootModule->setTargetTriple(llvm::sys::getDefaultTargetTriple());
     Builder = new llvm::IRBuilder<>(llvm::getGlobalContext());
 }
 
@@ -565,31 +566,38 @@ llvm::Value * NFunctionDeclaration::codeGen(CodeGenContext & context)
     // Convert from std::vector to llvm::ArrayRef
     llvm::ArrayRef<llvm::Type *> argtypes(v);
     llvm::FunctionType *ft = llvm::FunctionType::get(type.toLlvmType(), argtypes, false);
+    llvm::Function * func;
 
-    llvm::Function *func = llvm::Function::Create(ft, llvm::GlobalValue::InternalLinkage, ident.value.c_str(), context.rootModule);
-    llvm::BasicBlock *bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "entry", func, 0);
+    if (body)
+      {
+	func = llvm::Function::Create(ft, llvm::GlobalValue::InternalLinkage, ident.value.c_str(), context.rootModule);
+	llvm::BasicBlock *bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "entry", func, 0);
+	
+	context.blocks.push(bb);
+	context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
 
-    context.blocks.push(bb);
-    context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
+	int i = 0;
+	for (llvm::Function::arg_iterator args = func->arg_begin(); args != func->arg_end(); ++args)
+	  {
+	    new llvm::StoreInst(args, variables[i]->codeGen(context), false, context.blocks.top());	
+	    i++;
+	  }
 
-    int i = 0;
-    for (llvm::Function::arg_iterator args = func->arg_begin(); args != func->arg_end(); ++args)
-    {
-	new llvm::StoreInst(args, variables[i]->codeGen(context), false, context.blocks.top());	
-	i++;
-    }
+	body->codeGen(context);
 
-    body->codeGen(context);
-
-    if (type.typecode == VOID)
-    {
+	if (type.typecode == VOID)
+	  {
 	    // Add in a void return instruction for void functions
 	    llvm::ReturnInst::Create(llvm::getGlobalContext(), bb);
-    }
+	  }
 
-    context.blocks.pop();
-    context.variables.pop_back();
-
+	context.blocks.pop();
+	context.variables.pop_back();
+      }
+    else 
+      {
+	func = llvm::Function::Create(ft, llvm::GlobalValue::ExternalLinkage, ident.value.c_str(), context.rootModule);
+      }
     return func;
 }
 

@@ -29,7 +29,7 @@
 
 /* Terminal types */
 %token <string> TIDENTIFIER TINT TDOUBLE TSTRING                                    /* token strings */
-%token <token> TRETURN TSDEF TDEF TIF TELSE TFOREACH TAS TTRUE TFALSE               /* keywords */
+%token <token> TRETURN TSDEF TDEF TEXTERN TIF TELSE TFOREACH TAS TTRUE TFALSE       /* keywords */
 %token <token> TMUL TADD TDIV TSUB TMOD                                             /* binary operators */
 %token <token> TCEQ TCNEQ TCLE TCGE TCLT TCGT                                       /* comparison operators */
 %token <token> TEQUAL                                                               /* assignment operator */
@@ -106,6 +106,8 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
 
             func_decl : def type identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration(*(new Type($2)), *$3, *$5, $7); }
                       | def type TLBRAC TRBRAC identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration(*(new Type($2, true)), *$5, *$7, $9); }
+		      | TEXTERN def type identifier TLPAREN func_decl_arg_list TRPAREN { $$ = new NFunctionDeclaration(*(new Type($3)), *$4, *$6, NULL); }
+		      | TEXTERN def type TLBRAC TRBRAC identifier TLPAREN func_decl_arg_list TRPAREN { $$ = new NFunctionDeclaration(*(new Type($3, true)), *$6, *$8, NULL); }
                       ;
 
                 def : TDEF
