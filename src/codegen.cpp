@@ -492,14 +492,12 @@ static llvm::GetElementPtrInst * getGEPForStruct(llvm::Value * var, NIdentifier 
 	}
     }
     
-    std::cout << "Building IdxList for idx: " << i << std::endl;
     std::vector<llvm::Value *> vec;
     // The argument IdxList *MUST* contain i32 values otherwise the call to GEP::Create() will segfault
     vec.push_back(llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(32, 0, true)));
     vec.push_back(llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(32, i, true)));
     
     llvm::ArrayRef<llvm::Value *> arr(vec);
-    std::cout << "Creating GEP" << std::endl;
     llvm::GetElementPtrInst * gep = llvm::GetElementPtrInst::Create(var, arr, "", context.blocks.top());
     if (!gep)
     {
@@ -527,7 +525,6 @@ llvm::Value * NStructureAccess::codeGen(CodeGenContext & context)
     StructType *st = (StructType *) &(vd->type);
     NStructureDeclaration * sd = structs[st->ident.value].first;
     llvm::GetElementPtrInst * gep = getGEPForStruct(var, member, sd, context);
-    std::cout << "Creating LI" << std::endl;
     return new llvm::LoadInst(gep, "", false, context.blocks.top());
 }
 
