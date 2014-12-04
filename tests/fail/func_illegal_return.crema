@@ -1,4 +1,0 @@
-def int foo( int x, int y, int z) {
-    return x+y>z
-}
-int bar = foo(3,4,5)
