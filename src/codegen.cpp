@@ -623,6 +623,9 @@ llvm::Value * NReturn::codeGen(CodeGenContext & context)
 {    
     llvm::Value *re = retExpr.codeGen(context);
 
+    std::cout << "retExpr LlvmType = " << retExpr.type.toLlvmType() << std::endl;
+    std::cout << "context LlvmType = " << context.blocks.top()->getParent()->getReturnType() << std::endl;
+
     // upcasts the return value to floating point if function return is 
     // declared as double, but integer is returned in body of function
     if ( retExpr.type.toLlvmType() != context.blocks.top()->getParent()->getReturnType() )
