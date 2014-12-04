@@ -350,27 +350,41 @@ llvm::Value * NAssignmentStatement::codeGen(CodeGenContext & context)
 */
 llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
 {
+    TypeCodes tc = Type::getLargerType(rhs.type, lhs.type).typecode;
+
     switch (op)
     {
 	// Math operations
     case TADD:
-      if (Type::getLargerType(rhs.type, lhs.type).typecode == DOUBLE)
-    	return binOpInstCreate(llvm::Instruction::FAdd, context, lhs, rhs);
-      if (Type::getLargerType(rhs.type, lhs.type).typecode == INT)
+      if (tc == DOUBLE)
+        return binOpInstCreate(llvm::Instruction::FAdd, context, lhs, rhs);
+      if (tc == INT)
     	return binOpInstCreate(llvm::Instruction::Add, context, lhs, rhs);
-    	break;
+      break;
     case TSUB:
+      if (tc == DOUBLE)
+        return binOpInstCreate(llvm::Instruction::FSub, context, lhs, rhs);
+      if (tc == INT)
     	return binOpInstCreate(llvm::Instruction::Sub, context, lhs, rhs);
-    	break; 
+      break; 
     case TMUL:
+      if (tc == DOUBLE)
+        return binOpInstCreate(llvm::Instruction::FMul, context, lhs, rhs);
+      if (tc == INT)
     	return binOpInstCreate(llvm::Instruction::Mul, context, lhs, rhs);
-    	break; 
+      break; 
     case TDIV:
+      if (tc == DOUBLE)
+        return binOpInstCreate(llvm::Instruction::FDiv, context, lhs, rhs);
+      if (tc == INT)
     	return binOpInstCreate(llvm::Instruction::SDiv, context, lhs, rhs);
-    	break; 
+      break; 
     case TMOD:
+      if (tc == DOUBLE)
+        return binOpInstCreate(llvm::Instruction::FRem, context, lhs, rhs);
+      if (tc == INT)
     	return binOpInstCreate(llvm::Instruction::SRem, context, lhs, rhs);
-    	break;
+      break;
     case TBAND:
        return binOpInstCreate(llvm::Instruction::And, context, lhs, rhs);
        break;
@@ -383,49 +397,55 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
 
 	// Comparison operations
     case TCEQ:
-      if (Type::getLargerType(lhs.type, rhs.type).typecode == DOUBLE)
-	return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OEQ, context, lhs, rhs);
-      if (Type::getLargerType(lhs.type, rhs.type).typecode == INT && rhs.type == lhs.type)
-	return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_EQ, context, lhs, rhs);
+      if (tc == DOUBLE)
+	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OEQ, context, lhs, rhs);
+      if (tc == INT && rhs.type == lhs.type)
+	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_EQ, context, lhs, rhs);
       return NULL;
-      break;
+    break;
+    
     case TCNEQ:
-	    if (type.typecode == DOUBLE)
-	        return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_ONE, context, lhs, rhs);
-	    if (type.typecode == INT)
-	        return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, context, lhs, rhs);
-	    return NULL;
-	    break;
+	  if (tc == DOUBLE)
+	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_ONE, context, lhs, rhs);
+	  if (tc == INT)
+	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, context, lhs, rhs);
+	  return NULL;
+	  break;
+    
     case TCLT:
-	    if (type.typecode == DOUBLE)
-	        return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OLT, context, lhs, rhs);
-	    if (type.typecode == INT)
-	        return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLT, context, lhs, rhs);
-	    return NULL;
-	    break;
+	  if (tc == DOUBLE)
+	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OLT, context, lhs, rhs);
+	  if (tc == INT)
+	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLT, context, lhs, rhs);
+	  return NULL;
+	  break;
+    
     case TCGT:
-	    if (type.typecode == DOUBLE)
-	        return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OGT, context, lhs, rhs);
-	    if (type.typecode == INT)
-	        return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGT, context, lhs, rhs);
-	    return NULL;
-	    break;
+	  if (tc == DOUBLE)
+	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OGT, context, lhs, rhs);
+	  if (tc == INT)
+	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGT, context, lhs, rhs);
+	  return NULL;
+	  break;
+    
     case TCLE:
-	    if (type.typecode == DOUBLE)
-	        return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OLE, context, lhs, rhs);
-	    if (type.typecode == INT)
-	        return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLE, context, lhs, rhs);
-	    return NULL;
-	    break;
+	  if (tc == DOUBLE)
+	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OLE, context, lhs, rhs);
+	  if (tc == INT)
+	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLE, context, lhs, rhs);
+	  return NULL;
+	  break;
+    
     case TCGE:
-	    if (type.typecode == DOUBLE)
-	        return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OGE, context, lhs, rhs);
-	    if (type.typecode == INT)
-	        return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGE, context, lhs, rhs);
-	    return NULL;
-	    break;
+	  if (tc == DOUBLE)
+	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OGE, context, lhs, rhs);
+	  if (tc == INT)
+	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGE, context, lhs, rhs);
+	  return NULL;
+	  break;
+    
     default:
-	    return NULL;
+	  return NULL;
     }
 }
 
