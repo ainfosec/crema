@@ -450,7 +450,7 @@ Type & NList::getType(SemanticContext * ctx) const
       if (value[i]->getType(ctx) != type)
 	  return *(new Type());
     }
-
+  type = *lt;
   return *lt;
 }
 
@@ -797,7 +797,10 @@ Type & NStructureAccess::getType(SemanticContext * ctx) const
 
   for (auto it : sd->members)
      if (member == it->ident)
-        return it->type;
+     {
+	 type = it->type;
+	 return it->type;
+     }
 
   return *(new Type());
 }
