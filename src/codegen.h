@@ -43,6 +43,7 @@ public:
     ~CodeGenContext() { delete Builder; }
     void codeGen(NBlock * rootBlock);
     llvm::Value * findVariable(std::string ident);
+    NVariableDeclaration * findVariableDeclaration(std::string ident);
     void addVariable(NVariableDeclaration * var, llvm::Value * value);
     llvm::GenericValue runProgram();
     void dump() { rootModule->dump(); }

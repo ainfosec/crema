@@ -91,7 +91,7 @@ class NStructureAssignmentStatement : public NAssignmentStatement {
 public:
     NStructureAccess & structure; /**< NStructureAccess for storing information about struct member(s) */
 NStructureAssignmentStatement(NIdentifier & ident, NStructureAccess & structure, NExpression & expr) : NAssignmentStatement(ident, expr), structure(structure) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     std::ostream & print(std::ostream & os) const;
     bool semanticAnalysis(SemanticContext * ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return expr.checkRecursion(ctx, func); }
@@ -208,6 +208,7 @@ public:
 NStructureAccess(NIdentifier & ident, NIdentifier & member) : ident(ident), member(member) { }
     std::ostream & print(std::ostream & os) const;
     Type & getType(SemanticContext * ctx) const;
+    llvm::Value * codeGen(CodeGenContext & context);
     bool semanticAnalysis(SemanticContext * ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
 };

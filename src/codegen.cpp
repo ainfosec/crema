@@ -14,7 +14,7 @@
 #include "types.h"
 
 CodeGenContext rootCodeGenCtx; 
-std::map<std::string, llvm::StructType * > structs;
+std::map<std::string, std::pair<NStructureDeclaration *, llvm::StructType *> > structs;
 
 /**
    This constructor creates an llvm::Module object called 'rootModule' and a llvm::IRBuilder
@@ -190,6 +190,24 @@ llvm::Value * CodeGenContext::findVariable(std::string ident)
 }
 
 /**
+   Looks up a reference to a variable by iterating over the variables vector and searching for the string
+   name of the variable (ident). 
+
+   @param ident String name of variable
+   @return Pointer to NVariableDeclaration of that variable, NULL if variable not found.
+*/
+NVariableDeclaration * CodeGenContext::findVariableDeclaration(std::string ident)
+{
+    std::vector<std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> > >::reverse_iterator scopes;
+    for ( scopes = variables.rbegin(); scopes != variables.rend(); scopes++)
+       if ((*scopes).find(ident) != (*scopes).end())
+	      return (*scopes).find(ident)->second.first;
+    
+    std::cout << "Unable to find variable " << ident << "!" << std::endl;
+    return NULL;
+}
+
+/**
    Adds a variable name/Value * pair to the stack of scopes
 
    @param ident String name of variable
@@ -236,7 +254,7 @@ llvm::Value * NStructureDeclaration::codeGen(CodeGenContext & context)
       vec.push_back(members[i]->type.toLlvmType());
     }
   llvm::ArrayRef<llvm::Type *> mems(vec);
-  structs[ident.value] = llvm::StructType::create(llvm::getGlobalContext(), mems, ident.value, false);
+  structs[ident.value] = *(new std::pair<NStructureDeclaration *, llvm::StructType *>(this, llvm::StructType::create(llvm::getGlobalContext(), mems, ident.value, false)));
 }
 
 /**
@@ -335,7 +353,7 @@ llvm::Value * NVariableAccess::codeGen(CodeGenContext & context)
    Generates the instruction code for storing to memory. The 'false' flag indicates that the variable is NOT volatile.
    
    @param CodeGenContext & context -- reference to the context of the operator statement
-   @return llvm::Value * -- Pointer to the code of the loaded instruction that was generated.
+   @return llvm::Value * -- Pointer to the code of the instruction that was generated.
 */
 llvm::Value * NAssignmentStatement::codeGen(CodeGenContext & context)
 {
@@ -463,6 +481,77 @@ llvm::Value * NListAccess::codeGen(CodeGenContext & context)
     return listInst;
 }
 
+static llvm::GetElementPtrInst * getGEPForStruct(llvm::Value * var, NIdentifier & member, NStructureDeclaration * sd, CodeGenContext & context)
+{
+    int i;
+    for (i = 0; i < sd->members.size(); i++)
+    {
+	if (member == sd->members[i]->ident)
+	{
+	    break;
+	}
+    }
+    
+    std::cout << "Building IdxList for idx: " << i << std::endl;
+    std::vector<llvm::Value *> vec;
+    // The argument IdxList *MUST* contain i32 values otherwise the call to GEP::Create() will segfault
+    vec.push_back(llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(32, 0, true)));
+    vec.push_back(llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(32, i, true)));
+    
+    llvm::ArrayRef<llvm::Value *> arr(vec);
+    std::cout << "Creating GEP" << std::endl;
+    llvm::GetElementPtrInst * gep = llvm::GetElementPtrInst::Create(var, arr, "", context.blocks.top());
+    if (!gep)
+    {
+	std::cout << "Error: Unable to make GEP instruction!" << std::endl;
+	exit(-1);
+    }
+    return gep;
+}
+
+/**
+   Generates LLVM IR byte-code for accessing a structure field
+
+   @param context Reference to CodeGenContext
+   @return Pointer to generated llvm::Value or NULL if code cannot be generated
+*/
+llvm::Value * NStructureAccess::codeGen(CodeGenContext & context)
+{
+    llvm::Value * var = context.findVariable(ident.value);
+    NVariableDeclaration * vd = context.findVariableDeclaration(ident.value);
+    if (!vd || !var)
+    {
+	std::cout << "Error: Unable to find variable for " << ident << std::endl;
+	exit(-1);
+    }
+    StructType *st = (StructType *) &(vd->type);
+    NStructureDeclaration * sd = structs[st->ident.value].first;
+    llvm::GetElementPtrInst * gep = getGEPForStruct(var, member, sd, context);
+    std::cout << "Creating LI" << std::endl;
+    return new llvm::LoadInst(gep, "", false, context.blocks.top());
+}
+
+/**
+   Generates the instruction code for storing to memory. The 'false' flag indicates that the variable is NOT volatile.
+   
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @return llvm::Value * -- Pointer to the code of the instruction that was generated.
+*/
+llvm::Value * NStructureAssignmentStatement::codeGen(CodeGenContext & context)
+{
+    llvm::Value * var = context.findVariable(structure.ident.value);
+    NVariableDeclaration * vd = context.findVariableDeclaration(structure.ident.value);
+    if (!vd || !var)
+    {
+	std::cout << "Error: Unable to find variable for " << structure.ident << std::endl;
+	exit(-1);
+    }
+    StructType *st = (StructType *) &(vd->type);
+    NStructureDeclaration * sd = structs[st->ident.value].first;
+    llvm::GetElementPtrInst * gep = getGEPForStruct(var, structure.member, sd, context);
+    return new llvm::StoreInst(expr.codeGen(context), gep, false, context.blocks.top());
+}
+
 /**
    Generates the necessary code for defining a function. 
 
@@ -531,7 +620,7 @@ llvm::Value * NFunctionCall::codeGen(CodeGenContext & context)
    @return llvm::Value * -- Pointer to the code generated that will execute a return statement.
 */
 llvm::Value * NReturn::codeGen(CodeGenContext & context)
-{
+{    
     llvm::Value *re = retExpr.codeGen(context);
 
     // upcasts the return value to floating point if function return is 
@@ -556,11 +645,12 @@ llvm::Value * NVariableDeclaration::codeGen(CodeGenContext & context)
       StructType *st = (StructType *) &type;
       if (context.blocks.top()->getParent()->getName().str() == "main")
 	{
-	  a = new llvm::GlobalVariable(*(context.rootModule), structs[st->ident.value], false, llvm::GlobalValue::CommonLinkage, llvm::UndefValue::get(structs[st->ident.value]), ident.value);
+//	    a = new llvm::AllocaInst(structs[st->ident.value].second, ident.value, context.blocks.top());
+	    a = new llvm::GlobalVariable(*(context.rootModule), structs[st->ident.value].second, false, llvm::GlobalValue::CommonLinkage, llvm::UndefValue::get(structs[st->ident.value].second), ident.value);
 	}
       else 
 	{
-	  a = new llvm::AllocaInst(structs[st->ident.value], ident.value, context.blocks.top());
+	    a = new llvm::AllocaInst(structs[st->ident.value].second, ident.value, context.blocks.top());
 	}
     }
   else 
