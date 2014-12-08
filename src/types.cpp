@@ -217,6 +217,11 @@ std::ostream & StructType::print(std::ostream & os) const
 llvm::Type * Type::toLlvmType()
 {
     llvm::Type * t;
+    if (isList)
+      {
+	t = llvm::PointerType::get(llvm::Type::getInt8Ty(llvm::getGlobalContext()), 0);
+	return t;
+      }
     switch(typecode)
     {
     case INT:
@@ -235,11 +240,30 @@ llvm::Type * Type::toLlvmType()
     	return NULL;
     	break;
     }
-    if (isList)
-    {
-	t = llvm::PointerType::get(t, 0);
-    }
     return t;
+}
+
+size_t Type::getSize()
+{
+  switch(typecode)
+    {
+    case INT:
+      return sizeof(int64_t);
+      break;
+    case DOUBLE:
+      return sizeof(double);
+      break;
+    case VOID:
+      return 0;
+      break;
+    case BOOL:
+      return sizeof(uint8_t);
+      break;
+    default:
+      return 0;
+      break;
+    }
+  return 0;
 }
 
 /**
