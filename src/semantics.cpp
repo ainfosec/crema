@@ -397,6 +397,15 @@ bool NListAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
       std::cout << "Assignment to undefined variable " << ident << std::endl;
       return false;
     }
+  if (list.index)
+  {
+      Type & it = list.index->getType(ctx);
+      if (it.typecode != INT && it.typecode != UINT)
+      {
+	  std::cout << "Invalid non-integer index to accessing " << ident << std::endl;
+	  return false;
+      }
+  }
   Type *t = new Type(var->type, false);
   if (*t < expr.getType(ctx))
   {
