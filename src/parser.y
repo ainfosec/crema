@@ -76,7 +76,6 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                   | struct_decl { if(!rootCtx.registerStruct((NStructureDeclaration *) $1)) yyerror("Duplicate struct declaration!"); $$ = $1; }
                   | func_decl { if(!rootCtx.registerFunc((NFunctionDeclaration *) $1)) yyerror("Duplicate function declaration!"); $$ = $1; }
                   | assignment { }
-                  | list_decl { }
                   | conditional { }
                   | loop { }
                   | return { }
@@ -86,6 +85,7 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                      | type identifier TEQUAL expression { $$ = new NVariableDeclaration(*(new Type($1)), *$2, $4); }
 		     | TTSTRUCT identifier identifier { $$ = new NVariableDeclaration(*(new StructType(*$2)), *$3); }
 		     | TTSTRUCT identifier identifier TEQUAL identifier { $$ = new NVariableDeclaration(*(new StructType(*$2)), *$3, $5); }
+		     | list_decl { }
                      ;
 
                 type : TTDOUBLE
@@ -185,7 +185,8 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                             identifier : TIDENTIFIER { std::string str = $1->c_str(); $$ = new NIdentifier(str); delete $1; }
                                        ;
 
-                            list_access : identifier TLBRAC expression TRBRAC { $$ = new NListAccess(*$1, *$3); } /* Array access */
+                            list_access : identifier TLBRAC expression TRBRAC { $$ = new NListAccess(*$1, $3); } /* Array access */
+			    		| identifier TLBRAC TRBRAC { $$ = new NListAccess(*$1, NULL); } /* Array append */
                                         ;
 
                             struct : identifier TPERIOD identifier { $$ = new NStructureAccess(*$1, *$3); } /* Structure access */

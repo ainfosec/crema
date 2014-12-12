@@ -391,6 +391,7 @@ bool NStructureAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
 bool NListAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
 {
   NVariableDeclaration *var = ctx->searchVars(ident);
+  list.getType(ctx);
   if (!var)
     {
       std::cout << "Assignment to undefined variable " << ident << std::endl;
@@ -529,7 +530,7 @@ bool NListAccess::semanticAnalysis(SemanticContext * ctx)
 	{
 	    return false;
 	}
-	Type & t = index.getType(ctx);
+	Type & t = index->getType(ctx);
 	if (t.typecode != INT && t.typecode != UINT)
 	{
 	    return false;
@@ -552,6 +553,7 @@ Type & NListAccess::getType(SemanticContext * ctx) const
   if (var)
   {
       Type *st = new Type(var->type, false);
+      type = *st;
       return *st;
   }
   return *(new Type());
