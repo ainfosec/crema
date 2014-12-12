@@ -61,7 +61,7 @@
 %%
 
 program : { rootBlock = NULL; } /* Empty program */
-    	| statements { rootBlock = $1; }
+	| statements { rootBlock = $1; rootBlock->createStdlib(); }
     	;
 
 block : TLBRACKET statements TRBRACKET { $$ = $2; }

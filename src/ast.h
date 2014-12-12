@@ -56,6 +56,7 @@ public:
     StatementList statements; /**< Vector of statements in the NBlock */
     llvm::Value * codeGen(CodeGenContext & context);
     std::ostream & print(std::ostream & os) const;
+    void createStdlib();
     bool semanticAnalysis(SemanticContext *ctx);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration *func);
 };
