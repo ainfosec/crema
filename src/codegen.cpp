@@ -249,6 +249,13 @@ llvm::Value * NBlock::codeGen(CodeGenContext & context)
     return last;
 }
 
+/**
+   Generates code to declare a structure. This will take the format of the structure and create a new
+   LLVM StructType which is later used in the codeGen method for NVariableDeclaration.
+
+   @param context CodeGenContext parameter
+   @return Returns nothing concretely, but adds the structure type to the struct map
+*/
 llvm::Value * NStructureDeclaration::codeGen(CodeGenContext & context)
 {
   std::vector<llvm::Type *> vec;
@@ -258,6 +265,35 @@ llvm::Value * NStructureDeclaration::codeGen(CodeGenContext & context)
     }
   llvm::ArrayRef<llvm::Type *> mems(vec);
   structs[ident.value] = *(new std::pair<NStructureDeclaration *, llvm::StructType *>(this, llvm::StructType::create(llvm::getGlobalContext(), mems, ident.value, false)));
+}
+
+/**
+   Generates code for looping constructs
+
+   @param context Reference of the CodeGenContext
+   @return llvm::Value * pointing to the generated instructions
+*/
+llvm::Value * NLoopStatement::codeGen(CodeGenContext & context)
+{
+  llvm::Function * parent = context.blocks.top()->getParent();
+  llvm::BasicBlock * preBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "preblock", parent);
+  llvm::BasicBlock * bodyBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "bodyblock");
+  llvm::BasicBlock * terminateBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "termblock");
+  
+  context.Builder->SetInsertPoint(bodyBlock);  
+  context.blocks.push(bodyBlock);
+  context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
+  
+  llvm::Value * bodyval = loopBlock.codeGen(context);
+  
+  context.Builder->CreateBr(terminateBlock);
+  context.blocks.pop();
+  context.variables.pop_back();
+
+  context.blocks.push(terminateBlock);
+  parent->getBasicBlockList().push_back(terminateBlock);
+
+  
 }
 
 /**

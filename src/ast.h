@@ -107,6 +107,7 @@ public:
     NBlock & loopBlock; /**< NBlock to execute in the loop */
 NLoopStatement(NIdentifier & list, NIdentifier & asVar, NBlock & loopBlock) : list(list), asVar(asVar), loopBlock(loopBlock) { }
     std::ostream & print(std::ostream & os) const;
+    llvm::Value * codeGen(CodeGenContext & context);
     bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return loopBlock.checkRecursion(ctx, func); }
     bool semanticAnalysis(SemanticContext * ctx);
 };
