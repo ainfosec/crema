@@ -57,8 +57,12 @@ void NBlock::createStdlib()
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
     
-    // int_list_retrieve(list, idx)
+    // list_length(list)
     args.push_back(new NVariableDeclaration(*(new Type(TTINT, true)), *(new NIdentifier("l"))));
+    statements.insert(statements.begin(), generateFuncDecl(*(new Type(TTINT)), "list_length", args));
+    rootCtx.registerFunc(func); 
+    
+    // int_list_retrieve(list, idx)
     args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("idx"))));
     statements.insert(statements.begin(), generateFuncDecl(*(new Type(TTINT)), "int_list_retrieve", args));
     rootCtx.registerFunc(func);

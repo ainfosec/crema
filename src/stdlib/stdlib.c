@@ -25,7 +25,7 @@ static void list_resize(list_t * list, size_t new_sz)
     }
 }
 
-list_t * list_create(size_t es)
+list_t * list_create(int64_t es)
 {
   list_t * l = malloc(sizeof(list_t));
   if (l)
@@ -62,6 +62,11 @@ void list_delete(list_t * list, unsigned int idx)
       memmove(list->arr + (idx * list->elem_sz), list->arr + ((idx + list->elem_sz) * list->elem_sz), list->len - idx);
       list->len--;
     }
+}
+
+int64_t list_length(list_t * list)
+{
+  return list->len;
 }
 
 void str_delete(string_t * str, unsigned int idx)
@@ -179,12 +184,12 @@ list_t * int_list_create()
   return list_create(sizeof(int64_t));
 }
 
-void int_list_insert(list_t * list, unsigned int idx, int64_t val)
+void int_list_insert(list_t * list, int64_t idx, int64_t val)
 {
   list_insert(list, idx, (void *) &val);
 }
 
-int64_t int_list_retrieve(list_t * list, unsigned int idx)
+int64_t int_list_retrieve(list_t * list, int64_t idx)
 {
   int64_t *p = list_retrieve(list, idx);
   if (p == NULL)
