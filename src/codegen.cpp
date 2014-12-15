@@ -346,6 +346,12 @@ llvm::Value * NVariableAccess::codeGen(CodeGenContext & context)
 {
     llvm::Value * var = context.findVariable(ident.value);
     llvm::Value * loadedInst = new llvm::LoadInst(var, "", false, context.blocks.top());
+    std::cout << "---var---\n";
+    var->dump();
+    std::cout << "---------\n";
+    std::cout << "-loadedInst-\n";
+    loadedInst->dump();
+    std::cout << "------------\n";
     return loadedInst;
 }
 
@@ -603,9 +609,13 @@ llvm::Value * NFunctionCall::codeGen(CodeGenContext & context)
 {
     llvm::Function *func = context.rootModule->getFunction(ident.value.c_str());
     std::vector<llvm::Value *> v;
-    for (auto it : args)
+    for (auto it : args) 
         v.push_back(it->codeGen(context));
-    
+   
+    for (auto i : v){
+        std::cout << "v->";
+        i->dump();
+    }
     llvm::ArrayRef<llvm::Value *> llvmargs(v);
     return llvm::CallInst::Create(func, llvmargs, "", context.blocks.top());
 }
@@ -619,8 +629,10 @@ llvm::Value * NFunctionCall::codeGen(CodeGenContext & context)
 llvm::Value * NReturn::codeGen(CodeGenContext & context)
 {    
     llvm::Value *re = retExpr.codeGen(context);
-
-    std::cout << "retExpr LlvmType = " << retExpr.type.toLlvmType() << std::endl;
+    std::cout << "---re->dump()---\n";
+    re->dump();
+    std::cout << "----------------\n";
+    std::cout << "retExpr LlvmType = " << retExpr.type.toLlvmType() << "..." << retExpr.type << std::endl;
     std::cout << "context LlvmType = " << context.blocks.top()->getParent()->getReturnType() << std::endl;
 
     // upcasts the return value to floating point if function return is 
@@ -671,6 +683,10 @@ llvm::Value * NVariableDeclaration::codeGen(CodeGenContext & context)
 	NAssignmentStatement nas(ident, *initializationExpression);
 	nas.codeGen(context);
     }
+
+    std::cout << "---a->dump()---\n";
+    a->dump();
+    std::cout << "---------------\n";
     
     return a;
 }
