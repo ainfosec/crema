@@ -44,6 +44,7 @@ Type() : typecode(INVALID) { }
     Type(int type, bool l) { setType(type); isList = l; isStruct = false; }
     Type(Type & t, bool l) { typecode = t.typecode; isList = l; isStruct = false; }
     bool getIsList() { return isList; }
+    size_t getSize();
     llvm::Type * toLlvmType();
     static Type & getLargerType(Type & t1, Type & t2);
     virtual std::ostream & print(std::ostream & os) const;

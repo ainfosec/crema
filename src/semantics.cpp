@@ -239,8 +239,11 @@ bool NFunctionCall::checkRecursion(SemanticContext * ctx, NFunctionDeclaration *
 {
   if (func->ident == ident)
       return true;
-  
-  return ctx->searchFuncs(ident)->body->checkRecursion(ctx, func);
+  if (ctx->searchFuncs(ident)->body)
+    {
+      return ctx->searchFuncs(ident)->body->checkRecursion(ctx, func);
+    }
+  return false;
 }
 
 /**
@@ -388,11 +391,21 @@ bool NStructureAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
 bool NListAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
 {
   NVariableDeclaration *var = ctx->searchVars(ident);
+  list.getType(ctx);
   if (!var)
     {
       std::cout << "Assignment to undefined variable " << ident << std::endl;
       return false;
     }
+  if (list.index)
+  {
+      Type & it = list.index->getType(ctx);
+      if (it.typecode != INT && it.typecode != UINT)
+      {
+	  std::cout << "Invalid non-integer index to accessing " << ident << std::endl;
+	  return false;
+      }
+  }
   Type *t = new Type(var->type, false);
   if (*t < expr.getType(ctx))
   {
@@ -526,7 +539,7 @@ bool NListAccess::semanticAnalysis(SemanticContext * ctx)
 	{
 	    return false;
 	}
-	Type & t = index.getType(ctx);
+	Type & t = index->getType(ctx);
 	if (t.typecode != INT && t.typecode != UINT)
 	{
 	    return false;
@@ -549,6 +562,7 @@ Type & NListAccess::getType(SemanticContext * ctx) const
   if (var)
   {
       Type *st = new Type(var->type, false);
+      type = *st;
       return *st;
   }
   return *(new Type());
@@ -662,17 +676,25 @@ bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
           return false;
       }
   }
-
-  blockSA = body->semanticAnalysis(ctx);
-  blockRecur = body->checkRecursion(ctx, this);
-  if (blockRecur)
+  if (body)
     {
-      std::cout << "Recursive function call in " << ident << std::endl;
+      blockSA = body->semanticAnalysis(ctx);
+      blockRecur = body->checkRecursion(ctx, this);
+      if (blockRecur)
+	{
+	  std::cout << "Recursive function call in " << ident << std::endl;
+	}
+      fr = (type.typecode == VOID) ? true : ctx->funcReturns.back();
+      if (!fr) 
+	{
+	  std::cout << "No return statement in " << type << " " << ident << std::endl;
+	}
     }
-  fr = (type.typecode == VOID) ? true : ctx->funcReturns.back();
-  if (!fr) 
+  else
     {
-      std::cout << "No return statement in " << type << " " << ident << std::endl;
+      blockSA = true;
+      blockRecur = false;
+      fr = true;
     }
   ctx->delScope();
   return (blockSA && !blockRecur && fr);

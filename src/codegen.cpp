@@ -29,6 +29,7 @@ std::map<std::string, std::pair<NStructureDeclaration *, llvm::StructType *> > s
 CodeGenContext::CodeGenContext()
 {
     rootModule = new llvm::Module("Crema JIT", llvm::getGlobalContext());
+    rootModule->setTargetTriple(llvm::sys::getDefaultTargetTriple());
     Builder = new llvm::IRBuilder<>(llvm::getGlobalContext());
 }
 
@@ -61,9 +62,11 @@ void CodeGenContext::codeGen(NBlock * rootBlock)
 
     variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
     blocks.push(bb);
-    // Call codeGen on our rootBlock
-    rootBlock->codeGen(*this);
-    
+    if (rootBlock)
+      {
+	// Call codeGen on our rootBlock
+	rootBlock->codeGen(*this);
+      }
     llvm::ReturnInst::Create(llvm::getGlobalContext(), llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, 0, true)), blocks.top());
     blocks.pop();
 }
@@ -474,8 +477,7 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
 }
 
 /**
-   The llvm::ExtractElementInst class extracts a single scalar element from a VectorType value. This function
-   generates the code that extracts an element from a list.
+   Generates the stdlib function call bytecode to retrieve an element from a list
 
    @param CodeGenContext & context -- reference to the context of the operator statement
    @return llvm::Value * -- Pointer to the code generated that will access a list elemnt.
@@ -483,8 +485,67 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
 llvm::Value * NListAccess::codeGen(CodeGenContext & context)
 {
     llvm::Value * var = context.findVariable(ident.value);
-    llvm::Value * listInst = llvm::ExtractElementInst::Create(var, index.codeGen(context), "", context.blocks.top());
-    return listInst;
+    std::string name;
+    if (!index)
+      {
+	std::cout << "NULL index for NListAccess!" << std::endl;
+	return NULL;
+      }
+    switch (type.typecode)
+      {
+      case INT:
+	name = "int_list_retrieve";
+	break;
+      default:
+	return NULL;
+      }
+    llvm::Function *func = context.rootModule->getFunction(name.c_str());
+    llvm::Value * li = new llvm::LoadInst(var, "", false, context.blocks.top());
+    std::vector<llvm::Value *> v;
+    v.push_back(li);
+    v.push_back(index->codeGen(context));
+    
+    llvm::ArrayRef<llvm::Value *> llvmargs(v);
+    return llvm::CallInst::Create(func, llvmargs, "", context.blocks.top());
+}
+
+/**
+   Generates the stdlib function call bytecode to insert an element into a list
+
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @return llvm::Value * -- Pointer to the code generated that will insert into a list elemnt.
+*/
+llvm::Value * NListAssignmentStatement::codeGen(CodeGenContext & context)
+{
+    llvm::Value * var = context.findVariable(list.ident.value);
+    std::string name;
+    switch (list.type.typecode)
+      {
+      case INT:
+	if (list.index)
+	  {
+	    name = "int_list_insert";
+	  }
+	else
+	  {
+	    name = "int_list_append";
+	  }
+	break;
+      default:
+	return NULL;
+      }
+    llvm::Function *func = context.rootModule->getFunction(name.c_str());
+    llvm::Value * li = new llvm::LoadInst(var, "", false, context.blocks.top());
+    std::vector<llvm::Value *> v;
+    v.push_back(li);
+    if (list.index)
+      {
+	v.push_back(list.index->codeGen(context));
+      }
+    v.push_back(expr.codeGen(context));
+
+    llvm::ArrayRef<llvm::Value *> llvmargs(v);
+    return llvm::CallInst::Create(func, llvmargs, "", context.blocks.top());
 }
 
 static llvm::GetElementPtrInst * getGEPForStruct(llvm::Value * var, NIdentifier & member, NStructureDeclaration * sd, CodeGenContext & context)
@@ -571,31 +632,38 @@ llvm::Value * NFunctionDeclaration::codeGen(CodeGenContext & context)
     // Convert from std::vector to llvm::ArrayRef
     llvm::ArrayRef<llvm::Type *> argtypes(v);
     llvm::FunctionType *ft = llvm::FunctionType::get(type.toLlvmType(), argtypes, false);
+    llvm::Function * func;
 
-    llvm::Function *func = llvm::Function::Create(ft, llvm::GlobalValue::InternalLinkage, ident.value.c_str(), context.rootModule);
-    llvm::BasicBlock *bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "entry", func, 0);
+    if (body)
+      {
+	func = llvm::Function::Create(ft, llvm::GlobalValue::InternalLinkage, ident.value.c_str(), context.rootModule);
+	llvm::BasicBlock *bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "entry", func, 0);
+	
+	context.blocks.push(bb);
+	context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
 
-    context.blocks.push(bb);
-    context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
+	int i = 0;
+	for (llvm::Function::arg_iterator args = func->arg_begin(); args != func->arg_end(); ++args)
+	  {
+	    new llvm::StoreInst(args, variables[i]->codeGen(context), false, context.blocks.top());	
+	    i++;
+	  }
 
-    int i = 0;
-    for (llvm::Function::arg_iterator args = func->arg_begin(); args != func->arg_end(); ++args)
-    {
-	new llvm::StoreInst(args, variables[i]->codeGen(context), false, context.blocks.top());	
-	i++;
-    }
+	body->codeGen(context);
 
-    body->codeGen(context);
-
-    if (type.typecode == VOID)
-    {
+	if (type.typecode == VOID)
+	  {
 	    // Add in a void return instruction for void functions
 	    llvm::ReturnInst::Create(llvm::getGlobalContext(), bb);
-    }
+	  }
 
-    context.blocks.pop();
-    context.variables.pop_back();
-
+	context.blocks.pop();
+	context.variables.pop_back();
+      }
+    else 
+      {
+	func = llvm::Function::Create(ft, llvm::GlobalValue::ExternalLinkage, ident.value.c_str(), context.rootModule);
+      }
     return func;
 }
 
@@ -674,6 +742,24 @@ llvm::Value * NVariableDeclaration::codeGen(CodeGenContext & context)
       else 
 	{
 	  a = new llvm::AllocaInst(type.toLlvmType(), ident.value, context.blocks.top());
+	}
+      if (type.isList && !initializationExpression)
+	{
+	  // TODO codegen
+	  std::string name;
+	  switch (type.typecode)
+	    {
+	    case INT:
+	      name = "int_list_create";
+	      break;
+	    default:
+	      return NULL;
+	    }
+	  llvm::Function *func = context.rootModule->getFunction(name.c_str());
+	  std::vector<llvm::Value *> v;
+	  
+	  llvm::ArrayRef<llvm::Value *> llvmargs(v);
+	  llvm::Value * si = new llvm::StoreInst(llvm::CallInst::Create(func, llvmargs, "", context.blocks.top()), a, false, context.blocks.top());
 	}
     }
     context.addVariable(this, a);

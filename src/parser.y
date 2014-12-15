@@ -29,7 +29,7 @@
 
 /* Terminal types */
 %token <string> TIDENTIFIER TINT TDOUBLE TSTRING                                    /* token strings */
-%token <token> TRETURN TSDEF TDEF TIF TELSE TFOREACH TAS TTRUE TFALSE               /* keywords */
+%token <token> TRETURN TSDEF TDEF TEXTERN TIF TELSE TFOREACH TAS TTRUE TFALSE       /* keywords */
 %token <token> TMUL TADD TDIV TSUB TMOD                                             /* binary operators */
 %token <token> TCEQ TCNEQ TCLE TCGE TCLT TCGT                                       /* comparison operators */
 %token <token> TEQUAL                                                               /* assignment operator */
@@ -61,7 +61,7 @@
 %%
 
 program : { rootBlock = NULL; } /* Empty program */
-    	| statements { rootBlock = $1; }
+	| statements { rootBlock = $1; rootBlock->createStdlib(); }
     	;
 
 block : TLBRACKET statements TRBRACKET { $$ = $2; }
@@ -76,7 +76,6 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                   | struct_decl { if(!rootCtx.registerStruct((NStructureDeclaration *) $1)) yyerror("Duplicate struct declaration!"); $$ = $1; }
                   | func_decl { if(!rootCtx.registerFunc((NFunctionDeclaration *) $1)) yyerror("Duplicate function declaration!"); $$ = $1; }
                   | assignment { }
-                  | list_decl { }
                   | conditional { }
                   | loop { }
                   | return { }
@@ -86,6 +85,7 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                      | type identifier TEQUAL expression { $$ = new NVariableDeclaration(*(new Type($1)), *$2, $4); }
 		     | TTSTRUCT identifier identifier { $$ = new NVariableDeclaration(*(new StructType(*$2)), *$3); }
 		     | TTSTRUCT identifier identifier TEQUAL identifier { $$ = new NVariableDeclaration(*(new StructType(*$2)), *$3, $5); }
+		     | list_decl { }
                      ;
 
                 type : TTDOUBLE
@@ -106,6 +106,8 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
 
             func_decl : def type identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration(*(new Type($2)), *$3, *$5, $7); }
                       | def type TLBRAC TRBRAC identifier TLPAREN func_decl_arg_list TRPAREN block { $$ = new NFunctionDeclaration(*(new Type($2, true)), *$5, *$7, $9); }
+		      | TEXTERN def type identifier TLPAREN func_decl_arg_list TRPAREN { $$ = new NFunctionDeclaration(*(new Type($3)), *$4, *$6, NULL); }
+		      | TEXTERN def type TLBRAC TRBRAC identifier TLPAREN func_decl_arg_list TRPAREN { $$ = new NFunctionDeclaration(*(new Type($3, true)), *$6, *$8, NULL); }
                       ;
 
                 def : TDEF
@@ -183,7 +185,8 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                             identifier : TIDENTIFIER { std::string str = $1->c_str(); $$ = new NIdentifier(str); delete $1; }
                                        ;
 
-                            list_access : identifier TLBRAC expression TRBRAC { $$ = new NListAccess(*$1, *$3); } /* Array access */
+                            list_access : identifier TLBRAC expression TRBRAC { $$ = new NListAccess(*$1, $3); } /* Array access */
+			    		| identifier TLBRAC TRBRAC { $$ = new NListAccess(*$1, NULL); } /* Array append */
                                         ;
 
                             struct : identifier TPERIOD identifier { $$ = new NStructureAccess(*$1, *$3); } /* Structure access */

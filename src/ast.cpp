@@ -9,6 +9,8 @@
 */
 #include "ast.h"
 #include "parser.h"
+#include "types.h"
+#include "semantics.h"
 
 /**
    Overload for the == operator to allow for simple comparison of two NIdentifiers.
@@ -35,6 +37,54 @@ std::ostream & operator<<(std::ostream & os, const Node & node)
 {
   node.print(os);
   return os;
+}
+
+static inline NFunctionDeclaration * generateFuncDecl(Type & type, std::string name, std::vector<NVariableDeclaration *> args)
+{
+    NIdentifier * ident = new NIdentifier(name);
+    return new NFunctionDeclaration(type, *ident, args, NULL);
+}
+
+/**
+   Function to define certain standard library declarations
+ */
+void NBlock::createStdlib()
+{
+    std::vector<NVariableDeclaration *> args;
+    NFunctionDeclaration *func;
+    // int_list_create()
+    func = generateFuncDecl(*(new Type(TTINT, true)), "int_list_create", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+    
+    // list_length(list)
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT, true)), *(new NIdentifier("l"))));
+    statements.insert(statements.begin(), generateFuncDecl(*(new Type(TTINT)), "list_length", args));
+    rootCtx.registerFunc(func); 
+    
+    // int_list_retrieve(list, idx)
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("idx"))));
+    statements.insert(statements.begin(), generateFuncDecl(*(new Type(TTINT)), "int_list_retrieve", args));
+    rootCtx.registerFunc(func);
+    
+    // int_list_append(list, val)
+    func = generateFuncDecl(*(new Type(TTVOID)), "int_list_append", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+    
+    // int_list_insert(list, idx, val)
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTVOID)), "int_list_insert", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+    
+    // crema_seq(start, end)
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("start"))));
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("end"))));
+    func = generateFuncDecl(*(new Type(TTINT, true)), "crema_seq", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
 }
 
 /**
@@ -104,9 +154,11 @@ std::ostream & NFunctionDeclaration::print(std::ostream & os) const
   for (VariableList::const_iterator it = variables.begin(); it != variables.end(); ++it)
       os << *(*it) << ") ";
 
-  os << *body << ")"; 
-  os << std::endl;
-  
+  if (body)
+    {
+      os << *body << ")"; 
+      os << std::endl;
+    }
   return os;
 }
 

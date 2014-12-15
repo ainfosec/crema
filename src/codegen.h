@@ -25,6 +25,7 @@
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/Interpreter.h>
 #include <llvm/Assembly/PrintModulePass.h>
+#include <llvm/Support/Host.h>
 
 class NBlock;
 class NVariableDeclaration;

@@ -216,25 +216,54 @@ std::ostream & StructType::print(std::ostream & os) const
 */
 llvm::Type * Type::toLlvmType()
 {
+    llvm::Type * t;
+    if (isList)
+      {
+	t = llvm::PointerType::get(llvm::Type::getInt8Ty(llvm::getGlobalContext()), 0);
+	return t;
+      }
     switch(typecode)
     {
     case INT:
-    	return llvm::Type::getInt64Ty(llvm::getGlobalContext());
-	    break;
+    	t = llvm::Type::getInt64Ty(llvm::getGlobalContext());
+	break;
     case DOUBLE:
-    	return llvm::Type::getDoubleTy(llvm::getGlobalContext());
+    	t = llvm::Type::getDoubleTy(llvm::getGlobalContext());
     	break;
     case VOID:
-    	return llvm::Type::getVoidTy(llvm::getGlobalContext());
+    	t = llvm::Type::getVoidTy(llvm::getGlobalContext());
     	break;
     case BOOL:
-    	return llvm::Type::getInt8Ty(llvm::getGlobalContext());
+    	t = llvm::Type::getInt8Ty(llvm::getGlobalContext());
     	break;
     default:
     	return NULL;
     	break;
     }
-    return NULL;
+    return t;
+}
+
+size_t Type::getSize()
+{
+  switch(typecode)
+    {
+    case INT:
+      return sizeof(int64_t);
+      break;
+    case DOUBLE:
+      return sizeof(double);
+      break;
+    case VOID:
+      return 0;
+      break;
+    case BOOL:
+      return sizeof(uint8_t);
+      break;
+    default:
+      return 0;
+      break;
+    }
+  return 0;
 }
 
 /**
