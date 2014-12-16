@@ -241,7 +241,7 @@ list_t * crema_seq(int64_t start, int64_t end)
     }
   l = int_list_create();
   list_resize(l, end - start);
-  for (i = start; i < end; i++)
+  for (i = start; i <= end; i++)
     {
       int_list_append(l, i);
     }
