@@ -291,7 +291,7 @@ llvm::Value * NLoopStatement::codeGen(CodeGenContext & context)
     llvm::Function * parent = context.blocks.top()->getParent();
     llvm::BasicBlock * preBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "preblock", parent);
     llvm::BasicBlock * bodyBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "bodyblock", parent);
-    llvm::BasicBlock * terminateBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "termblock", parent);
+    llvm::BasicBlock * terminateBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "termblock");
 
     // Create pre-block
     context.blocks.push(preBlock);
@@ -367,7 +367,7 @@ llvm::Value * NIfStatement::codeGen(CodeGenContext & context)
     llvm::Function * parent = context.blocks.top()->getParent();
     llvm::BasicBlock * thenBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "then", parent);
     llvm::BasicBlock * elseBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "else", parent);
-    llvm::BasicBlock * ifcontBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "ifcont", parent);
+    llvm::BasicBlock * ifcontBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "ifcont");
 
     llvm::BranchInst::Create(thenBlock, elseBlock, cond, context.blocks.top());
     
