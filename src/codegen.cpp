@@ -275,25 +275,64 @@ llvm::Value * NStructureDeclaration::codeGen(CodeGenContext & context)
 */
 llvm::Value * NLoopStatement::codeGen(CodeGenContext & context)
 {
-  llvm::Function * parent = context.blocks.top()->getParent();
-  llvm::BasicBlock * preBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "preblock", parent);
-  llvm::BasicBlock * bodyBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "bodyblock");
-  llvm::BasicBlock * terminateBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "termblock");
-  
-  context.Builder->SetInsertPoint(bodyBlock);  
-  context.blocks.push(bodyBlock);
-  context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
-  
-  llvm::Value * bodyval = loopBlock.codeGen(context);
-  
-  context.Builder->CreateBr(terminateBlock);
-  context.blocks.pop();
-  context.variables.pop_back();
+    NIdentifier * itIdent = new NIdentifier("loopItCnter");
+    NVariableDeclaration * loop = context.findVariableDeclaration(list.value);
+    NVariableDeclaration * loopVar = new NVariableDeclaration(*(new Type(loop->type, false)), asVar, NULL);
+    NVariableDeclaration * itNum = new NVariableDeclaration(*(new Type(TTINT)), *itIdent, new NInt(0));
+    
+    std::vector<NExpression *> args;
+    args.push_back(new NVariableAccess(list));
+    NVariableAccess * access = new NVariableAccess(*itIdent);
+    access->type = itNum->type;
+    NFunctionCall * funcCall = new NFunctionCall(*(new NIdentifier("list_length")), args);
+    funcCall->type = itNum->type;
+    NBinaryOperator * c = new NBinaryOperator(*((NExpression *) access), (int) TCEQ, *((NExpression *) funcCall));
+    llvm::Value * cond;
+    llvm::Function * parent = context.blocks.top()->getParent();
+    llvm::BasicBlock * preBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "preblock", parent);
+    llvm::BasicBlock * bodyBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "bodyblock", parent);
+    llvm::BasicBlock * terminateBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "termblock", parent);
 
-  context.blocks.push(terminateBlock);
-  parent->getBasicBlockList().push_back(terminateBlock);
+    // Create pre-block
+    context.blocks.push(preBlock);
+    llvm::Value * itNumBC = itNum->codeGen(context);
+    llvm::Value * lvBC = loopVar->codeGen(context);
+    llvm::BranchInst::Create(bodyBlock, context.blocks.top()->end());
+    context.blocks.pop();
+    
+    std::cout << "Creating branch to preBlock" << std::endl;
+    llvm::BranchInst::Create(preBlock, context.blocks.top()->end());
 
-  
+    context.blocks.push(bodyBlock);
+    context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
+    // Add asVar to context
+    context.addVariable(loopVar, lvBC);
+    
+    NListAccess * nla = new NListAccess(list, access);
+    nla->type = loop->type;
+    new llvm::StoreInst(nla->codeGen(context), lvBC, false, context.blocks.top());
+    
+    std::cout << "Generating body" << std::endl;
+    llvm::Value * bodyval = loopBlock.codeGen(context);
+
+    // Increment loop counter
+    NInt one(1);
+
+    llvm::Value * newValue = llvm::BinaryOperator::Create(llvm::Instruction::Add, one.codeGen(context), new llvm::LoadInst(itNumBC, "", false, context.blocks.top()), "", context.blocks.top());
+    new llvm::StoreInst(newValue, itNumBC, false, context.blocks.top());
+
+    // Create termination check
+    cond = c->codeGen(context);
+    llvm::BranchInst::Create(terminateBlock, bodyBlock, cond, context.blocks.top());
+    
+    context.blocks.pop();
+    context.variables.pop_back();
+
+    // Link in the terminate block to the function
+    context.blocks.push(terminateBlock);
+    parent->getBasicBlockList().push_back(terminateBlock);
+    
+    return cond;
 }
 
 /**
@@ -327,8 +366,8 @@ llvm::Value * NIfStatement::codeGen(CodeGenContext & context)
 
     llvm::Function * parent = context.blocks.top()->getParent();
     llvm::BasicBlock * thenBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "then", parent);
-    llvm::BasicBlock * elseBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "else");
-    llvm::BasicBlock * ifcontBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "ifcont");
+    llvm::BasicBlock * elseBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "else", parent);
+    llvm::BasicBlock * ifcontBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "ifcont", parent);
 
     llvm::BranchInst::Create(thenBlock, elseBlock, cond, context.blocks.top());
     
