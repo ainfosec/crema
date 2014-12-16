@@ -323,6 +323,7 @@ public:
     NList() { } /**< Default constructor to initialize an empty list */
 NList(ExpressionList & list) : value(list) { }
     Type & getType(SemanticContext * ctx) const;
+    llvm::Value* codeGen(CodeGenContext & context);
     std::ostream & print(std::ostream & os) const;
     bool semanticAnalysis(SemanticContext * ctx);
 };

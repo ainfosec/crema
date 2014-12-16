@@ -834,6 +834,51 @@ llvm::Value * NVariableDeclaration::codeGen(CodeGenContext & context)
 }
 
 /**
+   Generates code for a pre-defined list
+
+   @param context Context variable
+   @return LLVM bytecode for the list
+*/
+llvm::Value * NList::codeGen(CodeGenContext & context)
+{
+    // Create list
+    std::string name;
+    switch (type.typecode)
+    {
+    case INT:
+	name = "int_list_create";
+	break;
+    default:
+	return NULL;
+    }
+    llvm::Function *func = context.rootModule->getFunction(name.c_str());
+    std::vector<llvm::Value *> v;
+    
+    llvm::ArrayRef<llvm::Value *> llvmargs(v);
+    llvm::Value * li = llvm::CallInst::Create(func, llvmargs, "", context.blocks.top());
+    for (int i = 0; i < value.size(); i++)
+    {
+	switch (type.typecode)
+	{
+	case INT:
+	    name = "int_list_append";
+	    break;
+	default:
+	    return NULL;
+	}
+	llvm::Function *func = context.rootModule->getFunction(name.c_str());
+	std::vector<llvm::Value *> v;
+	v.push_back(li);
+	v.push_back(value[i]->codeGen(context));
+
+	llvm::ArrayRef<llvm::Value *> llvmargs(v);
+	llvm::CallInst::Create(func, llvmargs, "", context.blocks.top());
+    }
+
+    return li;
+}
+
+/**
    Generates code for floating point values.
 
    @param CodeGenContext & context -- reference to the context of the operator statement
