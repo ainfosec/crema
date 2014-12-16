@@ -456,11 +456,11 @@ bool NReturn::semanticAnalysis(SemanticContext * ctx)
 */
 Type & NList::getType(SemanticContext * ctx) const
 {
-  Type & type = (value.size() > 0) ? value[0]->getType(ctx) : *(new Type());
-  Type *lt = new Type(type, true);
+  Type & intype = (value.size() > 0) ? value[0]->getType(ctx) : *(new Type());
+  Type *lt = new Type(intype, true);
   for (int i = 1; i < value.size(); i++)
     {
-      if (value[i]->getType(ctx) != type)
+      if (value[i]->getType(ctx) != intype)
 	  return *(new Type());
     }
   type = *lt;
@@ -475,12 +475,12 @@ Type & NList::getType(SemanticContext * ctx) const
 */
 bool NList::semanticAnalysis(SemanticContext * ctx)
 {
-  Type & type = (value.size() > 0) ? value[0]->getType(ctx) : *(new Type());
+  Type & intype = (value.size() > 0) ? value[0]->getType(ctx) : *(new Type());
   for (int i = 1; i < value.size(); i++)
   {
-      if (value[i]->getType(ctx) != type)
+      if (value[i]->getType(ctx) != intype)
       {
-	  std::cout << "List contains differing types!" << std::endl;
+	  std::cout << "List element: " << i << " contains differing types: " << value[i]->getType(ctx) << " vs. " << intype << std::endl;
 	  return false;
       }
   }
