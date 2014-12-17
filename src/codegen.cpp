@@ -565,6 +565,9 @@ llvm::Value * NListAccess::codeGen(CodeGenContext & context)
       case INT:
 	name = "int_list_retrieve";
 	break;
+      case STRING:
+	  name = "string_retrieve";
+	  break;
       default:
 	return NULL;
       }
@@ -591,17 +594,28 @@ llvm::Value * NListAssignmentStatement::codeGen(CodeGenContext & context)
     switch (list.type.typecode)
       {
       case INT:
-	if (list.index)
+	  if (list.index)
 	  {
-	    name = "int_list_insert";
+	      name = "int_list_insert";
 	  }
-	else
+	  else
 	  {
-	    name = "int_list_append";
+	      name = "int_list_append";
 	  }
-	break;
+	  break;
+      case STRING:
+      case CHAR:
+	  if (list.index)
+	  {
+	      name = "str_insert";
+	  }
+	  else
+	  {
+	      name = "str_append";
+	  }
       default:
-	return NULL;
+	  std::cout << "Unable to assign list for type: " << list.type.typecode << std::endl;
+	  return NULL;
       }
     llvm::Function *func = context.rootModule->getFunction(name.c_str());
     llvm::Value * li = new llvm::LoadInst(var, "", false, context.blocks.top());
@@ -796,41 +810,46 @@ llvm::Value * NVariableDeclaration::codeGen(CodeGenContext & context)
   else 
     {
       if (context.blocks.top()->getParent()->getName().str() == "main")
-	{
+      {
 	  a = new llvm::GlobalVariable(*(context.rootModule), type.toLlvmType(), false, llvm::GlobalValue::CommonLinkage, llvm::UndefValue::get(type.toLlvmType()), ident.value);
-	}
+      }
       else 
-	{
+      {
 	  a = new llvm::AllocaInst(type.toLlvmType(), ident.value, context.blocks.top());
-	}
-      if (type.isList && !initializationExpression)
-	{
+      }
+      if ((type.isList || type.typecode == STRING) && !initializationExpression)
+      {
 	  // TODO codegen
 	  std::string name;
 	  switch (type.typecode)
-	    {
-	    case INT:
+	  {
+	  case INT:
 	      name = "int_list_create";
 	      break;
-	    default:
+	  case STRING:
+	  case CHAR:
+	      name = "str_create";
+	      break;
+	  default:
+	      std::cout << "Unable to create list for type: " << type << std::endl;
 	      return NULL;
-	    }
+	  }
 	  llvm::Function *func = context.rootModule->getFunction(name.c_str());
 	  std::vector<llvm::Value *> v;
 	  
 	  llvm::ArrayRef<llvm::Value *> llvmargs(v);
 	  llvm::Value * si = new llvm::StoreInst(llvm::CallInst::Create(func, llvmargs, "", context.blocks.top()), a, false, context.blocks.top());
-	}
+      }
     }
-    context.addVariable(this, a);
-
-    if (NULL != initializationExpression)
-    {
-	NAssignmentStatement nas(ident, *initializationExpression);
-	nas.codeGen(context);
-    }
-    
-    return a;
+  context.addVariable(this, a);
+  
+  if (NULL != initializationExpression)
+  {
+      NAssignmentStatement nas(ident, *initializationExpression);
+      nas.codeGen(context);
+  }
+  
+  return a;
 }
 
 /**
@@ -848,6 +867,9 @@ llvm::Value * NList::codeGen(CodeGenContext & context)
     case INT:
 	name = "int_list_create";
 	break;
+    case CHAR:
+	name = "str_create";
+	break;
     default:
 	return NULL;
     }
@@ -856,12 +878,16 @@ llvm::Value * NList::codeGen(CodeGenContext & context)
     
     llvm::ArrayRef<llvm::Value *> llvmargs(v);
     llvm::Value * li = llvm::CallInst::Create(func, llvmargs, "", context.blocks.top());
+    li->dump();
     for (int i = 0; i < value.size(); i++)
     {
 	switch (type.typecode)
 	{
 	case INT:
 	    name = "int_list_append";
+	    break;
+	case CHAR:
+	    name = "str_append";
 	    break;
 	default:
 	    return NULL;
@@ -876,6 +902,30 @@ llvm::Value * NList::codeGen(CodeGenContext & context)
     }
 
     return li;
+}
+
+/**
+   Generates code for string values.
+
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @return llvm::Value * -- Pointer to the code generated as a result of the string instance
+*/
+llvm::Value * NString::codeGen(CodeGenContext & context)
+{
+    std::cout << "Entered NString codegen" << std::endl;
+    ExpressionList * chars = new ExpressionList();
+    for (int i = 0; i < value.length(); i++)
+    {
+	NChar *c = new NChar(value[i]);
+	c->type.typecode = CHAR;
+	chars->push_back(c);
+    }
+    NList * cl = new NList(*chars);
+    cl->type.typecode = CHAR;
+    std::cout << "Created list: " << *cl << std::endl;
+    llvm::Value * v = cl->codeGen(context);
+    std::cout << "Finished codeGen on NList!" << std::endl;
+    return v;
 }
 
 /**
@@ -909,4 +959,15 @@ llvm::Value * NUInt::codeGen(CodeGenContext & context)
 llvm::Value * NInt::codeGen(CodeGenContext & context)
 {
     return llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, value, true));
+}
+
+/**
+   Generates code for signed char values.
+
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @return llvm::Value * -- Pointer to the code generated as a result of the signed char instance
+*/
+llvm::Value * NChar::codeGen(CodeGenContext & context)
+{
+    return llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(8, value, true));
 }

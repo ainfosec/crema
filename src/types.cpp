@@ -218,10 +218,10 @@ llvm::Type * Type::toLlvmType()
 {
     llvm::Type * t;
     if (isList)
-      {
+    {
 	t = llvm::PointerType::get(llvm::Type::getInt8Ty(llvm::getGlobalContext()), 0);
 	return t;
-      }
+    }
     switch(typecode)
     {
     case INT:
@@ -234,8 +234,12 @@ llvm::Type * Type::toLlvmType()
     	t = llvm::Type::getVoidTy(llvm::getGlobalContext());
     	break;
     case BOOL:
+    case CHAR:
     	t = llvm::Type::getInt8Ty(llvm::getGlobalContext());
     	break;
+    case STRING:
+	t = llvm::PointerType::get(llvm::Type::getInt8Ty(llvm::getGlobalContext()), 0);
+	break;
     default:
     	return NULL;
     	break;

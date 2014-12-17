@@ -296,12 +296,22 @@ NInt(long int value) : value(value) { }
 };
 
 /**
+ *  Char */
+class NChar : public NValue {
+public:
+    char value; /**< Value of signed int */
+NChar(char value) : value(value) { }
+    llvm::Value* codeGen(CodeGenContext & context);
+    std::ostream & print(std::ostream & os) const;
+};
+
+/**
  * String type */
 class NString : public NValue {
 public:
     std::string value; /**< Value of string */
-NString(const std::string & value) : value(value) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    NString(std::string & ivalue) { ivalue.erase(0, 1); ivalue.erase(ivalue.length() - 1, 1); value = ivalue; }
+    llvm::Value * codeGen(CodeGenContext & context);
     std::ostream & print(std::ostream & os) const;
 };
 

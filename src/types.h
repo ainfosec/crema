@@ -22,6 +22,7 @@ enum TypeCodes {
     INT,
     DOUBLE,
     STRING,
+    CHAR,
     VOID,
     BOOL,
     UINT,

@@ -52,11 +52,18 @@ void NBlock::createStdlib()
 {
     std::vector<NVariableDeclaration *> args;
     NFunctionDeclaration *func;
+    Type * ct = new Type();
+    ct->typecode = CHAR;
     // int_list_create()
     func = generateFuncDecl(*(new Type(TTINT, true)), "int_list_create", args);
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
-    
+
+    // str_create()
+    func = generateFuncDecl(*(new Type(*ct, true)), "str_create", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
     // list_length(list)
     args.push_back(new NVariableDeclaration(*(new Type(TTINT, true)), *(new NIdentifier("l"))));
     statements.insert(statements.begin(), generateFuncDecl(*(new Type(TTINT)), "list_length", args));
@@ -65,6 +72,10 @@ void NBlock::createStdlib()
     // int_list_retrieve(list, idx)
     args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("idx"))));
     statements.insert(statements.begin(), generateFuncDecl(*(new Type(TTINT)), "int_list_retrieve", args));
+    rootCtx.registerFunc(func);
+
+    // str_retrieve(list, idx)
+    statements.insert(statements.begin(), generateFuncDecl(*ct, "str_retrieve", args));
     rootCtx.registerFunc(func);
     
     // int_list_append(list, val)
@@ -77,7 +88,22 @@ void NBlock::createStdlib()
     func = generateFuncDecl(*(new Type(TTVOID)), "int_list_insert", args);
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
-    
+
+    // str_append(list, val)
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT, true)), *(new NIdentifier("l"))));
+    args.push_back(new NVariableDeclaration(*ct, *(new NIdentifier("val"))));
+    statements.insert(statements.begin(), generateFuncDecl(*(new Type(TTVOID)), "str_append", args));
+    rootCtx.registerFunc(func);
+
+    // str_append(list, val)
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT, true)), *(new NIdentifier("l"))));
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("idx"))));
+    args.push_back(new NVariableDeclaration(*ct, *(new NIdentifier("val"))));
+    statements.insert(statements.begin(), generateFuncDecl(*(new Type(TTVOID)), "str_insert", args));
+    rootCtx.registerFunc(func);  
+
     // crema_seq(start, end)
     args.clear();
     args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("start"))));
@@ -410,6 +436,19 @@ std::ostream & NBool::print(std::ostream & os) const
 std::ostream & NInt::print(std::ostream & os) const
 {
   os << "INT:" << value;
+  return os;
+}
+
+/**
+   Prints an NChar object, which is inherited from the NValue class. The variable 'value'
+   that is printed is the number itself, not the string name of the identifier. 
+
+   @param os Output stream to print to
+   @return Output stream passed on
+*/
+std::ostream & NChar::print(std::ostream & os) const
+{
+  os << "CHAR:" << value;
   return os;
 }
 
