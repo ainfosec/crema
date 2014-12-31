@@ -760,9 +760,9 @@ llvm::Value * NFunctionCall::codeGen(CodeGenContext & context)
 {
     llvm::Function *func = context.rootModule->getFunction(ident.value.c_str());
     std::vector<llvm::Value *> v;
-    for (auto it : args)
+    for (auto it : args) 
         v.push_back(it->codeGen(context));
-    
+   
     llvm::ArrayRef<llvm::Value *> llvmargs(v);
     return llvm::CallInst::Create(func, llvmargs, "", context.blocks.top());
 }
@@ -814,7 +814,7 @@ llvm::Value * NVariableDeclaration::codeGen(CodeGenContext & context)
 	  a = new llvm::GlobalVariable(*(context.rootModule), type.toLlvmType(), false, llvm::GlobalValue::CommonLinkage, llvm::UndefValue::get(type.toLlvmType()), ident.value);
       }
       else 
-      {
+              {
 	  a = new llvm::AllocaInst(type.toLlvmType(), ident.value, context.blocks.top());
       }
       if ((type.isList || type.typecode == STRING) && !initializationExpression)

@@ -8,12 +8,17 @@
    analysis on the input and either exit(0) if it passes both, -1 otherwise.
  */
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
 #include "ast.h"
 #include "codegen.h"
 #include "ezOptionParser.hpp"
+#include "llvm/CodeGen/AsmPrinter.h"
 
 extern NBlock *rootBlock;
 extern int yyparse();
+extern "C" FILE *yyin;
 
 int main(int argc, const char *argv[])
 {
@@ -26,6 +31,7 @@ int main(int argc, const char *argv[])
     opt.add("", 0, 0, 0, "Prints this help", "-h");
     opt.add("", 0, 0, 0, "Parse only: Will halt after parsing and pretty-printing the AST for the input program", "-p");
     opt.add("", 0, 0, 0, "Semantic check only: Will halt after parsing, pretty-printing and performing semantic checks on the AST for the input program", "-s");
+    opt.add("", 0, 1, 0, "Print LLVM Assembly to file.", "-c");
     opt.add("", 0, 0, 0, "Run generated code", "-r");
     opt.add("", 0, 1, 0, "Read input from file instead of stdin", "-f"); // TODO!
 
@@ -40,7 +46,26 @@ int main(int argc, const char *argv[])
     }
     
     // Parse input
-    yyparse();
+    if (opt.isSet("-f")) {
+        // searches for the -f flag
+        int i=0;
+        while (argv[i] != std::string("-f"))
+            ++i;
+
+        // reads the file name string after the -f flag
+        FILE *inFile = fopen(argv[i+1],"r");
+        if (!inFile)
+            std::cout << "Cannot open file, " << argv[i+1] << ".\n" << "Usage: ./cremacc -f <input file>\n";
+        yyin = inFile;
+
+        // feeds the input file into cremacc
+        do {
+            yyparse();
+        } while (!feof(yyin));
+    }
+    else 
+        yyparse(); // no -f flag will produce the commandline cremacc
+
     if (opt.isSet("-p"))
     {
 	return 0;
@@ -68,9 +93,33 @@ int main(int argc, const char *argv[])
     // Code Generation
     std::cout << "Generating LLVM IR bytecode" << std::endl;
     rootCodeGenCtx.codeGen(rootBlock);
-    
+
     std::cout << "Dumping generated LLVM bytecode" << std::endl;
     rootCodeGenCtx.dump();
+
+    if (opt.isSet("-c"))
+    {
+        // searches for the -c flag
+        int i=0;
+        while (argv[i] != std::string("-c"))
+            ++i;
+
+        // writes output LLVM assembly to argument after -c flag
+        FILE *outFile;
+        outFile = freopen(argv[i+1],"w",stderr);
+        rootCodeGenCtx.dump();
+        fclose(outFile);
+
+        std::ostringstream oss;
+        std::cout << "Linking with stdlib.c using clang...\n";
+        oss << "clang " << argv[i+1] << " stdlib/stdlib.c";
+        std::string cmd = oss.str();
+        // runs the command: clang <.ll filename> <library files>
+        std::system(cmd.c_str());
+        std::cout << "Executing program and printing the return value...\n";
+        // executes the program ./a.out and prints the return value
+        std::system("./a.out; echo $?;");
+    }
 
     // LLVM IR JIT Execution
     if (opt.isSet("-r"))
