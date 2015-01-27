@@ -912,7 +912,6 @@ llvm::Value * NList::codeGen(CodeGenContext & context)
 */
 llvm::Value * NString::codeGen(CodeGenContext & context)
 {
-    std::cout << "Entered NString codegen" << std::endl;
     ExpressionList * chars = new ExpressionList();
     for (int i = 0; i < value.length(); i++)
     {
@@ -922,9 +921,7 @@ llvm::Value * NString::codeGen(CodeGenContext & context)
     }
     NList * cl = new NList(*chars);
     cl->type.typecode = CHAR;
-    std::cout << "Created list: " << *cl << std::endl;
     llvm::Value * v = cl->codeGen(context);
-    std::cout << "Finished codeGen on NList!" << std::endl;
     return v;
 }
 

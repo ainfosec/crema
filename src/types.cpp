@@ -171,6 +171,9 @@ std::ostream & Type::print(std::ostream & os) const
     case INT:
 	os << "INT";
 	break;
+    case CHAR:
+	os << "CHAR";
+	break;
     case UINT:
 	os << "UINT";
 	break;

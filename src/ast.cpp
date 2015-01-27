@@ -54,6 +54,7 @@ void NBlock::createStdlib()
     NFunctionDeclaration *func;
     Type * ct = new Type();
     ct->typecode = CHAR;
+    ct->isList = false;
     // int_list_create()
     func = generateFuncDecl(*(new Type(TTINT, true)), "int_list_create", args);
     statements.insert(statements.begin(), func);
@@ -93,10 +94,12 @@ void NBlock::createStdlib()
     args.clear();
     args.push_back(new NVariableDeclaration(*(new Type(TTINT, true)), *(new NIdentifier("l"))));
     args.push_back(new NVariableDeclaration(*ct, *(new NIdentifier("val"))));
-    statements.insert(statements.begin(), generateFuncDecl(*(new Type(TTVOID)), "str_append", args));
+    std::cout << *args[1] << std::endl;
+    func = generateFuncDecl(*(new Type(TTVOID)), "str_append", args);
+    statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
 
-    // str_append(list, val)
+    // str_insert(list, idx, val)
     args.clear();
     args.push_back(new NVariableDeclaration(*(new Type(TTINT, true)), *(new NIdentifier("l"))));
     args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("idx"))));
