@@ -179,6 +179,11 @@ void str_print(string_t * str)
   printf("%s", (char *) str->arr);
 }
 
+void str_println(string_t * str)
+{
+  printf("%s\n", (char *) str->arr);
+}
+
 list_t * int_list_create()
 {
   return list_create(sizeof(int64_t));
@@ -246,4 +251,9 @@ list_t * crema_seq(int64_t start, int64_t end)
       int_list_append(l, i);
     }
   return l;
+}
+
+void print_int(int64_t val)
+{
+    printf("%ld\n", val);
 }

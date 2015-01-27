@@ -189,7 +189,7 @@ NStructureDeclaration(NIdentifier & ident, VariableList & members) : ident(ident
 
 /**
  *  Expression resolving to a function call */
-class NFunctionCall : public NExpression {
+class NFunctionCall : public NExpression, public NStatement {
 public:
     ExpressionList args;  /**< List of function call arguments */
     NIdentifier & ident; /**< Name of function to call */

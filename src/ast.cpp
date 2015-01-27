@@ -90,9 +90,17 @@ void NBlock::createStdlib()
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
 
-    // str_append(list, val)
+    // str_print(list) & str_println(list)
     args.clear();
     args.push_back(new NVariableDeclaration(*(new Type(TTINT, true)), *(new NIdentifier("l"))));
+    func = generateFuncDecl(*(new Type(TTVOID)), "str_print", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+    func = generateFuncDecl(*(new Type(TTVOID)), "str_println", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // str_append(list, val)
     args.push_back(new NVariableDeclaration(*ct, *(new NIdentifier("val"))));
     std::cout << *args[1] << std::endl;
     func = generateFuncDecl(*(new Type(TTVOID)), "str_append", args);

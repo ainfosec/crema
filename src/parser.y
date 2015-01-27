@@ -76,7 +76,8 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                   | struct_decl { if(!rootCtx.registerStruct((NStructureDeclaration *) $1)) yyerror("Duplicate struct declaration!"); $$ = $1; }
                   | func_decl { if(!rootCtx.registerFunc((NFunctionDeclaration *) $1)) yyerror("Duplicate function declaration!"); $$ = $1; }
                   | assignment { }
-                  | conditional { }
+		  | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
+		  | conditional { }
                   | loop { }
                   | return { }
                   ;

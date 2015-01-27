@@ -41,6 +41,7 @@ char str_retrieve(string_t * str, unsigned int idx);
 void str_append(string_t * str, char elem);
 void str_concat(string_t * str1, string_t * str2);
 void str_print(string_t * str);
+void str_println(string_t * str);
 void str_delete(string_t * str, unsigned int idx);
 
 list_t * int_list_create();
@@ -54,5 +55,7 @@ double double_list_retrieve(list_t * list, unsigned int idx);
 void double_list_append(list_t * list, double elem);
 
 list_t * crema_seq(int64_t start, int64_t end);
+
+void print_int(int64_t val);
 
 #endif // CREMA_STDLIB_H_
