@@ -20,6 +20,8 @@ extern NBlock *rootBlock;
 extern int yyparse();
 extern "C" FILE *yyin;
 
+void yyset_debug(int);
+
 int main(int argc, const char *argv[])
 {
     // Handling command-line options
@@ -34,6 +36,7 @@ int main(int argc, const char *argv[])
     opt.add("", 0, 1, 0, "Print LLVM Assembly to file.", "-c");
     opt.add("", 0, 0, 0, "Run generated code", "-r");
     opt.add("", 0, 1, 0, "Read input from file instead of stdin", "-f"); // TODO!
+    opt.add("", 0, 1, 0, "Print parser output and root block", "-v"); // TODO!
 
     opt.parse(argc, argv);
 
@@ -45,6 +48,11 @@ int main(int argc, const char *argv[])
 	return 0;
     }
     
+    if (opt.isSet("-v")) {
+	yyset_debug(1);
+    } else {
+	yyset_debug(0);
+    }
     // Parse input
     if (opt.isSet("-f")) {
         // searches for the -f flag
@@ -74,7 +82,9 @@ int main(int argc, const char *argv[])
     // Perform semantic checks
     if (rootBlock)
     {
-	std::cout << *rootBlock << std::endl;
+        if (opt.isSet("-v")) {
+	    std::cout << *rootBlock << std::endl;
+        }
 	if (rootBlock->semanticAnalysis(&rootCtx))
 	{
 	    std::cout << "Passed semantic analysis!" << std::endl;
@@ -93,9 +103,6 @@ int main(int argc, const char *argv[])
     // Code Generation
     std::cout << "Generating LLVM IR bytecode" << std::endl;
     rootCodeGenCtx.codeGen(rootBlock);
-
-    std::cout << "Dumping generated LLVM bytecode" << std::endl;
-    rootCodeGenCtx.dump();
 
     if (opt.isSet("-c"))
     {
@@ -119,6 +126,9 @@ int main(int argc, const char *argv[])
         std::cout << "Executing program and printing the return value...\n";
         // executes the program ./a.out and prints the return value
         std::system("./a.out; echo $?;");
+    } else {
+          std::cout << "Dumping generated LLVM bytecode" << std::endl;
+	  rootCodeGenCtx.dump();
     }
 
     // LLVM IR JIT Execution
