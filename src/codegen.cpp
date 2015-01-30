@@ -54,8 +54,13 @@ CodeGenContext::CodeGenContext()
 */
 void CodeGenContext::codeGen(NBlock * rootBlock)
 {
+    std::vector<llvm::Type *> params;
+    params.push_back(llvm::Type::getInt64Ty(llvm::getGlobalContext()));
+    params.push_back(llvm::Type::getInt8PtrTy(llvm::getGlobalContext(), 0));
+
     // Create the root "function" for top level functionality
-    llvm::ArrayRef<llvm::Type *> argTypes;
+    llvm::ArrayRef<llvm::Type *> argTypes(params);
+
     llvm::FunctionType *ftype = llvm::FunctionType::get(llvm::Type::getInt64Ty(llvm::getGlobalContext()), argTypes, false);
     mainFunction = llvm::Function::Create(ftype, llvm::GlobalValue::ExternalLinkage, "main", rootModule);
     llvm::BasicBlock *bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "entry", mainFunction, 0);
@@ -800,7 +805,7 @@ llvm::Value * NVariableDeclaration::codeGen(CodeGenContext & context)
       if (context.blocks.top()->getParent()->getName().str() == "main")
 	{
 //	    a = new llvm::AllocaInst(structs[st->ident.value].second, ident.value, context.blocks.top());
-	    a = new llvm::GlobalVariable(*(context.rootModule), structs[st->ident.value].second, false, llvm::GlobalValue::CommonLinkage, llvm::UndefValue::get(structs[st->ident.value].second), ident.value);
+	    a = new llvm::GlobalVariable(*(context.rootModule), structs[st->ident.value].second, false, llvm::GlobalValue::InternalLinkage, llvm::UndefValue::get(structs[st->ident.value].second), ident.value);
 	}
       else 
 	{
@@ -811,7 +816,7 @@ llvm::Value * NVariableDeclaration::codeGen(CodeGenContext & context)
     {
       if (context.blocks.top()->getParent()->getName().str() == "main")
       {
-	  a = new llvm::GlobalVariable(*(context.rootModule), type.toLlvmType(), false, llvm::GlobalValue::CommonLinkage, llvm::UndefValue::get(type.toLlvmType()), ident.value);
+	  a = new llvm::GlobalVariable(*(context.rootModule), type.toLlvmType(), false, llvm::GlobalValue::InternalLinkage, llvm::UndefValue::get(type.toLlvmType()), ident.value);
       }
       else 
               {
