@@ -13,6 +13,12 @@
 #include <stdio.h>
 #include <string.h>
 
+//#define KLEE
+
+#ifdef KLEE
+#include "klee/klee.h"
+#endif
+
 static void list_resize(list_t * list, size_t new_sz)
 {
   if (list == NULL)
@@ -22,6 +28,7 @@ static void list_resize(list_t * list, size_t new_sz)
   if (new_sz > list->len)
     {
       list->arr = realloc(list->arr, new_sz * list->elem_sz);
+      list->cap = new_sz;
     }
 }
 
@@ -59,7 +66,7 @@ void list_delete(list_t * list, unsigned int idx)
     }
   if (idx < list->len)
     {
-      memmove(list->arr + (idx * list->elem_sz), list->arr + ((idx + list->elem_sz) * list->elem_sz), list->len - idx);
+      memmove(list->arr + (idx * list->elem_sz), list->arr + ((idx + 1) * list->elem_sz), list->len - idx - 1);
       list->len--;
     }
 }
@@ -106,7 +113,8 @@ void list_append(list_t * list, void * elem)
     {
       return;
     }
-  if (list->len == list->cap)
+  // use len+1 to save space for a terminating entry (e.g. '\0')
+  if (list->len+1 >= list->cap)
     {
       list_resize(list, list->cap + DEFAULT_RESIZE_AMT);
     }
@@ -167,11 +175,13 @@ char str_retrieve(string_t * str, unsigned int idx)
 void str_append(string_t * str, char elem)
 {
   list_append(str, (void *) &elem);
+  ((char*)str->arr)[str->len] = '\0';
 }
 
 void str_concat(string_t * str1, string_t * str2)
 {
   list_concat(str1, str2);
+  ((char*)str1->arr)[str1->len] = '\0';
 }
 
 void str_print(string_t * str)
@@ -256,4 +266,43 @@ list_t * crema_seq(int64_t start, int64_t end)
 void print_int(int64_t val)
 {
     printf("%ld\n", val);
+}
+
+void make_symbolic(list_t * list) 
+{
+#ifdef KLEE
+  uint64_t x = klee_int("testint");
+  *(uint64_t *)list->arr = x;
+#endif
+}
+
+char **main_args = NULL;
+int64_t main_argc = 0;
+
+
+list_t * parse_argv(char * str) 
+{
+  char **args = (char**)*(unsigned long *)str;
+  int i = 0;
+  for (; args[i] != NULL; i++) {
+    printf("arg: %d: %s\n", i, args[i]);
+  }
+  return NULL;
+}
+
+void save_args(int64_t argc, char * str)
+{
+  main_args = (char**)*(unsigned long *)str;
+  main_argc = argc;
+}
+
+int64_t prog_arg_count()
+{
+  return main_argc;
+}
+
+list_t * prog_argument(int64_t idx)
+{
+  printf("argument: %d: %s\n", idx, main_args[idx]);
+  return NULL;
 }

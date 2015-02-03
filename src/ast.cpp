@@ -109,12 +109,26 @@ void NBlock::createStdlib()
 
     // str_insert(list, idx, val)
     args.clear();
-    args.push_back(new NVariableDeclaration(*(new Type(TTINT, true)), *(new NIdentifier("l"))));
+    args.push_back(new NVariableDeclaration(*(new Type(*ct)), *(new NIdentifier("l"))));
     args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("idx"))));
     args.push_back(new NVariableDeclaration(*ct, *(new NIdentifier("val"))));
-    statements.insert(statements.begin(), generateFuncDecl(*(new Type(TTVOID)), "str_insert", args));
+    func = generateFuncDecl(*(new Type(TTVOID)), "str_insert", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);  
+    
+    // list_t * prog_argument(int)
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("idx"))));
+    func = generateFuncDecl(*(new Type(*ct, true)), "prog_argument", args);
+    statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);  
 
+    // uint64_t prog_arg_count()
+    args.clear();
+    func = generateFuncDecl(*(new Type(TTINT)), "prog_arg_count", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);  
+    
     // crema_seq(start, end)
     args.clear();
     args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("start"))));

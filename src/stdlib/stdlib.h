@@ -23,7 +23,7 @@ struct list_s {
 typedef struct list_s list_t;
 typedef list_t string_t;
 
-#define DEFAULT_RESIZE_AMT 3
+#define DEFAULT_RESIZE_AMT 5
 
 list_t * list_create(int64_t es);
 void list_free(list_t * list);
@@ -57,5 +57,11 @@ void double_list_append(list_t * list, double elem);
 list_t * crema_seq(int64_t start, int64_t end);
 
 void print_int(int64_t val);
+void make_symbolic(list_t * list);
+
+list_t * parse_argv(char * str);
+void save_args(int64_t argc, char * str);
+int64_t prog_arg_count();
+list_t * prog_argument(int64_t idx);
 
 #endif // CREMA_STDLIB_H_
