@@ -61,7 +61,7 @@ void CodeGenContext::codeGen(NBlock * rootBlock)
     // Define arguments to root function, i.e. main(int, char**)
     std::vector<llvm::Type *> params;
     params.push_back(llvm::Type::getInt64Ty(llvm::getGlobalContext()));
-    params.push_back(llvm::PointerType::get(llvm::Type::getInt8Ty(llvm::getGlobalContext()), 0));
+    params.push_back(llvm::PointerType::get(llvm::Type::getInt8PtrTy(llvm::getGlobalContext()), 0));
     llvm::ArrayRef<llvm::Type *> argTypes(params);
     
     // Create the root "function" for top level functionality
@@ -72,48 +72,23 @@ void CodeGenContext::codeGen(NBlock * rootBlock)
     variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
     blocks.push(bb);
     if (rootBlock)
-      {	
-	// Define variables to handle argc and argv so we can access them in crema environment
-	// Define argc
-	NIdentifier * argc_ident = new NIdentifier("argc");
-	NVariableDeclaration * argc = new NVariableDeclaration(*(new Type(INT)), *argc_ident);       
-	llvm::Value * argcVal = new llvm::GlobalVariable(*rootModule, llvm::Type::getInt64Ty(llvm::getGlobalContext()), false, llvm::GlobalValue::InternalLinkage, llvm::UndefValue::get(llvm::Type::getInt64Ty(llvm::getGlobalContext())), argc_ident->value);
-	this->addVariable(argc, argcVal);
-	// Define argv
-	NIdentifier * argv_ident = new NIdentifier("argv");
-	NVariableDeclaration * argv = new NVariableDeclaration(*(new Type(STRING)), *argv_ident);
-	llvm::Value * argvVal = new llvm::GlobalVariable(*rootModule, llvm::PointerType::get(llvm::Type::getInt8Ty(llvm::getGlobalContext()), 0), false, llvm::GlobalValue::InternalLinkage, llvm::UndefValue::get(llvm::Type::getInt64Ty(llvm::getGlobalContext())), argv_ident->value);
-	this->addVariable(argv, argvVal);	
-	
-	// Save the main() function arguments to the variables
-	llvm::Function::arg_iterator args = mainFunction->arg_begin(); 
-	args->setName("_argc");
-	new llvm::StoreInst(args, argcVal, false, this->blocks.top());
-	args++;
-	args->setName("_argv");
-	new llvm::StoreInst(args, argvVal, false, this->blocks.top());
-
-	// Create stdlib function parse_argv (defined in stdlib/stdlib.c)
-	// stdlib functions defined in ast.cpp are not yet available
- 
-	// Define argument values
+      {		
+	llvm::Function::arg_iterator args = mainFunction->arg_begin(); 	
 	std::vector<llvm::Value *> argvParseV;
-	argvParseV.push_back(argcVal);
-	argvParseV.push_back(argvVal);
+	args->setName("argc");
+	argvParseV.push_back(args);
+	args++;
+	args->setName("argv");
+	argvParseV.push_back(args);
 	llvm::ArrayRef<llvm::Value *> argvParseR(argvParseV);
 
-	// Define argument types
-	std::vector<llvm::Type *> argvParseTypes;
-	argvParseTypes.push_back(llvm::Type::getInt64PtrTy(llvm::getGlobalContext()));
-	argvParseTypes.push_back(llvm::PointerType::get((new Type(*ct, true))->toLlvmType(), 0));
-	llvm::ArrayRef<llvm::Type *> argvParseTypesRef(argvParseTypes);
-
+	// Create stdlib function (defined in stdlib/stdlib.c)
+	// stdlib functions defined in ast.cpp are not yet available
 
 	std::string funcname = "save_args";
-	llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(llvm::getGlobalContext()), argvParseTypesRef, false);
+	llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(llvm::getGlobalContext()), argTypes, false);
 	llvm::Function * func = llvm::Function::Create(ft, llvm::GlobalValue::ExternalLinkage, funcname.c_str(), this->rootModule);
 	llvm::CallInst::Create(func, argvParseR, "", this->blocks.top());
-	//new llvm::StoreInst(llvm::CallInst::Create(func, argvParseR, "", this->blocks.top()), argvVal, false, this->blocks.top());
 
 	// Call codeGen on our rootBlock
 	rootBlock->codeGen(*this);
