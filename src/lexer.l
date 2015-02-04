@@ -32,6 +32,7 @@ extern "C" int yywrap() { }
 "true"			      return TOK(TTRUE);
 "false"			      return TOK(TFALSE);
 "bool"			      return TOK(TTBOOL);
+"char"			      return TOK(TTCHAR);
 "void"			      return TOK(TTVOID);
 "int"			      return TOK(TTINT);
 "uint"			      return TOK(TTUINT);
@@ -41,6 +42,7 @@ extern "C" int yywrap() { }
 [0-9]+\.[0-9]+		      SAVE_VAL; return TDOUBLE;
 [0-9]+			      SAVE_VAL; return TINT;
 \"[^\"\n]*\"		      SAVE_VAL; return TSTRING;
+\'.\'			      SAVE_VAL; return TCHAR;
 "="			      return TOK(TEQUAL);
 "=="			      return TOK(TCEQ);
 "!="			      return TOK(TCNEQ);

@@ -28,12 +28,12 @@
 }
 
 /* Terminal types */
-%token <string> TIDENTIFIER TINT TDOUBLE TSTRING                                    /* token strings */
+%token <string> TIDENTIFIER TINT TDOUBLE TCHAR TSTRING                              /* token strings */
 %token <token> TRETURN TSDEF TDEF TEXTERN TIF TELSE TFOREACH TAS TTRUE TFALSE       /* keywords */
 %token <token> TMUL TADD TDIV TSUB TMOD                                             /* binary operators */
 %token <token> TCEQ TCNEQ TCLE TCGE TCLT TCGT                                       /* comparison operators */
 %token <token> TEQUAL                                                               /* assignment operator */
-%token <token> TTBOOL TTDOUBLE TTINT TTSTR TTSTRUCT TTUINT TTVOID                   /* type tokens */
+%token <token> TTBOOL TTDOUBLE TTINT TTSTR TTSTRUCT TTUINT TTVOID TTCHAR            /* type tokens */
 %token <token> TLBRAC TRBRAC TLBRACKET TRBRACKET TLPAREN TRPAREN TCOMMA TPERIOD     /* {} [] () , . */
 %token <token> TUMINUS                                                              /* unary operators */
 %token <token> TLAND TLOR TLNOT                                                     /* logical operators */ 
@@ -92,6 +92,7 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                 type : TTDOUBLE
                      | TTINT
                      | TTUINT
+		     | TTCHAR
                      | TTSTR
                      | TTVOID
                      | TTBOOL
@@ -202,7 +203,8 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                                        ;
 
                         value : numeric { $$ = $1; }
-                              | TSTRING { std::string str = $1->c_str(); $$ = new NString(str); $$->type = *(new Type(TTSTR)); delete $1; }
+			      | TCHAR { $$ = new NChar($1->c_str()[1]); $$->type = *(new Type(TTCHAR)); delete $1; }
+			      | TSTRING { std::string str = $1->c_str(); $$ = new NString(str); $$->type = *(new Type(TTSTR)); delete $1; }
                               | TTRUE { $$ = new NBool(true); $$->type = *(new Type(TTBOOL)); }
                               | TFALSE { $$ = new NBool(false); $$->type = *(new Type(TTBOOL)); }
                               ;

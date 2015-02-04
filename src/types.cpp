@@ -60,6 +60,12 @@ bool operator>(Type & t1, Type & t2)
 	return true;
     }
 
+    // Int > Char
+    if (t1.typecode == INT && t2.typecode == CHAR)
+    {
+	return true;
+    }
+    
     // Double/Int > Bool (true = 1, false = 0)
     if ((t1.typecode == INT || t2.typecode == UINT || t2.typecode == DOUBLE) && t2.typecode == BOOL)
     {
@@ -263,6 +269,7 @@ size_t Type::getSize()
     case VOID:
       return 0;
       break;
+    case CHAR:
     case BOOL:
       return sizeof(uint8_t);
       break;
@@ -291,6 +298,9 @@ void Type::setType(int type)
     case TTDOUBLE:
     	typecode = DOUBLE;
     	break;
+    case TTCHAR:
+	typecode = CHAR;
+	break;
     case TTBOOL:
     	typecode = BOOL;
     	break;
