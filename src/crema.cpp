@@ -36,8 +36,8 @@ int main(int argc, const char *argv[])
     opt.add("", 0, 0, 0, "Parse only: Will halt after parsing and pretty-printing the AST for the input program", "-p");
     opt.add("", 0, 0, 0, "Semantic check only: Will halt after parsing, pretty-printing and performing semantic checks on the AST for the input program", "-s");
     opt.add("", 0, 1, 0, "Print LLVM Assembly to file.", "-S");
-    opt.add("", 0, 1, 0, "Read input from file instead of stdin", "-f"); // TODO!
-    opt.add("", 0, 1, 0, "Print parser output and root block", "-v"); // TODO!
+    opt.add("", 0, 1, 0, "Read input from file instead of stdin", "-f");
+    opt.add("", 0, 0, 0, "Print parser output and root block", "-v");
 
     opt.parse(argc, argv);
 
