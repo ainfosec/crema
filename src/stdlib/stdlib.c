@@ -303,6 +303,6 @@ int64_t prog_arg_count()
 
 list_t * prog_argument(int64_t idx)
 {
-  printf("argument: %d: %s\n", idx, main_args[idx]);
+  printf("argument: %ld: %s\n", idx, main_args[idx]);
   return NULL;
 }
