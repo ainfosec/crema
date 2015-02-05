@@ -15,6 +15,8 @@
 #include "codegen.h"
 #include "ezOptionParser.hpp"
 #include "llvm/CodeGen/AsmPrinter.h"
+#include <stdio.h>
+#include <unistd.h>
 
 extern NBlock *rootBlock;
 extern int yyparse();
@@ -33,8 +35,7 @@ int main(int argc, const char *argv[])
     opt.add("", 0, 0, 0, "Prints this help", "-h");
     opt.add("", 0, 0, 0, "Parse only: Will halt after parsing and pretty-printing the AST for the input program", "-p");
     opt.add("", 0, 0, 0, "Semantic check only: Will halt after parsing, pretty-printing and performing semantic checks on the AST for the input program", "-s");
-    opt.add("", 0, 1, 0, "Print LLVM Assembly to file.", "-c");
-    opt.add("", 0, 0, 0, "Run generated code", "-r");
+    opt.add("", 0, 1, 0, "Print LLVM Assembly to file.", "-S");
     opt.add("", 0, 1, 0, "Read input from file instead of stdin", "-f"); // TODO!
     opt.add("", 0, 1, 0, "Print parser output and root block", "-v"); // TODO!
 
@@ -104,39 +105,37 @@ int main(int argc, const char *argv[])
     std::cout << "Generating LLVM IR bytecode" << std::endl;
     rootCodeGenCtx.codeGen(rootBlock);
 
-    if (opt.isSet("-c"))
+    if (opt.isSet("-S"))
     {
-        // searches for the -c flag
+        // searches for the -S flag
         int i=0;
-        while (argv[i] != std::string("-c"))
+        while (argv[i] != std::string("-S"))
             ++i;
 
-        // writes output LLVM assembly to argument after -c flag
+        // writes output LLVM assembly to argument after -S flag
         FILE *outFile;
         outFile = freopen(argv[i+1],"w",stderr);
         rootCodeGenCtx.dump();
         fclose(outFile);
-
-        std::ostringstream oss;
-        std::cout << "Linking with stdlib.c using clang...\n";
-        oss << "clang " << argv[i+1] << " stdlib/stdlib.c";
-        std::string cmd = oss.str();
-        // runs the command: clang <.ll filename> <library files>
-        std::system(cmd.c_str());
-        std::cout << "Executing program and printing the return value...\n";
-        // executes the program ./a.out and prints the return value
-        std::system("./a.out; echo $?;");
-    } else {
-          std::cout << "Dumping generated LLVM bytecode" << std::endl;
-	  rootCodeGenCtx.dump();
     }
 
-    // LLVM IR JIT Execution
-    if (opt.isSet("-r"))
+    char tmpname[12] = "crematmp.ll";
+    FILE *outFile;
+    outFile = freopen(tmpname, "wb", stderr);
+    rootCodeGenCtx.dump();
+    fclose(outFile);
+
+    std::ostringstream oss;
+    std::cout << "Linking with stdlib.c using clang..." << std::endl;
+    oss << "clang " << tmpname << " stdlib/stdlib.c";
+    std::string cmd = oss.str();
+    // runs the command: clang <.ll filename> <library files>
+    if(std::system(cmd.c_str()))
     {
-	std::cout << "Running program:" << std::endl;
-	std::cout << "Return value: " << rootCodeGenCtx.runProgram().IntVal.toString(10, true) << std::endl;
-	std::cout << "Program run successfully!" << std::endl;
+	std::cout << "ERROR: Unable to build program with CLANG!" << std::endl;
+	return -1;
     }
+    unlink(tmpname);
+    
     return 0;
 }
