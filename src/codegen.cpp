@@ -591,6 +591,7 @@ llvm::Value * NListAccess::codeGen(CodeGenContext & context)
       case INT:
 	name = "int_list_retrieve";
 	break;
+      case CHAR:
       case STRING:
 	  name = "string_retrieve";
 	  break;
@@ -639,6 +640,7 @@ llvm::Value * NListAssignmentStatement::codeGen(CodeGenContext & context)
 	  {
 	      name = "str_append";
 	  }
+	  break;
       default:
 	  std::cout << "Unable to assign list for type: " << list.type.typecode << std::endl;
 	  return NULL;
@@ -825,7 +827,6 @@ llvm::Value * NVariableDeclaration::codeGen(CodeGenContext & context)
       StructType *st = (StructType *) &type;
       if (context.blocks.top()->getParent()->getName().str() == "main")
 	{
-//	    a = new llvm::AllocaInst(structs[st->ident.value].second, ident.value, context.blocks.top());
 	    a = new llvm::GlobalVariable(*(context.rootModule), structs[st->ident.value].second, false, llvm::GlobalValue::InternalLinkage, llvm::UndefValue::get(structs[st->ident.value].second), ident.value);
 	}
       else 
