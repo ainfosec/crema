@@ -321,7 +321,7 @@ class NBool : public NValue {
 public:
     bool value; /**< Value of bool */
 NBool(bool value) : value(value) { }
-    virtual llvm::Value* codeGen(CodeGenContext & context) { }
+    llvm::Value * codeGen(CodeGenContext & context);
     std::ostream & print(std::ostream & os) const;
 };
 

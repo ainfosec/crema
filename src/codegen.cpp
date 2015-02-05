@@ -382,7 +382,8 @@ llvm::Value * NIfStatement::codeGen(CodeGenContext & context)
 	cond = llvm::CmpInst::Create(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, 0, false)), cond, "", context.blocks.top());
 	break;
     case BOOL:
-      break;
+	cond = llvm::CmpInst::Create(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(8, 0, false)), cond, "", context.blocks.top());
+	break;
     default:
 	    cond = NULL;
 	    std::cout << "Error, unable to emit conditional bytecode for type: " << condition.type << std::endl;
@@ -478,9 +479,10 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
     {
 	// Math operations
     case TADD:
+    case TLOR:
       if (tc == DOUBLE)
         return binOpInstCreate(llvm::Instruction::FAdd, context, lhs, rhs);
-      if (tc == INT)
+      if (tc == INT || tc == BOOL)
     	return binOpInstCreate(llvm::Instruction::Add, context, lhs, rhs);
       break;
     case TSUB:
@@ -490,33 +492,34 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
     	return binOpInstCreate(llvm::Instruction::Sub, context, lhs, rhs);
       break; 
     case TMUL:
+    case TLAND:
       if (tc == DOUBLE)
         return binOpInstCreate(llvm::Instruction::FMul, context, lhs, rhs);
-      if (tc == INT)
+      if (tc == INT || tc == BOOL)
     	return binOpInstCreate(llvm::Instruction::Mul, context, lhs, rhs);
       break; 
     case TDIV:
-      if (tc == DOUBLE)
-        return binOpInstCreate(llvm::Instruction::FDiv, context, lhs, rhs);
-      if (tc == INT)
-    	return binOpInstCreate(llvm::Instruction::SDiv, context, lhs, rhs);
-      break; 
+	if (tc == DOUBLE)
+	    return binOpInstCreate(llvm::Instruction::FDiv, context, lhs, rhs);
+	if (tc == INT)
+	    return binOpInstCreate(llvm::Instruction::SDiv, context, lhs, rhs);
+	break; 
     case TMOD:
-      if (tc == DOUBLE)
-        return binOpInstCreate(llvm::Instruction::FRem, context, lhs, rhs);
-      if (tc == INT)
-    	return binOpInstCreate(llvm::Instruction::SRem, context, lhs, rhs);
-      break;
+	if (tc == DOUBLE)
+	    return binOpInstCreate(llvm::Instruction::FRem, context, lhs, rhs);
+	if (tc == INT)
+	    return binOpInstCreate(llvm::Instruction::SRem, context, lhs, rhs);
+	break;
     case TBAND:
-       return binOpInstCreate(llvm::Instruction::And, context, lhs, rhs);
-       break;
+	return binOpInstCreate(llvm::Instruction::And, context, lhs, rhs);
+	break;
     case TBOR:
-       return binOpInstCreate(llvm::Instruction::Or, context, lhs, rhs);
-       break;
+	return binOpInstCreate(llvm::Instruction::Or, context, lhs, rhs);
+	break;
     case TBXOR:
         return binOpInstCreate(llvm::Instruction::Xor, context, lhs, rhs);
         break;
-
+	
 	// Comparison operations
     case TCEQ:
       if (tc == DOUBLE)
@@ -639,6 +642,16 @@ llvm::Value * NListAssignmentStatement::codeGen(CodeGenContext & context)
 	  else
 	  {
 	      name = "str_append";
+	  }
+	  break;
+      case DOUBLE:
+	  if (list.index)
+	  {
+	      name = "double_list_insert";
+	  }
+	  else
+	  {
+	      name = "double_list_append";
 	  }
 	  break;
       default:
@@ -897,7 +910,12 @@ llvm::Value * NList::codeGen(CodeGenContext & context)
     case CHAR:
 	name = "str_create";
 	break;
+    case DOUBLE:
+	name = "double_list_create";
+	break;
     default:
+	std::cout << "Unsupported type for list!" << std::endl;
+	exit(-1);
 	return NULL;
     }
     llvm::Function *func = context.rootModule->getFunction(name.c_str());
@@ -915,6 +933,9 @@ llvm::Value * NList::codeGen(CodeGenContext & context)
 	    break;
 	case CHAR:
 	    name = "str_append";
+	    break;
+	case DOUBLE:
+	    name = "double_list_append";
 	    break;
 	default:
 	    return NULL;
@@ -994,4 +1015,16 @@ llvm::Value * NInt::codeGen(CodeGenContext & context)
 llvm::Value * NChar::codeGen(CodeGenContext & context)
 {
     return llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(8, value, true));
+}
+
+/**
+   Generates code for bool values.
+
+   @param CodeGenContext & context -- reference to the context of the operator statement
+   @return llvm::Value * -- Pointer to the code generated as a result of the bool instance
+*/
+llvm::Value * NBool::codeGen(CodeGenContext & context)
+{
+    char v = value ? 1 : 0;
+    return llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(8, v, true));
 }

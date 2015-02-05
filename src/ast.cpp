@@ -60,6 +60,11 @@ void NBlock::createStdlib()
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
 
+    // double_list_create()
+    func = generateFuncDecl(*(new Type(TTDOUBLE, true)), "double_list_create", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
     // str_create()
     func = generateFuncDecl(*(new Type(*ct, true)), "str_create", args);
     statements.insert(statements.begin(), func);
@@ -78,7 +83,11 @@ void NBlock::createStdlib()
     // str_retrieve(list, idx)
     statements.insert(statements.begin(), generateFuncDecl(*(new Type(TTCHAR)), "str_retrieve", args));
     rootCtx.registerFunc(func);
-    
+
+    // double_list_retrieve(list, idx)
+    statements.insert(statements.begin(), generateFuncDecl(*(new Type(TTDOUBLE)), "double_list_retrieve", args));
+    rootCtx.registerFunc(func);
+
     // int_list_append(list, val)
     func = generateFuncDecl(*(new Type(TTVOID)), "int_list_append", args);
     statements.insert(statements.begin(), func);
@@ -90,6 +99,23 @@ void NBlock::createStdlib()
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
 
+    // double_list_append(l, val)
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE, true)), *(new NIdentifier("l"))));
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTVOID)), "double_list_append", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_list_insert(l, idx, val)
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE, true)), *(new NIdentifier("l"))));
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("idx"))));
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTVOID)), "double_list_insert", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);    
+    
     // str_print(list) & str_println(list)
     args.clear();
     args.push_back(new NVariableDeclaration(*(new Type(TTINT, true)), *(new NIdentifier("l"))));
@@ -454,7 +480,7 @@ std::ostream & NDouble::print(std::ostream & os) const
 */
 std::ostream & NBool::print(std::ostream & os) const
 {
-  os << "BOOL:" << value;
+    os << "BOOL: " << (value ? "true" : "false");
   return os;
 }
 
