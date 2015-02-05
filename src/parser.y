@@ -85,6 +85,8 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
 
             var_decl : type identifier { $$ = new NVariableDeclaration(*(new Type($1)), *$2); }
                      | type identifier TEQUAL expression { $$ = new NVariableDeclaration(*(new Type($1)), *$2, $4); }
+		     | TTSTR identifier { $$ = new NVariableDeclaration(*(new Type(TTCHAR, true)), *$2); }
+		     | TTSTR identifier TEQUAL expression { $$ = new NVariableDeclaration(*(new Type(TTCHAR, true)), *$2, $4); }
 		     | TTSTRUCT identifier identifier { $$ = new NVariableDeclaration(*(new StructType(*$2)), *$3); }
 		     | TTSTRUCT identifier identifier TEQUAL identifier { $$ = new NVariableDeclaration(*(new StructType(*$2)), *$3, $5); }
 		     | list_decl { }
@@ -205,7 +207,7 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
 
                         value : numeric { $$ = $1; }
 			      | TCHAR { $$ = new NChar($1->c_str()[1]); $$->type = *(new Type(TTCHAR)); delete $1; }
-			      | TSTRING { std::string str = $1->c_str(); $$ = new NString(str); $$->type = *(new Type(TTSTR)); delete $1; }
+			      | TSTRING { std::string str = $1->c_str(); $$ = new NString(str); $$->type = *(new Type(TTCHAR, true)); delete $1; }
                               | TTRUE { $$ = new NBool(true); $$->type = *(new Type(TTBOOL)); }
                               | TFALSE { $$ = new NBool(false); $$->type = *(new Type(TTBOOL)); }
                               ;

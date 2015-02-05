@@ -116,7 +116,7 @@ void NBlock::createStdlib()
     
     // str_insert(list, idx, val)
     args.clear();
-    args.push_back(new NVariableDeclaration(*(new Type(*ct)), *(new NIdentifier("l"))));
+    args.push_back(new NVariableDeclaration(*(new Type(CHAR, true)), *(new NIdentifier("l"))));
     args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("idx"))));
     args.push_back(new NVariableDeclaration(*ct, *(new NIdentifier("val"))));
     func = generateFuncDecl(*(new Type(TTVOID)), "str_insert", args);
@@ -126,7 +126,7 @@ void NBlock::createStdlib()
     // list_t * prog_argument(int)
     args.clear();
     args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("idx"))));
-    func = generateFuncDecl(*(new Type(TTSTR)), "prog_argument", args);
+    func = generateFuncDecl(*(new Type(TTCHAR, true)), "prog_argument", args);
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);  
 
