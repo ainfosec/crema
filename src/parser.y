@@ -8,7 +8,8 @@
     NBlock *rootBlock;
 
     extern int yylex();
-    void yyerror(const char *s) { fprintf(stderr, "ERROR: %s\n", s); exit(-1); }
+    extern int yylineno;
+    void yyerror(const char *s) { fprintf(stderr, "ERROR on line %d: %s\n", yylineno, s); exit(-1); }
 %}
 
 %define parse.error verbose
