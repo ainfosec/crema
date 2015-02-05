@@ -59,8 +59,7 @@ list_t * crema_seq(int64_t start, int64_t end);
 void print_int(int64_t val);
 void make_symbolic(list_t * list);
 
-list_t * parse_argv(char * str);
-void save_args(int64_t argc, char * str);
+void save_args(int64_t argc, char ** argv);
 int64_t prog_arg_count();
 list_t * prog_argument(int64_t idx);
 

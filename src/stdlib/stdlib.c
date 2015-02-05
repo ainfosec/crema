@@ -279,20 +279,9 @@ void make_symbolic(list_t * list)
 char **main_args = NULL;
 int64_t main_argc = 0;
 
-
-list_t * parse_argv(char * str) 
+void save_args(int64_t argc, char ** argv)
 {
-  char **args = (char**)*(unsigned long *)str;
-  int i = 0;
-  for (; args[i] != NULL; i++) {
-    printf("arg: %d: %s\n", i, args[i]);
-  }
-  return NULL;
-}
-
-void save_args(int64_t argc, char * str)
-{
-  main_args = (char**)*(unsigned long *)str;
+  main_args = argv;
   main_argc = argc;
 }
 
@@ -303,6 +292,8 @@ int64_t prog_arg_count()
 
 list_t * prog_argument(int64_t idx)
 {
-  printf("argument: %ld: %s\n", idx, main_args[idx]);
-  return NULL;
+  if (idx >= main_argc)
+    return str_from_cstring("null cstring");
+
+  return str_from_cstring(main_args[idx]);
 }

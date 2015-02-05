@@ -76,7 +76,7 @@ void NBlock::createStdlib()
     rootCtx.registerFunc(func);
 
     // str_retrieve(list, idx)
-    statements.insert(statements.begin(), generateFuncDecl(*ct, "str_retrieve", args));
+    statements.insert(statements.begin(), generateFuncDecl(*(new Type(TTCHAR)), "str_retrieve", args));
     rootCtx.registerFunc(func);
     
     // int_list_append(list, val)
@@ -126,7 +126,7 @@ void NBlock::createStdlib()
     // list_t * prog_argument(int)
     args.clear();
     args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("idx"))));
-    func = generateFuncDecl(*(new Type(*ct, true)), "prog_argument", args);
+    func = generateFuncDecl(*(new Type(TTSTR)), "prog_argument", args);
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);  
 
