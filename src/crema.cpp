@@ -35,7 +35,8 @@ int main(int argc, const char *argv[])
     opt.add("", 0, 0, 0, "Prints this help", "-h");
     opt.add("", 0, 0, 0, "Parse only: Will halt after parsing and pretty-printing the AST for the input program", "-p");
     opt.add("", 0, 0, 0, "Semantic check only: Will halt after parsing, pretty-printing and performing semantic checks on the AST for the input program", "-s");
-    opt.add("", 0, 1, 0, "Print LLVM Assembly to file.", "-S");
+    opt.add("", 0, 1, 0, "Print LLVM Assembly to file", "-S");
+    opt.add("", 0, 1, 0, "Set the output program name to ARG instead of 'a.out'", "-o");
     opt.add("", 0, 1, 0, "Read input from file instead of stdin", "-f");
     opt.add("", 0, 0, 0, "Print parser output and root block", "-v");
 
@@ -127,7 +128,16 @@ int main(int argc, const char *argv[])
 
     std::ostringstream oss;
     std::cout << "Linking with stdlib.c using clang..." << std::endl;
-    oss << "clang " << tmpname << " stdlib/stdlib.c";
+    std::string outputname = "";
+    if (opt.isSet("-o"))
+    {
+        // searches for the -S flag
+        int i=0;
+        while (argv[i] != std::string("-o"))
+            ++i;
+	outputname = "-o " + std::string(argv[i + 1]);	
+    }
+    oss << "clang " << outputname << " " << tmpname << " stdlib/stdlib.c";
     std::string cmd = oss.str();
     // runs the command: clang <.ll filename> <library files>
     if(std::system(cmd.c_str()))
