@@ -327,13 +327,16 @@ llvm::Value * NLoopStatement::codeGen(CodeGenContext & context)
     context.blocks.pop();
     
     std::cout << "Creating branch to preBlock" << std::endl;
+    std::cout << "pb: " << preBlock->getName().str() << " " << context.blocks.top()->getName().str() << std::endl;
     llvm::BranchInst::Create(preBlock, context.blocks.top()->end());
 
+    std::cout << "Creating body block" << std::endl;
     context.blocks.push(bodyBlock);
     context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
     // Add asVar to context
     context.addVariable(loopVar, lvBC);
-    
+
+    std::cout << "Creating list access instruction" << std::endl;
     NListAccess * nla = new NListAccess(list, access);
     nla->type = loop->type;
     new llvm::StoreInst(nla->codeGen(context), lvBC, false, context.blocks.top());
@@ -379,10 +382,9 @@ llvm::Value * NIfStatement::codeGen(CodeGenContext & context)
 	    break;
     case UINT:
     case INT:
-	cond = llvm::CmpInst::Create(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, 0, false)), cond, "", context.blocks.top());
+	cond = llvm::CmpInst::Create(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(8, 0, false)), cond, "", context.blocks.top());
 	break;
     case BOOL:
-	cond = llvm::CmpInst::Create(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(8, 0, false)), cond, "", context.blocks.top());
 	break;
     default:
 	    cond = NULL;
@@ -483,7 +485,10 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
       if (tc == DOUBLE)
         return binOpInstCreate(llvm::Instruction::FAdd, context, lhs, rhs);
       if (tc == INT || tc == BOOL)
-    	return binOpInstCreate(llvm::Instruction::Add, context, lhs, rhs);
+      {
+	  type.typecode = INT;
+	  return binOpInstCreate(llvm::Instruction::Add, context, lhs, rhs);
+      }
       break;
     case TSUB:
       if (tc == DOUBLE)
@@ -496,7 +501,10 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
       if (tc == DOUBLE)
         return binOpInstCreate(llvm::Instruction::FMul, context, lhs, rhs);
       if (tc == INT || tc == BOOL)
-    	return binOpInstCreate(llvm::Instruction::Mul, context, lhs, rhs);
+      {
+	  type.typecode = INT;
+	  return binOpInstCreate(llvm::Instruction::Mul, context, lhs, rhs);
+      }
       break; 
     case TDIV:
 	if (tc == DOUBLE)
