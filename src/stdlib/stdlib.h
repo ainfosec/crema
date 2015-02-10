@@ -56,7 +56,8 @@ void double_list_append(list_t * list, double elem);
 
 list_t * crema_seq(int64_t start, int64_t end);
 
-void print_int(int64_t val);
+void int_print(int64_t val);
+void int_println(int64_t val);
 void make_symbolic(list_t * list);
 
 void save_args(int64_t argc, char ** argv);

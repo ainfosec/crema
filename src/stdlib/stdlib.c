@@ -263,7 +263,12 @@ list_t * crema_seq(int64_t start, int64_t end)
   return l;
 }
 
-void print_int(int64_t val)
+void int_print(int64_t val)
+{
+    printf("%ld", val);
+}
+
+void int_println(int64_t val)
 {
     printf("%ld\n", val);
 }
