@@ -14,28 +14,28 @@ cremacc: parser.o lexer.o ast.o types.o crema.o codegen.o semantics.o
 parser.o: parser.h
 	$(CC) -c $(CPP_FLAGS) parser.cpp
 
-parser.h:
+parser.h: parser.y
 	bison -d -o parser.cpp --defines=parser.h parser.y
 
 lexer.o: lexer.cpp
 	$(CC) -c $(CPP_FLAGS) lexer.cpp
 
-lexer.cpp:
+lexer.cpp: lexer.l
 	flex -olexer.cpp lexer.l
 
-ast.o:
+ast.o: ast.cpp
 	$(CC) -c $(CPP_FLAGS) ast.cpp
 
-types.o:
+types.o: types.cpp
 	$(CC) -c $(CPP_FLAGS) types.cpp
 
-codegen.o:
+codegen.o: codegen.cpp parser.h
 	$(CC) -c $(CPP_FLAGS) codegen.cpp
 
-crema.o:
+crema.o: crema.cpp
 	$(CC) -c $(CPP_FLAGS) crema.cpp 
 
-semantics.o:
+semantics.o: semantics.cpp parser.h
 	$(CC) -std=c++11 -c $(CPP_FLAGS) semantics.cpp
 
 graph:
