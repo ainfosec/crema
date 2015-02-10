@@ -133,10 +133,13 @@ void NBlock::createStdlib()
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
 
-    // print_int(val)
+    // int_print(val) & int_println(val)
     args.clear();
     args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("val"))));
-    func = generateFuncDecl(*(new Type(TTVOID)), "print_int", args);
+    func = generateFuncDecl(*(new Type(TTVOID)), "int_print", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+    func = generateFuncDecl(*(new Type(TTVOID)), "int_println", args);
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
     

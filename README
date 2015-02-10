@@ -28,7 +28,7 @@ Build the Crema tool by running ```make``` in the src directory. This will creat
 ### Compiling your Crema programs with cremacc
 To compile a Crema program into LLVM IR for JIT execution, simply use the "cremacc" program.
 
-Crema files use the extention ".crema". To build a creama file into an executable named "program.exe", use the command:
+Crema files use the extention ".crema". To build a crema file into an executable named "program.exe", use the command:
 ```
 ./cremacc -f <path-to-a-crema-file> -o program
 ```

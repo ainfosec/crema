@@ -93,7 +93,8 @@ void CodeGenContext::codeGen(NBlock * rootBlock)
 	// Call codeGen on our rootBlock
 	rootBlock->codeGen(*this);
       }
-    llvm::ReturnInst::Create(llvm::getGlobalContext(), llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, 0, true)), blocks.top());
+    if (!blocks.top()->getTerminator())
+      llvm::ReturnInst::Create(llvm::getGlobalContext(), llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, 0, true)), blocks.top());
     blocks.pop();
 }
 
@@ -394,43 +395,54 @@ llvm::Value * NIfStatement::codeGen(CodeGenContext & context)
     }
 
     llvm::Function * parent = context.blocks.top()->getParent();
-    llvm::BasicBlock * thenBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "then", parent);
-    llvm::BasicBlock * elseBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "else", parent);
-    llvm::BasicBlock * ifcontBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "ifcont");
+    llvm::BasicBlock * thenBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", parent, 0);
+    llvm::BasicBlock * elseBlock = NULL;
+    llvm::BasicBlock * ifcontBlock = NULL;
 
-    llvm::BranchInst::Create(thenBlock, elseBlock, cond, context.blocks.top());
+    if (elseblock || elseif) {
+      elseBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", parent, 0);
+      llvm::BranchInst::Create(thenBlock, elseBlock, cond, context.blocks.top());
+    }
+
+    ifcontBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", parent, 0);
+    if (elseBlock == NULL) {
+      llvm::BranchInst::Create(thenBlock, ifcontBlock, cond, context.blocks.top());
+    }
     
-    context.Builder->SetInsertPoint(thenBlock);
+    // THEN BLOCK
     context.blocks.push(thenBlock);
+    context.Builder->SetInsertPoint(thenBlock);
+
     context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
-    
     llvm::Value * thenValue = thenblock.codeGen(context);
 
     context.Builder->CreateBr(ifcontBlock);
     thenBlock = context.Builder->GetInsertBlock();
+
+    // POP THEN
     context.blocks.pop();
     context.variables.pop_back();
 
-    parent->getBasicBlockList().push_back(elseBlock);
-    context.Builder->SetInsertPoint(elseBlock);
+    if (elseblock || elseif) {
+      // ELSE BLOCK
+      context.blocks.push(elseBlock);
+      context.Builder->SetInsertPoint(elseBlock);
 
-    context.blocks.push(elseBlock);
-    context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
+      context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
+      llvm::Value * elseValue = NULL;    
+      if (elseblock)
+	elseValue = elseblock->codeGen(context);
+      else if(elseif)
+	elseValue = elseif->codeGen(context);
 
-    llvm::Value * elseValue = NULL;
-    
-    if (elseblock)
-       elseValue = elseblock->codeGen(context);
-    else if(elseif)
-       elseValue  = elseif->codeGen(context);
-    
-    context.Builder->CreateBr(ifcontBlock);
-    elseBlock = context.Builder->GetInsertBlock();
-    context.blocks.pop();
-    context.variables.pop_back();
+      context.Builder->CreateBr(ifcontBlock);
+      elseBlock = context.Builder->GetInsertBlock();
 
+      // POP ELSE
+      context.blocks.pop();
+      context.variables.pop_back();
+    }
     context.blocks.push(ifcontBlock);
-    parent->getBasicBlockList().push_back(ifcontBlock);
     context.Builder->SetInsertPoint(ifcontBlock);
 /*
     llvm::PHINode *PN = context.Builder->CreatePHI(llvm::Type::getVoidTy(llvm::getGlobalContext()), 2, "iftmp");
@@ -769,15 +781,16 @@ llvm::Value * NFunctionDeclaration::codeGen(CodeGenContext & context)
     if (body)
       {
 	func = llvm::Function::Create(ft, llvm::GlobalValue::InternalLinkage, ident.value.c_str(), context.rootModule);
-	llvm::BasicBlock *bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "entry", func, 0);
+	llvm::BasicBlock *bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "entry", func);
 	
 	context.blocks.push(bb);
 	context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
+	//context.Builder->SetInsertPoint(bb);
 
 	int i = 0;
 	for (llvm::Function::arg_iterator args = func->arg_begin(); args != func->arg_end(); ++args)
 	  {
-	    new llvm::StoreInst(args, variables[i]->codeGen(context), false, context.blocks.top());	
+	    new llvm::StoreInst(args, variables[i]->codeGen(context), false, context.blocks.top());
 	    i++;
 	  }
 
@@ -789,7 +802,11 @@ llvm::Value * NFunctionDeclaration::codeGen(CodeGenContext & context)
 	    llvm::ReturnInst::Create(llvm::getGlobalContext(), bb);
 	  }
 
-	context.blocks.pop();
+	while (context.blocks.empty() == false && context.blocks.top() != bb) {
+	  context.blocks.pop();
+	}
+	if (context.blocks.empty() == false && context.blocks.top() == bb) 
+	  context.blocks.pop();
 	context.variables.pop_back();
       }
     else 
