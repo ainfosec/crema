@@ -2,7 +2,7 @@ CC := g++ #clang++
 
 DEP_FILES := parser.cpp lexer.cpp ast.cpp codegen.cpp types.cpp semantics.cpp crema.cpp
 OBJ_FILES := parser.o lexer.o ast.o codegen.o types.o semantics.o crema.o
-CPP_FLAGS := `llvm-config --cxxflags`
+CPP_FLAGS := `llvm-config --cxxflags` -Wno-cast-qual -std=c++11 -g
 LD_FLAGS := `llvm-config --ldflags`
 LIBS := `llvm-config --libs core jit native interpreter`
 
@@ -30,10 +30,10 @@ types.o:
 	$(CC) -c $(CPP_FLAGS) types.cpp
 
 codegen.o:
-	$(CC) -std=c++11 -c codegen.cpp
+	$(CC) -c $(CPP_FLAGS) codegen.cpp
 
 crema.o:
-	$(CC) -c $(CPP_FLAGS) crema.cpp -Wno-cast-qual
+	$(CC) -c $(CPP_FLAGS) crema.cpp 
 
 semantics.o:
 	$(CC) -std=c++11 -c $(CPP_FLAGS) semantics.cpp
