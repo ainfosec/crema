@@ -544,7 +544,7 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
     case TCEQ:
       if (tc == DOUBLE)
 	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OEQ, context, lhs, rhs);
-      if (tc == INT && rhs.type == lhs.type)
+      if ((tc == INT || tc == CHAR) && rhs.type == lhs.type)
 	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_EQ, context, lhs, rhs);
       return NULL;
     break;
@@ -552,7 +552,7 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
     case TCNEQ:
 	  if (tc == DOUBLE)
 	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_ONE, context, lhs, rhs);
-	  if (tc == INT)
+	  if (tc == INT || tc == CHAR)
 	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, context, lhs, rhs);
 	  return NULL;
 	  break;
@@ -560,7 +560,7 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
     case TCLT:
 	  if (tc == DOUBLE)
 	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OLT, context, lhs, rhs);
-	  if (tc == INT)
+	  if (tc == INT || tc == CHAR)
 	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLT, context, lhs, rhs);
 	  return NULL;
 	  break;
@@ -568,7 +568,7 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
     case TCGT:
 	  if (tc == DOUBLE)
 	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OGT, context, lhs, rhs);
-	  if (tc == INT)
+	  if (tc == INT || tc == CHAR)
 	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGT, context, lhs, rhs);
 	  return NULL;
 	  break;
@@ -576,7 +576,7 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
     case TCLE:
 	  if (tc == DOUBLE)
 	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OLE, context, lhs, rhs);
-	  if (tc == INT)
+	  if (tc == INT || tc == CHAR)
 	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLE, context, lhs, rhs);
 	  return NULL;
 	  break;
@@ -584,7 +584,7 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
     case TCGE:
 	  if (tc == DOUBLE)
 	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OGE, context, lhs, rhs);
-	  if (tc == INT)
+	  if (tc == INT || tc == CHAR)
 	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGE, context, lhs, rhs);
 	  return NULL;
 	  break;
