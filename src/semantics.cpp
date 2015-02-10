@@ -23,7 +23,8 @@ SemanticContext::SemanticContext()
   t.isList = false;
   t.typecode = INT;
   newScope(t); 
-  currScope = 0; 
+  currScope = 0;
+  inList = false;
 } 
 
 /** 
@@ -635,7 +636,7 @@ bool NFunctionCall::semanticAnalysis(SemanticContext * ctx)
 bool NLoopStatement::semanticAnalysis(SemanticContext * ctx)
 {
     NVariableDeclaration *l = ctx->searchVars(list);
-    bool blockSA;
+    bool blockSA, oldList;
     Type *st;
     
     if (NULL == l)
@@ -652,10 +653,24 @@ bool NLoopStatement::semanticAnalysis(SemanticContext * ctx)
     st = new Type(l->type, false);
     
     ctx->registerVar(new NVariableDeclaration(*st, asVar));
-    
+
+    oldList = ctx->inList;
+    ctx->inList = true;
     blockSA = loopBlock.semanticAnalysis(ctx);
+    ctx->inList = oldList;
     ctx->delScope();
     return blockSA;
+}
+
+/**
+   Checks a break statement to ensure it is in a looping construct
+
+   @param ctx Pointer to context object
+   @return true is break is in a loop, false otherwise
+*/
+bool NBreak::semanticAnalysis(SemanticContext * ctx)
+{
+    return ctx->inList;
 }
 
 /**

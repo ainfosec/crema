@@ -513,6 +513,19 @@ std::ostream & NReturn::print(std::ostream & os) const
 }
 
 /**
+   Prints an NBreak object, which is inherited from the NStatement class.
+
+   @param os Output stream to print to
+   @return Output stream passed on
+*/
+std::ostream & NBreak::print(std::ostream & os) const
+{
+  os << "(Break)";
+  os << std::endl;
+  return os;
+}
+
+/**
    Prints an NDouble object, which is inherited from the NValue class. The variable 'value'
    that is printed is the number itself, not the string name of the identifier. 
 

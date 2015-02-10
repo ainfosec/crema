@@ -16,6 +16,7 @@ extern "C" int yywrap() { }
 \n			      ; // TODO: Keep track of line count to provide more helpful error reporting
 "extern"		      return TOK(TEXTERN);
 "return"		      return TOK(TRETURN);
+"break"			      return TOK(TBREAK);
 "sdef"			      return TOK(TSDEF);
 "def"		              return TOK(TDEF);
 "struct"		      return TOK(TTSTRUCT);

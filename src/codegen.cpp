@@ -322,6 +322,7 @@ llvm::Value * NLoopStatement::codeGen(CodeGenContext & context)
 
     // Create pre-block
     context.blocks.push(preBlock);
+    context.listblocks.push(terminateBlock);
     llvm::Value * itNumBC = itNum->codeGen(context);
     llvm::Value * lvBC = loopVar->codeGen(context);
     llvm::BranchInst::Create(bodyBlock, context.blocks.top()->end());
@@ -345,16 +346,23 @@ llvm::Value * NLoopStatement::codeGen(CodeGenContext & context)
     std::cout << "Generating body" << std::endl;
     llvm::Value * bodyval = loopBlock.codeGen(context);
 
-    // Increment loop counter
-    NInt one(1);
+    if (!context.blocks.top()->getTerminator())
+    {
+	// Increment loop counter
+	NInt one(1);
+	
+	llvm::Value * newValue = llvm::BinaryOperator::Create(llvm::Instruction::Add, one.codeGen(context), new llvm::LoadInst(itNumBC, "", false, context.blocks.top()), "", context.blocks.top());
+	new llvm::StoreInst(newValue, itNumBC, false, context.blocks.top());
+	
+	// Create termination check
+	cond = c->codeGen(context);
 
-    llvm::Value * newValue = llvm::BinaryOperator::Create(llvm::Instruction::Add, one.codeGen(context), new llvm::LoadInst(itNumBC, "", false, context.blocks.top()), "", context.blocks.top());
-    new llvm::StoreInst(newValue, itNumBC, false, context.blocks.top());
-
-    // Create termination check
-    cond = c->codeGen(context);
-    llvm::BranchInst::Create(terminateBlock, bodyBlock, cond, context.blocks.top());
+	llvm::BranchInst::Create(terminateBlock, bodyBlock, cond, context.blocks.top());
+    }
+    while (bodyBlock != context.blocks.top())
+	context.blocks.pop();
     
+    context.listblocks.pop();
     context.blocks.pop();
     context.variables.pop_back();
 
@@ -363,6 +371,23 @@ llvm::Value * NLoopStatement::codeGen(CodeGenContext & context)
     parent->getBasicBlockList().push_back(terminateBlock);
     
     return cond;
+}
+
+/**
+   Generates code for a break statement to "break" out of a single loop control-flow
+
+   @param context Reference of codegen context
+   @return Pointer to generated branch instruction to break out of loop
+*/
+llvm::Value * NBreak::codeGen(CodeGenContext & context)
+{
+//    llvm::Function * parent = context.blocks.top()->getParent();
+    //   llvm::BasicBlock * brkBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "breakblock");
+    //parent->getBasicBlockList().push_back(brkBlock);
+    llvm::Value * bi = llvm::BranchInst::Create(context.listblocks.top(), context.blocks.top());
+
+    //context.blocks.push(brkBlock);
+    return bi;
 }
 
 /**
@@ -416,7 +441,11 @@ llvm::Value * NIfStatement::codeGen(CodeGenContext & context)
     context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
     llvm::Value * thenValue = thenblock.codeGen(context);
 
-    context.Builder->CreateBr(ifcontBlock);
+    while(thenBlock != context.blocks.top())
+	context.blocks.pop();
+    
+    if (!context.blocks.top()->getTerminator())
+	context.Builder->CreateBr(ifcontBlock);
     thenBlock = context.Builder->GetInsertBlock();
 
     // POP THEN
@@ -435,7 +464,8 @@ llvm::Value * NIfStatement::codeGen(CodeGenContext & context)
       else if(elseif)
 	elseValue = elseif->codeGen(context);
 
-      context.Builder->CreateBr(ifcontBlock);
+      if (!context.blocks.top()->getTerminator())
+	  context.Builder->CreateBr(ifcontBlock);
       elseBlock = context.Builder->GetInsertBlock();
 
       // POP ELSE

@@ -19,6 +19,7 @@
 class SemanticContext {
 public:
     int currScope; /**< Index to the current scope used for variable search */
+    bool inList;
     std::vector<VariableList*> vars; /**< Stack of scopes containing declared variables */
     std::vector<Type> currType; /**< List of return types for the stack of scopes */
     std::vector<bool> funcReturns; /**< List of bools to see if the function has a matching return statement */
