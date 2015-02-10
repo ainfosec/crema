@@ -137,7 +137,7 @@ int main(int argc, const char *argv[])
             ++i;
 	outputname = "-o " + std::string(argv[i + 1]);	
     }
-    oss << "clang " << outputname << " " << tmpname << " stdlib/stdlib.c";
+    oss << "clang " << outputname << " " << tmpname << " stdlib/stdlib.c -lm";
     std::string cmd = oss.str();
     // runs the command: clang <.ll filename> <library files>
     if(std::system(cmd.c_str()))
