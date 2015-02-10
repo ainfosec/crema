@@ -114,8 +114,22 @@ void NBlock::createStdlib()
     args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
     func = generateFuncDecl(*(new Type(TTVOID)), "double_list_insert", args);
     statements.insert(statements.begin(), func);
-    rootCtx.registerFunc(func);    
-    
+    rootCtx.registerFunc(func);
+
+    // double_print
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTVOID)), "double_print", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_println
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTVOID)), "double_println", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
     // str_print(list) & str_println(list)
     args.clear();
     args.push_back(new NVariableDeclaration(*(new Type(TTINT, true)), *(new NIdentifier("l"))));
@@ -163,13 +177,50 @@ void NBlock::createStdlib()
     args.clear();
     func = generateFuncDecl(*(new Type(TTINT)), "prog_arg_count", args);
     statements.insert(statements.begin(), func);
-    rootCtx.registerFunc(func);  
+    rootCtx.registerFunc(func);
     
     // crema_seq(start, end)
     args.clear();
     args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("start"))));
     args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("end"))));
     func = generateFuncDecl(*(new Type(TTINT, true)), "crema_seq", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // *************************** Math Functions *************************** //
+
+    // double_floor
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_floor", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_ceiling
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_ceiling", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_round
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_round", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_square
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_square", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // int_square
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTINT)), "int_square", args);
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
 }

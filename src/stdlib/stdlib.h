@@ -53,6 +53,8 @@ list_t * double_list_create();
 void double_list_insert(list_t * list, unsigned int idx, double val);
 double double_list_retrieve(list_t * list, unsigned int idx);
 void double_list_append(list_t * list, double elem);
+void double_print(double val);
+void double_println(double val);
 
 list_t * crema_seq(int64_t start, int64_t end);
 
@@ -63,5 +65,12 @@ void make_symbolic(list_t * list);
 void save_args(int64_t argc, char ** argv);
 int64_t prog_arg_count();
 list_t * prog_argument(int64_t idx);
+
+// ************************ Math Functions ***************************** //
+double double_floor(double val);
+double double_ceiling(double val);
+double double_round(double val);
+double double_square(double val);
+int64_t int_square(int64_t val);
 
 #endif // CREMA_STDLIB_H_

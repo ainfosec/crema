@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+// #include <math.h>
 
 //#define KLEE
 
@@ -301,4 +302,48 @@ list_t * prog_argument(int64_t idx)
     return str_from_cstring("null cstring");
 
   return str_from_cstring(main_args[idx]);
+}
+
+// ************************ Math Functions ***************************** //
+
+void double_print(double val)
+{
+  printf("%lf", val);
+}
+
+void double_println(double val)
+{
+  printf("%lf\n", val);
+}
+
+double double_floor(double val)
+{
+  return val >= 0 ? (double)((long)val) : (double)((long)(val - 1));
+}
+
+double double_ceiling(double val)
+{
+  return val > 0 ? (double)((long)(val + 1)) : (double)((long)val);
+}
+
+double double_round(double val)
+{
+  if(val >= 0)
+  {
+    return val - (long)val >= 0.5 ? (double)((long)(val + 1)) : (double)((long)val);
+  }
+  else
+  {
+    return val - (long)val >= -0.5 ? (double)((long)val) : (double)((long)(val - 1));
+  }
+}
+
+double double_square(double val)
+{
+  return val*val;
+}
+
+int64_t int_square(int64_t val)
+{
+  return val*val;
 }
