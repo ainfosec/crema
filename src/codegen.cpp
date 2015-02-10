@@ -646,7 +646,7 @@ llvm::Value * NListAccess::codeGen(CodeGenContext & context)
 	break;
       case CHAR:
       case STRING:
-	  name = "string_retrieve";
+	  name = "str_retrieve";
 	  break;
       default:
 	return NULL;
