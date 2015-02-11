@@ -318,22 +318,26 @@ llvm::Value * NLoopStatement::codeGen(CodeGenContext & context)
     llvm::Function * parent = context.blocks.top()->getParent();
     llvm::BasicBlock * preBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "preblock", parent);
     llvm::BasicBlock * bodyBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "bodyblock", parent);
+    llvm::BasicBlock * loopCondBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "loopcondblock", parent);
     llvm::BasicBlock * terminateBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "termblock");
 
     // Create pre-block
     context.blocks.push(preBlock);
     context.listblocks.push(terminateBlock);
+    context.Builder->SetInsertPoint(context.blocks.top());
     llvm::Value * itNumBC = itNum->codeGen(context);
     llvm::Value * lvBC = loopVar->codeGen(context);
     llvm::BranchInst::Create(bodyBlock, context.blocks.top()->end());
     context.blocks.pop();
     
+    context.Builder->SetInsertPoint(context.blocks.top());
     std::cout << "Creating branch to preBlock" << std::endl;
     std::cout << "pb: " << preBlock->getName().str() << " " << context.blocks.top()->getName().str() << std::endl;
-    llvm::BranchInst::Create(preBlock, context.blocks.top()->end());
+    llvm::BranchInst::Create(preBlock, context.blocks.top());
 
     std::cout << "Creating body block" << std::endl;
     context.blocks.push(bodyBlock);
+    context.Builder->SetInsertPoint(context.blocks.top());
     context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
     // Add asVar to context
     context.addVariable(loopVar, lvBC);
@@ -346,22 +350,27 @@ llvm::Value * NLoopStatement::codeGen(CodeGenContext & context)
     std::cout << "Generating body" << std::endl;
     llvm::Value * bodyval = loopBlock.codeGen(context);
 
-    if (!context.blocks.top()->getTerminator())
-    {
-	// Increment loop counter
-	NInt one(1);
-	
-	llvm::Value * newValue = llvm::BinaryOperator::Create(llvm::Instruction::Add, one.codeGen(context), new llvm::LoadInst(itNumBC, "", false, context.blocks.top()), "", context.blocks.top());
-	new llvm::StoreInst(newValue, itNumBC, false, context.blocks.top());
-	
-	// Create termination check
-	cond = c->codeGen(context);
-
-	llvm::BranchInst::Create(terminateBlock, bodyBlock, cond, context.blocks.top());
+    if (!context.blocks.top()->getTerminator()) {
+      llvm::BranchInst::Create(loopCondBlock, context.blocks.top());
     }
+
+    context.blocks.push(loopCondBlock);
+    context.Builder->SetInsertPoint(context.blocks.top());
+
+    // Increment loop counter
+    NInt one(1);
+    
+    llvm::Value * newValue = llvm::BinaryOperator::Create(llvm::Instruction::Add, one.codeGen(context), new llvm::LoadInst(itNumBC, "", false, context.blocks.top()), "", context.blocks.top());
+    new llvm::StoreInst(newValue, itNumBC, false, context.blocks.top());
+    
+    // Create termination check
+    cond = c->codeGen(context);
+    llvm::BranchInst::Create(terminateBlock, bodyBlock, cond, context.blocks.top());
+
+    context.blocks.pop();
+
     while (bodyBlock != context.blocks.top())
 	context.blocks.pop();
-    
     context.listblocks.pop();
     context.blocks.pop();
     context.variables.pop_back();
@@ -369,7 +378,7 @@ llvm::Value * NLoopStatement::codeGen(CodeGenContext & context)
     // Link in the terminate block to the function
     context.blocks.push(terminateBlock);
     parent->getBasicBlockList().push_back(terminateBlock);
-    
+    context.Builder->SetInsertPoint(context.blocks.top());
     return cond;
 }
 
@@ -425,15 +434,15 @@ llvm::Value * NIfStatement::codeGen(CodeGenContext & context)
     llvm::BasicBlock * ifcontBlock = NULL;
 
     if (elseblock || elseif) {
-      elseBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", parent, 0);
+      elseBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "");
       llvm::BranchInst::Create(thenBlock, elseBlock, cond, context.blocks.top());
     }
 
-    ifcontBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", parent, 0);
+    ifcontBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "");
     if (elseBlock == NULL) {
       llvm::BranchInst::Create(thenBlock, ifcontBlock, cond, context.blocks.top());
     }
-    
+
     // THEN BLOCK
     context.blocks.push(thenBlock);
     context.Builder->SetInsertPoint(thenBlock);
@@ -441,19 +450,20 @@ llvm::Value * NIfStatement::codeGen(CodeGenContext & context)
     context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
     llvm::Value * thenValue = thenblock.codeGen(context);
 
-    while(thenBlock != context.blocks.top())
-	context.blocks.pop();
-    
     if (!context.blocks.top()->getTerminator())
 	context.Builder->CreateBr(ifcontBlock);
-    thenBlock = context.Builder->GetInsertBlock();
 
     // POP THEN
+    while (context.blocks.top() != thenBlock)
+      context.blocks.pop();
     context.blocks.pop();
     context.variables.pop_back();
 
     if (elseblock || elseif) {
       // ELSE BLOCK
+      // All nested blocks and branches in thenBlock are linked
+      // it is now safe to insert the elseBlock
+      parent->getBasicBlockList().push_back(elseBlock);
       context.blocks.push(elseBlock);
       context.Builder->SetInsertPoint(elseBlock);
 
@@ -466,12 +476,14 @@ llvm::Value * NIfStatement::codeGen(CodeGenContext & context)
 
       if (!context.blocks.top()->getTerminator())
 	  context.Builder->CreateBr(ifcontBlock);
-      elseBlock = context.Builder->GetInsertBlock();
 
       // POP ELSE
+      while (!context.blocks.empty() && context.blocks.top() != elseBlock)
+	context.blocks.pop();
       context.blocks.pop();
       context.variables.pop_back();
     }
+    parent->getBasicBlockList().push_back(ifcontBlock);
     context.blocks.push(ifcontBlock);
     context.Builder->SetInsertPoint(ifcontBlock);
 /*
@@ -810,12 +822,13 @@ llvm::Value * NFunctionDeclaration::codeGen(CodeGenContext & context)
 
     if (body)
       {
+	std::cout << "Generating function body: " << ident.value.c_str() << std::endl;
 	func = llvm::Function::Create(ft, llvm::GlobalValue::InternalLinkage, ident.value.c_str(), context.rootModule);
 	llvm::BasicBlock *bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "entry", func);
 	
 	context.blocks.push(bb);
 	context.variables.push_back(*(new std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> >()));
-	//context.Builder->SetInsertPoint(bb);
+	context.Builder->SetInsertPoint(bb);
 
 	int i = 0;
 	for (llvm::Function::arg_iterator args = func->arg_begin(); args != func->arg_end(); ++args)
@@ -829,7 +842,7 @@ llvm::Value * NFunctionDeclaration::codeGen(CodeGenContext & context)
 	if (type.typecode == VOID)
 	  {
 	    // Add in a void return instruction for void functions
-	    llvm::ReturnInst::Create(llvm::getGlobalContext(), bb);
+	    llvm::ReturnInst::Create(llvm::getGlobalContext(), context.blocks.top());
 	  }
 
 	while (context.blocks.empty() == false && context.blocks.top() != bb) {
