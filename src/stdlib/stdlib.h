@@ -43,6 +43,7 @@ void str_concat(string_t * str1, string_t * str2);
 void str_print(string_t * str);
 void str_println(string_t * str);
 void str_delete(string_t * str, unsigned int idx);
+string_t * str_substr(string_t * str, unsigned int start, unsigned int len);
 
 list_t * int_list_create();
 void int_list_insert(list_t * list, int64_t idx, int64_t val);

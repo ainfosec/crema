@@ -152,6 +152,29 @@ string_t * str_from_cstring(char * s)
   return str;
 }
 
+string_t * str_substr(string_t * str, unsigned int start, unsigned int len)
+{
+  string_t * nstr = list_create(sizeof(char));
+
+  if (start >= str->len)
+    return NULL;
+
+  if (len > str->len || len == 0)
+    len = str->len - start;
+
+  if (start == 0 && (len == 0 || len == str->len))
+    return str;
+
+  if (start >= str->len)
+    return NULL;
+
+  list_resize(nstr, len + 1);
+  strncpy(nstr->arr, (char*)str->arr + start, len);
+  nstr->len = len;
+  str_insert(nstr, len, '\0');
+  return nstr;
+}
+
 void str_free(string_t * str)
 {
   list_free(str);
@@ -204,6 +227,11 @@ void str_println(string_t * str)
   {
     printf("%s\n", (char *) str->arr);
   }
+}
+
+int str_len(string_t * str)
+{
+  return str->len;
 }
 
 list_t * int_list_create()

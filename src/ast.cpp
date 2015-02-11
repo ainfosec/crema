@@ -165,6 +165,15 @@ void NBlock::createStdlib()
     func = generateFuncDecl(*(new Type(TTVOID)), "str_insert", args);
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);  
+
+    // str_substr(list, idx, len)
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTCHAR, true)), *(new NIdentifier("l"))));
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("idx"))));
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("len"))));
+    func = generateFuncDecl(*(new Type(TTCHAR, true)), "str_substr", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);  
     
     // list_t * prog_argument(int)
     args.clear();
