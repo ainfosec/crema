@@ -187,12 +187,23 @@ void str_concat(string_t * str1, string_t * str2)
 
 void str_print(string_t * str)
 {
+  if(str->arr == NULL)
+  {
+    return;
+  }
   printf("%s", (char *) str->arr);
 }
 
 void str_println(string_t * str)
 {
-  printf("%s\n", (char *) str->arr);
+  if(str->arr == NULL)
+  {
+    printf("\n");
+  }
+  else
+  {
+    printf("%s\n", (char *) str->arr);
+  }
 }
 
 list_t * int_list_create()
