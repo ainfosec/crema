@@ -223,6 +223,50 @@ void NBlock::createStdlib()
     func = generateFuncDecl(*(new Type(TTINT)), "int_square", args);
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
+
+    // double_sin
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_sin", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_sqrt
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_sqrt", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_pow
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("base"))));
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("power"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_pow", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // int_pow
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("base"))));
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("power"))));
+    func = generateFuncDecl(*(new Type(TTINT)), "int_pow", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_abs
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_abs", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // int_abs
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTINT)), "int_abs", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
 }
 
 /**

@@ -72,5 +72,15 @@ double double_ceiling(double val);
 double double_round(double val);
 double double_square(double val);
 int64_t int_square(int64_t val);
+double double_pow(double base, double power);
+int64_t int_pow(int64_t base, int64_t power);
+double double_sin(double val);
+double double_sqrt(double val);
+double double_abs(double val);
+int64_t int_abs(int64_t val);
+// double double_max(double a, double b);          // <-- add?
+// int64_t int_max(int64_t a, int64_t b);          // <-- add?
+// double double_list_max(list_t * list);          // <-- add?
+// int64_t int_list_max(list_t * list);            // <-- add?
 
 #endif // CREMA_STDLIB_H_

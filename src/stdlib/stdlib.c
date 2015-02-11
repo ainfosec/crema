@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-// #include <math.h>
+#include <math.h>
 
 //#define KLEE
 
@@ -264,6 +264,16 @@ list_t * crema_seq(int64_t start, int64_t end)
   return l;
 }
 
+void double_print(double val)
+{
+  printf("%lf", val);
+}
+
+void double_println(double val)
+{
+  printf("%lf\n", val);
+}
+
 void int_print(int64_t val)
 {
     printf("%ld", val);
@@ -306,19 +316,10 @@ list_t * prog_argument(int64_t idx)
 
 // ************************ Math Functions ***************************** //
 
-void double_print(double val)
-{
-  printf("%lf", val);
-}
-
-void double_println(double val)
-{
-  printf("%lf\n", val);
-}
-
 double double_floor(double val)
 {
-  return val >= 0 ? (double)((long)val) : (double)((long)(val - 1));
+  // return val >= 0 ? (double)((long)val) : (double)((long)(val - 1));
+  return floor(val);
 }
 
 double double_ceiling(double val)
@@ -346,4 +347,34 @@ double double_square(double val)
 int64_t int_square(int64_t val)
 {
   return val*val;
+}
+
+double double_pow(double base, double power)
+{
+  return pow(base, power);
+}
+
+int64_t int_pow(int64_t base, int64_t power)
+{
+  return (int64_t)pow(base, power);
+}
+
+double double_sin(double val)
+{
+  return sin(val);
+}
+
+double double_sqrt(double val)
+{
+  return sqrt(val);
+}
+
+double double_abs(double val)
+{
+  return abs(val);
+}
+
+int64_t int_abs(int64_t val)
+{
+  return abs(val);
 }
