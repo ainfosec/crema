@@ -312,6 +312,7 @@ class NChar : public NValue {
 public:
     char value; /**< Value of signed int */
 NChar(char value) : value(value) { }
+    NChar(std::string str);
     llvm::Value* codeGen(CodeGenContext & context);
     std::ostream & print(std::ostream & os) const;
 };

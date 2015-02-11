@@ -209,7 +209,7 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                                        ;
 
                         value : numeric { $$ = $1; }
-			      | TCHAR { $$ = new NChar($1->c_str()[1]); $$->type = *(new Type(TTCHAR)); delete $1; }
+			      | TCHAR { $$ = new NChar(*$1); $$->type = *(new Type(TTCHAR)); delete $1; }
 			      | TSTRING { std::string str = $1->c_str(); $$ = new NString(str); $$->type = *(new Type(TTCHAR, true)); delete $1; }
                               | TTRUE { $$ = new NBool(true); $$->type = *(new Type(TTBOOL)); }
                               | TFALSE { $$ = new NBool(false); $$->type = *(new Type(TTBOOL)); }

@@ -44,6 +44,8 @@ extern "C" int yywrap() { }
 [0-9]+			      SAVE_VAL; return TINT;
 \"[^\"\n]*\"		      SAVE_VAL; return TSTRING;
 \'.\'			      SAVE_VAL; return TCHAR;
+\'\\n\'			      SAVE_VAL; return TCHAR;
+\'\\t\'			      SAVE_VAL; return TCHAR;
 "="			      return TOK(TEQUAL);
 "=="			      return TOK(TCEQ);
 "!="			      return TOK(TCNEQ);

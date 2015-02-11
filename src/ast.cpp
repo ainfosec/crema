@@ -279,6 +279,32 @@ void NBlock::createStdlib()
 }
 
 /**
+   Smart constructor for NChar to handle backslash escaped values
+
+   @param str String of escaped char
+*/
+NChar::NChar(std::string str)
+{
+    if (str[1] == '\\')
+    {
+	switch (str[2])
+	{
+	case 'n':
+	    value = '\n';
+	    break;
+	case 't':
+	    value = '\t';
+	    break;
+	default:
+	    value = '\\';
+	    break;
+	}
+    } else {
+	value = str[1];
+    }
+}
+
+/**
    Print function for NBlock objects in the AST. Each block is composed of a vector of 
    statements. This function iterators over the typedef std::vector<NStatement*> StatementList,
    printing each each statement in a given block, and returning the output stream.
