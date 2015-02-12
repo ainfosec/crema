@@ -72,6 +72,8 @@ list_t * prog_argument(int64_t idx);
 // *********************** Type Conversion ***************************** //
 int64_t double_to_int(double val);
 double int_to_double(int64_t val);
+int64_t string_to_int(string_t * str);
+int64_t string_to_double(string_t * str);
 // list_t * int_to_string(int64_t val);           // <-- TODO
 
 // ************************ Math Functions ***************************** //

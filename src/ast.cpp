@@ -212,6 +212,20 @@ void NBlock::createStdlib()
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
 
+    // string_to_int
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(*ct, true)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTINT)), "string_to_int", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // string_to_double
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(*ct, true)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "string_to_double", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
     // *************************** Math Functions *************************** //
 
     // double_floor

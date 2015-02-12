@@ -426,6 +426,42 @@ double int_to_double(int64_t val)
   return (double)val;
 }
 
+/**
+   Converts a string to an int.
+
+   @params str A string to be converted to an int
+   @return Int value, or 0.0 if the string could not be parsed as an int
+*/
+int64_t string_to_int(string_t * str)
+{
+  if(str->arr == NULL)
+  {
+    return 0;
+  }
+  else
+  {
+    return atoi(str->arr);
+  }
+}
+
+/**
+   Converts a string to a double.
+
+   @params str A string to be converted to a double
+   @return Double value, or 0.0 if the string could not be parsed as a double
+*/
+int64_t string_to_double(string_t * str)
+{
+  if(str->arr == NULL)
+  {
+    return 0;
+  }
+  else
+  {
+    return atof(str->arr);
+  }
+}
+
 // ***************************** Maths ********************************* //
 
 /**
