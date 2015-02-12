@@ -331,6 +331,11 @@ void make_symbolic(list_t * list)
 #endif
 }
 
+// void bool_print(bool val)
+// {
+//   printf("%s", val ? "true" : "false");
+// }
+
 char **main_args = NULL;
 int64_t main_argc = 0;
 
@@ -351,6 +356,17 @@ list_t * prog_argument(int64_t idx)
     return str_from_cstring("null cstring");
 
   return str_from_cstring(main_args[idx]);
+}
+
+// *********************** Type Conversion ***************************** //
+int64_t double_to_int(double val)
+{
+  return (int64_t)val;
+}
+
+double int_to_double(int64_t val)
+{
+  return (double)val;
 }
 
 // ************************ Math Functions ***************************** //
@@ -378,6 +394,11 @@ double double_round(double val)
   }
 }
 
+double double_truncate(double val)
+{
+  return trunc(val);
+}
+
 double double_square(double val)
 {
   return val*val;
@@ -401,6 +422,16 @@ int64_t int_pow(int64_t base, int64_t power)
 double double_sin(double val)
 {
   return sin(val);
+}
+
+double double_cos(double val)
+{
+  return cos(val);
+}
+
+double double_tan(double val)
+{
+  return tan(val);
 }
 
 double double_sqrt(double val)

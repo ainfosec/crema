@@ -196,6 +196,22 @@ void NBlock::createStdlib()
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
 
+    // ************************ Type Conversion ***************************** //
+
+    // double_to_int
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTINT)), "double_to_int", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // int_to_double
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "int_to_double", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
     // *************************** Math Functions *************************** //
 
     // double_floor
@@ -219,6 +235,13 @@ void NBlock::createStdlib()
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
 
+    // double_truncate
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_truncate", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
     // double_square
     args.clear();
     args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
@@ -237,6 +260,20 @@ void NBlock::createStdlib()
     args.clear();
     args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
     func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_sin", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_cos
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_cos", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_tan
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_tan", args);
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
 

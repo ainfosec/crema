@@ -63,19 +63,29 @@ void int_print(int64_t val);
 void int_println(int64_t val);
 void make_symbolic(list_t * list);
 
+// void bool_print(bool val);                     // <-- add?
+
 void save_args(int64_t argc, char ** argv);
 int64_t prog_arg_count();
 list_t * prog_argument(int64_t idx);
+
+// *********************** Type Conversion ***************************** //
+int64_t double_to_int(double val);
+double int_to_double(int64_t val);
+// list_t * int_to_string(int64_t val);           // <-- TODO
 
 // ************************ Math Functions ***************************** //
 double double_floor(double val);
 double double_ceiling(double val);
 double double_round(double val);
+double double_truncate(double val);
 double double_square(double val);
 int64_t int_square(int64_t val);
 double double_pow(double base, double power);
 int64_t int_pow(int64_t base, int64_t power);
 double double_sin(double val);
+double double_cos(double val);
+double double_tan(double val);
 double double_sqrt(double val);
 double double_abs(double val);
 int64_t int_abs(int64_t val);
