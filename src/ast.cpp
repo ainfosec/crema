@@ -114,8 +114,22 @@ void NBlock::createStdlib()
     args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
     func = generateFuncDecl(*(new Type(TTVOID)), "double_list_insert", args);
     statements.insert(statements.begin(), func);
-    rootCtx.registerFunc(func);    
-    
+    rootCtx.registerFunc(func);
+
+    // double_print
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTVOID)), "double_print", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_println
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTVOID)), "double_println", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
     // str_print(list) & str_println(list)
     args.clear();
     args.push_back(new NVariableDeclaration(*(new Type(TTINT, true)), *(new NIdentifier("l"))));
@@ -133,10 +147,13 @@ void NBlock::createStdlib()
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
 
-    // print_int(val)
+    // int_print(val) & int_println(val)
     args.clear();
     args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("val"))));
-    func = generateFuncDecl(*(new Type(TTVOID)), "print_int", args);
+    func = generateFuncDecl(*(new Type(TTVOID)), "int_print", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+    func = generateFuncDecl(*(new Type(TTVOID)), "int_println", args);
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
     
@@ -146,6 +163,15 @@ void NBlock::createStdlib()
     args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("idx"))));
     args.push_back(new NVariableDeclaration(*ct, *(new NIdentifier("val"))));
     func = generateFuncDecl(*(new Type(TTVOID)), "str_insert", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);  
+
+    // str_substr(list, idx, len)
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTCHAR, true)), *(new NIdentifier("l"))));
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("idx"))));
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("len"))));
+    func = generateFuncDecl(*(new Type(TTCHAR, true)), "str_substr", args);
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);  
     
@@ -160,7 +186,7 @@ void NBlock::createStdlib()
     args.clear();
     func = generateFuncDecl(*(new Type(TTINT)), "prog_arg_count", args);
     statements.insert(statements.begin(), func);
-    rootCtx.registerFunc(func);  
+    rootCtx.registerFunc(func);
     
     // crema_seq(start, end)
     args.clear();
@@ -169,6 +195,164 @@ void NBlock::createStdlib()
     func = generateFuncDecl(*(new Type(TTINT, true)), "crema_seq", args);
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
+
+    // ************************ Type Conversion ***************************** //
+
+    // double_to_int
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTINT)), "double_to_int", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // int_to_double
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "int_to_double", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // string_to_int
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(*ct, true)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTINT)), "string_to_int", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // string_to_double
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(*ct, true)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "string_to_double", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // *************************** Math Functions *************************** //
+
+    // double_floor
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_floor", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_ceiling
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_ceiling", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_round
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_round", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_truncate
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_truncate", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_square
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_square", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // int_square
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTINT)), "int_square", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_sin
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_sin", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_cos
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_cos", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_tan
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_tan", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_sqrt
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_sqrt", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_pow
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("base"))));
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("power"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_pow", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // int_pow
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("base"))));
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("power"))));
+    func = generateFuncDecl(*(new Type(TTINT)), "int_pow", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // double_abs
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_abs", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // int_abs
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTINT)), "int_abs", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+}
+
+/**
+   Smart constructor for NChar to handle backslash escaped values
+
+   @param str String of escaped char
+*/
+NChar::NChar(std::string str)
+{
+    if (str[1] == '\\')
+    {
+	switch (str[2])
+	{
+	case 'n':
+	    value = '\n';
+	    break;
+	case 't':
+	    value = '\t';
+	    break;
+	default:
+	    value = '\\';
+	    break;
+	}
+    } else {
+	value = str[1];
+    }
 }
 
 /**
@@ -454,6 +638,19 @@ std::ostream & NStructureAccess::print(std::ostream & os) const
 std::ostream & NReturn::print(std::ostream & os) const
 {
   os << "(Return: " << retExpr << ")";
+  os << std::endl;
+  return os;
+}
+
+/**
+   Prints an NBreak object, which is inherited from the NStatement class.
+
+   @param os Output stream to print to
+   @return Output stream passed on
+*/
+std::ostream & NBreak::print(std::ostream & os) const
+{
+  os << "(Break)";
   os << std::endl;
   return os;
 }

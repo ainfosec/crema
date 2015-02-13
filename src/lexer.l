@@ -16,6 +16,7 @@ extern "C" int yywrap() { }
 \n			      ; // TODO: Keep track of line count to provide more helpful error reporting
 "extern"		      return TOK(TEXTERN);
 "return"		      return TOK(TRETURN);
+"break"			      return TOK(TBREAK);
 "sdef"			      return TOK(TSDEF);
 "def"		              return TOK(TDEF);
 "struct"		      return TOK(TTSTRUCT);
@@ -43,6 +44,8 @@ extern "C" int yywrap() { }
 [0-9]+			      SAVE_VAL; return TINT;
 \"[^\"\n]*\"		      SAVE_VAL; return TSTRING;
 \'.\'			      SAVE_VAL; return TCHAR;
+\'\\n\'			      SAVE_VAL; return TCHAR;
+\'\\t\'			      SAVE_VAL; return TCHAR;
 "="			      return TOK(TEQUAL);
 "=="			      return TOK(TCEQ);
 "!="			      return TOK(TCNEQ);

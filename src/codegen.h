@@ -36,7 +36,7 @@ public:
     llvm::Module * rootModule;
     llvm::IRBuilder<> * Builder;
     llvm::Function *mainFunction;
-    std::stack<llvm::BasicBlock *> blocks;
+    std::stack<llvm::BasicBlock *> blocks, listblocks;
     std::vector<std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> > > variables;
 //    std::vector<std::map<std::string, std::pair<NVariableDeclaration *, llvm::Value *> > > functions;
     

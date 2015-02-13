@@ -255,6 +255,17 @@ NReturn(NExpression & re) : retExpr(re) { }
 };
 
 /**
+ *  Return statement */
+class NBreak : public NStatement {
+public:
+NBreak() { }
+    llvm::Value * codeGen(CodeGenContext & context);
+    bool semanticAnalysis(SemanticContext * ctx);
+    std::ostream & print(std::ostream & os) const;
+    bool checkRecursion(SemanticContext *ctx, NFunctionDeclaration * func) { return false; }
+};
+
+/**
  *  Base class for values (ints, strings, doubles, lists, etc.) */
 class NValue : public NExpression {
 public:
@@ -301,6 +312,7 @@ class NChar : public NValue {
 public:
     char value; /**< Value of signed int */
 NChar(char value) : value(value) { }
+    NChar(std::string str);
     llvm::Value* codeGen(CodeGenContext & context);
     std::ostream & print(std::ostream & os) const;
 };

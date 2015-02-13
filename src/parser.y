@@ -29,21 +29,21 @@
 }
 
 /* Terminal types */
-%token <string> TIDENTIFIER TINT TDOUBLE TCHAR TSTRING                              /* token strings */
-%token <token> TRETURN TSDEF TDEF TEXTERN TIF TELSE TFOREACH TAS TTRUE TFALSE       /* keywords */
-%token <token> TMUL TADD TDIV TSUB TMOD                                             /* binary operators */
-%token <token> TCEQ TCNEQ TCLE TCGE TCLT TCGT                                       /* comparison operators */
-%token <token> TEQUAL                                                               /* assignment operator */
-%token <token> TTBOOL TTDOUBLE TTINT TTSTR TTSTRUCT TTUINT TTVOID TTCHAR            /* type tokens */
-%token <token> TLBRAC TRBRAC TLBRACKET TRBRACKET TLPAREN TRPAREN TCOMMA TPERIOD     /* {} [] () , . */
-%token <token> TUMINUS                                                              /* unary operators */
-%token <token> TLAND TLOR TLNOT                                                     /* logical operators */ 
-%token <token> TBAND TBXOR TBOR                                                     /* bitwise operators */
+%token <string> TIDENTIFIER TINT TDOUBLE TCHAR TSTRING                               /* token strings */
+%token <token> TBREAK TRETURN TSDEF TDEF TEXTERN TIF TELSE TFOREACH TAS TTRUE TFALSE /* keywords */
+%token <token> TMUL TADD TDIV TSUB TMOD                                              /* binary operators */
+%token <token> TCEQ TCNEQ TCLE TCGE TCLT TCGT                                        /* comparison operators */
+%token <token> TEQUAL                                                                /* assignment operator */
+%token <token> TTBOOL TTDOUBLE TTINT TTSTR TTSTRUCT TTUINT TTVOID TTCHAR             /* type tokens */
+%token <token> TLBRAC TRBRAC TLBRACKET TRBRACKET TLPAREN TRPAREN TCOMMA TPERIOD      /* {} [] () , . */
+%token <token> TUMINUS                                                               /* unary operators */
+%token <token> TLAND TLOR TLNOT                                                      /* logical operators */ 
+%token <token> TBAND TBXOR TBOR                                                      /* bitwise operators */
 
 /* Non-terminal types */
 %type <token> type bitwise comparison def
 %type <ident> identifier
-%type <statement> statement struct_decl var_decl list_decl func_decl assignment return loop conditional
+%type <statement> statement struct_decl var_decl break list_decl func_decl assignment return loop conditional
 %type <expression> expression value numeric list_access struct list var_access factor term
 %type <block> block program statements 
 %type <call_args> func_call_arg_list
@@ -77,10 +77,11 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                   | struct_decl { if(!rootCtx.registerStruct((NStructureDeclaration *) $1)) yyerror("Duplicate struct declaration!"); $$ = $1; }
                   | func_decl { if(!rootCtx.registerFunc((NFunctionDeclaration *) $1)) yyerror("Duplicate function declaration!"); $$ = $1; }
                   | assignment { }
-		  | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); }
+		  | identifier TLPAREN func_call_arg_list TRPAREN { $$ = new NFunctionCall(*$1, *$3); } 
 		  | conditional { }
                   | loop { }
                   | return { }
+		  | break { }
                   ;
 
             var_decl : type identifier { $$ = new NVariableDeclaration(*(new Type($1)), *$2); }
@@ -144,6 +145,8 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
             return : TRETURN expression { $$ = new NReturn(*$2); }
                    ;
 
+            break : TBREAK { $$ = new NBreak(); }
+                   ;
 
             expression : expression bitwise term { $$ = new NBinaryOperator(*$1, $2, *$3); }
                        | expression TADD term { $$ = new NBinaryOperator(*$1, $2, *$3); }
@@ -206,7 +209,7 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                                        ;
 
                         value : numeric { $$ = $1; }
-			      | TCHAR { $$ = new NChar($1->c_str()[1]); $$->type = *(new Type(TTCHAR)); delete $1; }
+			      | TCHAR { $$ = new NChar(*$1); $$->type = *(new Type(TTCHAR)); delete $1; }
 			      | TSTRING { std::string str = $1->c_str(); $$ = new NString(str); $$->type = *(new Type(TTCHAR, true)); delete $1; }
                               | TTRUE { $$ = new NBool(true); $$->type = *(new Type(TTBOOL)); }
                               | TFALSE { $$ = new NBool(false); $$->type = *(new Type(TTBOOL)); }

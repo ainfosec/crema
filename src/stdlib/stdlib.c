@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 //#define KLEE
 
@@ -151,6 +152,29 @@ string_t * str_from_cstring(char * s)
   return str;
 }
 
+string_t * str_substr(string_t * str, unsigned int start, unsigned int len)
+{
+  string_t * nstr = list_create(sizeof(char));
+
+  if (start >= str->len)
+    return NULL;
+
+  if (len > str->len || len == 0)
+    len = str->len - start;
+
+  if (start == 0 && (len == 0 || len == str->len))
+    return str;
+
+  if (start >= str->len)
+    return NULL;
+
+  list_resize(nstr, len + 1);
+  strncpy(nstr->arr, (char*)str->arr + start, len);
+  nstr->len = len;
+  str_insert(nstr, len, '\0');
+  return nstr;
+}
+
 void str_free(string_t * str)
 {
   list_free(str);
@@ -186,12 +210,28 @@ void str_concat(string_t * str1, string_t * str2)
 
 void str_print(string_t * str)
 {
+  if(str->arr == NULL)
+  {
+    return;
+  }
   printf("%s", (char *) str->arr);
 }
 
 void str_println(string_t * str)
 {
-  printf("%s\n", (char *) str->arr);
+  if(str->arr == NULL)
+  {
+    printf("\n");
+  }
+  else
+  {
+    printf("%s\n", (char *) str->arr);
+  }
+}
+
+int str_len(string_t * str)
+{
+  return str->len;
 }
 
 list_t * int_list_create()
@@ -263,11 +303,51 @@ list_t * crema_seq(int64_t start, int64_t end)
   return l;
 }
 
-void print_int(int64_t val)
+/**
+   Prints a double value to stdout.
+
+   @params val A double value to be printed
+*/
+void double_print(double val)
+{
+  printf("%lf", val);
+}
+
+/**
+   Prints a double value to stdout terminated with a new-line character
+
+   @params val A double value to be printed
+*/
+void double_println(double val)
+{
+  printf("%lf\n", val);
+}
+
+/**
+   Prints a int value to stdout.
+
+   @params val An int value to be printed
+*/
+void int_print(int64_t val)
+{
+    printf("%ld", val);
+}
+
+/**
+   Prints an int value to stdout terminated with a new-line character
+
+   @params val An int value to be printed
+*/
+void int_println(int64_t val)
 {
     printf("%ld\n", val);
 }
 
+/**
+   ???
+
+   @params list ???
+*/
 void make_symbolic(list_t * list) 
 {
 #ifdef KLEE
@@ -276,24 +356,280 @@ void make_symbolic(list_t * list)
 #endif
 }
 
+// void bool_print(bool val)
+// {
+//   printf("%s", val ? "true" : "false");
+// }
+
 char **main_args = NULL;
 int64_t main_argc = 0;
 
+/**
+   Stores the command line arguments passed into the running program in
+   global variables for the Crema standard lib.
+
+   @params argc The argc (argument count) value to be saved
+   @params argv The argv (argument list) values to be saved
+*/
 void save_args(int64_t argc, char ** argv)
 {
   main_args = argv;
   main_argc = argc;
 }
 
+/**
+   Returns the number of command line arguments passed to the running Crema program
+
+   @return The number of command line arguments passed
+*/
 int64_t prog_arg_count()
 {
   return main_argc;
 }
 
+/**
+   Retrieves the string representation of a command line argument at a given postion
+   from the command line arguments list passed to the running Crema program
+  
+   @param idx The index of the argument to be retrieved
+   @return The command line argument (string) at position idx, or "null cstring"
+*/
 list_t * prog_argument(int64_t idx)
 {
   if (idx >= main_argc)
     return str_from_cstring("null cstring");
 
   return str_from_cstring(main_args[idx]);
+}
+
+// *********************** Type Conversions ***************************** //
+
+/**
+   Cast a double value as an int.
+
+   @params val A double value
+   @return The given double value cast as an int
+*/
+int64_t double_to_int(double val)
+{
+  return (int64_t)val;
+}
+
+/**
+   Cast an int value as a double.
+
+   @params val An int value
+   @return The given int value cast as a double
+*/
+double int_to_double(int64_t val)
+{
+  return (double)val;
+}
+
+/**
+   Converts a string to an int.
+
+   @params str A string to be converted to an int
+   @return Int value, or 0.0 if the string could not be parsed as an int
+*/
+int64_t string_to_int(string_t * str)
+{
+  if(str->arr == NULL)
+  {
+    return 0;
+  }
+  else
+  {
+    return atoi(str->arr);
+  }
+}
+
+/**
+   Converts a string to a double.
+
+   @params str A string to be converted to a double
+   @return Double value, or 0.0 if the string could not be parsed as a double
+*/
+int64_t string_to_double(string_t * str)
+{
+  if(str->arr == NULL)
+  {
+    return 0;
+  }
+  else
+  {
+    return atof(str->arr);
+  }
+}
+
+// ***************************** Maths ********************************* //
+
+/**
+   Calculates the nearest integral value less than the given number.
+
+   @params val A double value
+   @return The next lowest integral value
+*/
+double double_floor(double val)
+{
+  // return val >= 0 ? (double)((long)val) : (double)((long)(val - 1));
+  return floor(val);
+}
+
+/**
+   Calculates the nearest integral value greater than the given number.
+
+   @params val A double value
+   @return The next highest integral value
+*/
+double double_ceiling(double val)
+{
+  return val > 0 ? (double)((long)(val + 1)) : (double)((long)val);
+}
+
+/**
+   Calculates the nearest integral value to the given number.
+   The result will be rounded up for values with a decimal portion equal
+   to .5000...
+
+   @params val A double value
+   @return The nearest integral value
+*/
+double double_round(double val)
+{
+  if(val >= 0)
+  {
+    return val - (long)val >= 0.5 ? (double)((long)(val + 1)) : (double)((long)val);
+  }
+  else
+  {
+    return val - (long)val >= -0.5 ? (double)((long)val) : (double)((long)(val - 1));
+  }
+}
+
+/**
+   Truncates the given double value to an integral number. In other words, all 
+   values after the decimal point become 0.
+
+   @params val A double value
+   @return The double value after truncation
+*/
+double double_truncate(double val)
+{
+  return trunc(val);
+}
+
+/**
+   Calculates the square of the given double value (i.e. n*n or n^2)
+
+   @params val A double value
+   @return The double value squared
+*/
+double double_square(double val)
+{
+  return val*val;
+}
+
+/**
+   Calculates the square of the given int value (i.e. n*n or n^2)
+
+   @params val An int value
+   @return The int value squared
+*/
+int64_t int_square(int64_t val)
+{
+  return val*val;
+}
+
+/**
+   Calculates the value of a double number raised to a power (i.e. x^n)
+
+   @params base The base value for the exponential
+   @params power The power for the exponential
+   @return The base value raised to the given power
+*/
+double double_pow(double base, double power)
+{
+  return pow(base, power);
+}
+
+/**
+   Calculates the value of an int number raised to a power (i.e. x^n)
+
+   @params base The base value for the exponential
+   @params power The power for the exponential
+   @return The base value raised to the given power
+*/
+int64_t int_pow(int64_t base, int64_t power)
+{
+  return (int64_t)pow(base, power);
+}
+
+/**
+   Calculates the value of the trigonometric sin function of a
+   double value (i.e. sin(n))
+
+   @params val A double value
+   @return The sin of the given value
+*/
+double double_sin(double val)
+{
+  return sin(val);
+}
+
+/**
+   Calculates the value of the trigonometric cos function of a
+   double value (i.e. cos(n))
+
+   @params val A double value
+   @return The cos of the given value
+*/
+double double_cos(double val)
+{
+  return cos(val);
+}
+
+/**
+   Calculates the value of the trigonometric tan function of a
+   double value (i.e. tan(n))
+
+   @params val A double value
+   @return The tan of the given value
+*/
+double double_tan(double val)
+{
+  return tan(val);
+}
+
+/**
+   Calculates the square root for a given double value
+
+   @params val A double value
+   @return The square root of the given value
+*/
+double double_sqrt(double val)
+{
+  return sqrt(val);
+}
+
+/**
+   Calculates the absolute value for a given double value
+
+   @params val A double value
+   @return The absolute value of the given value
+*/
+double double_abs(double val)
+{
+  return abs(val);
+}
+
+/**
+   Calculates the absolute value for a given int value
+
+   @params val A int value
+   @return The absolute value of the given value
+*/
+int64_t int_abs(int64_t val)
+{
+  return abs(val);
 }
