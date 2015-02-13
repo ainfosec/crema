@@ -1,0 +1,10 @@
+def void func(int a[])
+{
+  int b[] = a
+}
+
+def void func2()
+{
+  int arg[] = [1,2,3]
+  func(arg)
+}

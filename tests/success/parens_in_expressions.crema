@@ -1,0 +1,7 @@
+int a = 5
+int b = 6
+int c
+
+c = (a * b) + 3
+c = a * (b + 3)
+c = (a * (b + 3)) / 7

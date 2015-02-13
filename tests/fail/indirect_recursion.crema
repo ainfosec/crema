@@ -1,0 +1,9 @@
+def void func1(int n)
+{
+  func2(n)
+}
+
+def void func2(int n)
+{
+  func1(n)
+}

@@ -1,0 +1,14 @@
+int ints[] = [1,2,3]
+foreach (ints as i)
+{
+  int a = i
+
+  foreach (ints as j)
+  {
+    int b = j
+    if (a == b)
+    {
+      int c = 0
+    }
+  }
+}

@@ -1,0 +1,16 @@
+int ints[] = [1,2,3]
+
+if (1 != 2)
+{
+  foreach (ints as i)
+  {
+    int a = i
+  }
+}
+else
+{
+  foreach (ints as i)
+  {
+    int a = i
+  }
+}

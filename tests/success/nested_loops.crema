@@ -1,0 +1,10 @@
+int ints[] = [1,2,3]
+foreach (ints as i)
+{
+  int a = i
+
+  foreach (ints as j)
+  {
+    int a = j
+  }
+}

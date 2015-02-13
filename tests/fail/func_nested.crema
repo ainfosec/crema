@@ -1,0 +1,9 @@
+def void foo()
+{
+  def void bar()
+  {
+    int a = 2
+  }
+  
+  int a = 2
+}
