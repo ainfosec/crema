@@ -221,10 +221,10 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                                                                    NDouble *d = new NDouble(atof($2->c_str())); 
                                                                    d->type = Type(TTDOUBLE); 
                                                                    delete $2; $$ = new NBinaryOperator(*zero, $1, *d); } 
-                                    | TINT { $$ = new NInt(atoi($1->c_str())); $$->type = *(new Type(TTINT)); delete $1; }
+                                    | TINT { $$ = new NInt(atol($1->c_str())); $$->type = *(new Type(TTINT)); delete $1; }
                                     | TSUB TINT %prec TUMINUS { NInt *zero = new NInt(0); 
                                                                 zero->type = TTINT; 
-                                                                NInt *i = new NInt(atoi($2->c_str())); 
+                                                                NInt *i = new NInt(atol($2->c_str())); 
                                                                 i->type = *(new Type(TTINT)); 
                                                                 delete $2; 
                                                                 $$ = new NBinaryOperator(*zero, $1, *i); } 
