@@ -142,7 +142,6 @@ void NBlock::createStdlib()
 
     // str_append(list, val)
     args.push_back(new NVariableDeclaration(*ct, *(new NIdentifier("val"))));
-    std::cout << *args[1] << std::endl;
     func = generateFuncDecl(*(new Type(TTVOID)), "str_append", args);
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
