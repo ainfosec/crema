@@ -86,8 +86,6 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
 
             var_decl : type identifier { $$ = new NVariableDeclaration(*(new Type($1)), *$2); }
                      | type identifier TEQUAL expression { $$ = new NVariableDeclaration(*(new Type($1)), *$2, $4); }
-		     | TTSTR identifier { $$ = new NVariableDeclaration(*(new Type(TTCHAR, true)), *$2); }
-		     | TTSTR identifier TEQUAL expression { $$ = new NVariableDeclaration(*(new Type(TTCHAR, true)), *$2, $4); }
 		     | TTSTRUCT identifier identifier { $$ = new NVariableDeclaration(*(new StructType(*$2)), *$3); }
 		     | TTSTRUCT identifier identifier TEQUAL identifier { $$ = new NVariableDeclaration(*(new StructType(*$2)), *$3, $5); }
 		     | list_decl { }

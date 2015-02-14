@@ -305,7 +305,8 @@ void Type::setType(int type)
     	typecode = BOOL;
     	break;
     case TTSTR:
-    	typecode = STRING;
+    	typecode = CHAR;
+	isList = true;
     	break;
     case TTVOID:
     	typecode = VOID;
