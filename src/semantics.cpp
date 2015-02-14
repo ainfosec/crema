@@ -263,6 +263,7 @@ bool NBinaryOperator::semanticAnalysis(SemanticContext * ctx)
 	std::cout << "Binary operator type mismatch for op: " << op << std::endl;
 	return false;
     }
+    type = Type::getLargerType(t1, t2);
     return true;
 }
 
@@ -300,6 +301,7 @@ Type & NBinaryOperator::getType(SemanticContext * ctx) const
     {
 	return *(new Type());
     }
+
 
     if (t1 == t2)
     {
@@ -580,6 +582,10 @@ Type & NListAccess::getType(SemanticContext * ctx) const
 Type & NFunctionCall::getType(SemanticContext * ctx) const 
 {
   NFunctionDeclaration *func = ctx->searchFuncs(ident);
+  for (int i = 0; i < args.size(); i++)
+    {
+      args[i]->getType(ctx);
+    }
   if (func)
     {
       type = func->type;
