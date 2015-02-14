@@ -23,19 +23,19 @@ lexer.o: lexer.cpp
 lexer.cpp: lexer.l
 	flex -olexer.cpp lexer.l
 
-ast.o: ast.cpp
+ast.o: ast.cpp ast.h
 	$(CC) -c $(CPP_FLAGS) ast.cpp
 
-types.o: types.cpp
+types.o: types.cpp types.h
 	$(CC) -c $(CPP_FLAGS) types.cpp
 
-codegen.o: codegen.cpp parser.h
+codegen.o: codegen.cpp parser.h codegen.h
 	$(CC) -c $(CPP_FLAGS) codegen.cpp
 
 crema.o: crema.cpp
 	$(CC) -c $(CPP_FLAGS) crema.cpp 
 
-semantics.o: semantics.cpp parser.h
+semantics.o: semantics.cpp parser.h semantics.h
 	$(CC) -std=c++11 -c $(CPP_FLAGS) semantics.cpp
 
 graph:
