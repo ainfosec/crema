@@ -673,7 +673,9 @@ llvm::Value * NListAccess::codeGen(CodeGenContext & context)
     llvm::Value * li = new llvm::LoadInst(var, "", false, context.blocks.top());
     std::vector<llvm::Value *> v;
     v.push_back(li);
-    v.push_back(index->codeGen(context));
+    // Generate LLVM IR for the list index
+    llvm::Value *igc = index->codeGen(context);
+    v.push_back(igc);
     
     llvm::ArrayRef<llvm::Value *> llvmargs(v);
     return llvm::CallInst::Create(func, llvmargs, "", context.blocks.top());
@@ -997,7 +999,7 @@ llvm::Value * NList::codeGen(CodeGenContext & context)
     
     llvm::ArrayRef<llvm::Value *> llvmargs(v);
     llvm::Value * li = llvm::CallInst::Create(func, llvmargs, "", context.blocks.top());
-    li->dump();
+
     for (int i = 0; i < value.size(); i++)
     {
 	switch (type.typecode)

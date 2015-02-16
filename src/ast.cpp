@@ -596,7 +596,7 @@ std::ostream & NIdentifier::print(std::ostream & os) const
 */
 std::ostream & NListAccess::print(std::ostream & os) const
 {
-  os << "(List access: " << ident << "[" << index << "])";
+  os << "(List access: " << ident << "[" << *index << "])";
   return os;
 }
 
