@@ -279,6 +279,7 @@ bool NBinaryOperator::semanticAnalysis(SemanticContext * ctx)
 Type & NBinaryOperator::getType(SemanticContext * ctx) const
 {
     Type & t1 = lhs.getType(ctx), & t2 = rhs.getType(ctx);
+
     switch (op)
     {
 	// Comparisons return a BOOL
@@ -332,13 +333,13 @@ bool NAssignmentStatement::semanticAnalysis(SemanticContext * ctx)
       std::cout << "Assignment to undefined variable " << ident << std::endl;
       return false;
   }
-  
-  if (var->type < expr.getType(ctx))
+  Type & t = expr.getType(ctx);
+  if (var->type < t)
   {
       std::cout << "Type mismatch (" << var->type << " vs. " << expr.getType(ctx) << ") for assignment to " << ident << std::endl;
       return false;
   }
-  if (var->type != expr.getType(ctx))
+  if (var->type != t)
   {
       std::cout << "Warning: Upcast from " << var->type << " to " << expr.getType(ctx) << std::endl;
   }
@@ -566,6 +567,7 @@ Type & NListAccess::getType(SemanticContext * ctx) const
   if (var)
   {
       Type *st = new Type(var->type, false);
+      index->getType(ctx);
       type = *st;
       return *st;
   }
