@@ -25,6 +25,7 @@ SemanticContext::SemanticContext()
   newScope(t); 
   currScope = 0;
   inList = false;
+  inFunc = false;
 } 
 
 /** 
@@ -688,6 +689,11 @@ bool NBreak::semanticAnalysis(SemanticContext * ctx)
 bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
 {
   bool blockSA, blockRecur, fr;
+  if (ctx->inFunc)
+    {
+      std::cout << "Nested function declaration: " << ident << std::endl;
+      return false;
+    }
   ctx->newScope(type);
   for (auto it : variables)
   {
@@ -699,6 +705,7 @@ bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
   }
   if (body)
     {
+      ctx->inFunc = true;
       blockSA = body->semanticAnalysis(ctx);
       blockRecur = body->checkRecursion(ctx, this);
       if (blockRecur)
@@ -710,6 +717,7 @@ bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
 	{
 	  std::cout << "No return statement in " << type << " " << ident << std::endl;
 	}
+      ctx->inFunc = false;
     }
   else
     {
