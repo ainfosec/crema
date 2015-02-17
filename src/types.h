@@ -41,7 +41,7 @@ public:
     TypeCodes typecode; /**< typecode for the Type */
     virtual ~Type() { }
 Type() : typecode(INVALID) { }
-    Type(int type) { setType(type); isList = false; isStruct = false; }
+    Type(int type) { isList = false; setType(type); isStruct = false; }
     Type(int type, bool l) { setType(type); isList = l; isStruct = false; }
     Type(Type & t, bool l) { typecode = t.typecode; isList = l; isStruct = false; }
     bool getIsList() { return isList; }

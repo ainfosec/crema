@@ -303,9 +303,11 @@ llvm::Value * NStructureDeclaration::codeGen(CodeGenContext & context)
 llvm::Value * NLoopStatement::codeGen(CodeGenContext & context)
 {
     NIdentifier * itIdent = new NIdentifier("loopItCnter");
+    NIdentifier * maxIdent = new NIdentifier("loopItMax");
     NVariableDeclaration * loop = context.findVariableDeclaration(list.value);
     NVariableDeclaration * loopVar = new NVariableDeclaration(*(new Type(loop->type, false)), asVar, NULL);
     NVariableDeclaration * itNum = new NVariableDeclaration(*(new Type(TTINT)), *itIdent, new NInt(0));
+
     
     std::vector<NExpression *> args;
     args.push_back(new NVariableAccess(list));
@@ -313,7 +315,10 @@ llvm::Value * NLoopStatement::codeGen(CodeGenContext & context)
     access->type = itNum->type;
     NFunctionCall * funcCall = new NFunctionCall(*(new NIdentifier("list_length")), args);
     funcCall->type = itNum->type;
-    NBinaryOperator * c = new NBinaryOperator(*((NExpression *) access), (int) TCEQ, *((NExpression *) funcCall));
+    NVariableDeclaration * loopMax = new NVariableDeclaration(*(new Type(TTINT)), *maxIdent, ((NExpression *) funcCall));
+    NVariableAccess * maxaccess = new NVariableAccess(*maxIdent);
+    maxaccess->type = itNum->type;
+    NBinaryOperator * c = new NBinaryOperator(*((NExpression *) access), (int) TCEQ, *((NExpression *) maxaccess));
     llvm::Value * cond;
     llvm::Function * parent = context.blocks.top()->getParent();
     llvm::BasicBlock * preBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "preblock", parent);
@@ -327,6 +332,7 @@ llvm::Value * NLoopStatement::codeGen(CodeGenContext & context)
     context.Builder->SetInsertPoint(context.blocks.top());
     llvm::Value * itNumBC = itNum->codeGen(context);
     llvm::Value * lvBC = loopVar->codeGen(context);
+    llvm::Value * maxNumBC = loopMax->codeGen(context);
     llvm::BranchInst::Create(bodyBlock, context.blocks.top()->end());
     context.blocks.pop();
     
@@ -667,7 +673,9 @@ llvm::Value * NListAccess::codeGen(CodeGenContext & context)
     llvm::Value * li = new llvm::LoadInst(var, "", false, context.blocks.top());
     std::vector<llvm::Value *> v;
     v.push_back(li);
-    v.push_back(index->codeGen(context));
+    // Generate LLVM IR for the list index
+    llvm::Value *igc = index->codeGen(context);
+    v.push_back(igc);
     
     llvm::ArrayRef<llvm::Value *> llvmargs(v);
     return llvm::CallInst::Create(func, llvmargs, "", context.blocks.top());
@@ -991,7 +999,7 @@ llvm::Value * NList::codeGen(CodeGenContext & context)
     
     llvm::ArrayRef<llvm::Value *> llvmargs(v);
     llvm::Value * li = llvm::CallInst::Create(func, llvmargs, "", context.blocks.top());
-    li->dump();
+
     for (int i = 0; i < value.size(); i++)
     {
 	switch (type.typecode)

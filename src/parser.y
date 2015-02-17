@@ -86,8 +86,6 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
 
             var_decl : type identifier { $$ = new NVariableDeclaration(*(new Type($1)), *$2); }
                      | type identifier TEQUAL expression { $$ = new NVariableDeclaration(*(new Type($1)), *$2, $4); }
-		     | TTSTR identifier { $$ = new NVariableDeclaration(*(new Type(TTCHAR, true)), *$2); }
-		     | TTSTR identifier TEQUAL expression { $$ = new NVariableDeclaration(*(new Type(TTCHAR, true)), *$2, $4); }
 		     | TTSTRUCT identifier identifier { $$ = new NVariableDeclaration(*(new StructType(*$2)), *$3); }
 		     | TTSTRUCT identifier identifier TEQUAL identifier { $$ = new NVariableDeclaration(*(new StructType(*$2)), *$3, $5); }
 		     | list_decl { }
@@ -221,10 +219,10 @@ block : TLBRACKET statements TRBRACKET { $$ = $2; }
                                                                    NDouble *d = new NDouble(atof($2->c_str())); 
                                                                    d->type = Type(TTDOUBLE); 
                                                                    delete $2; $$ = new NBinaryOperator(*zero, $1, *d); } 
-                                    | TINT { $$ = new NInt(atoi($1->c_str())); $$->type = *(new Type(TTINT)); delete $1; }
+                                    | TINT { $$ = new NInt(atol($1->c_str())); $$->type = *(new Type(TTINT)); delete $1; }
                                     | TSUB TINT %prec TUMINUS { NInt *zero = new NInt(0); 
                                                                 zero->type = TTINT; 
-                                                                NInt *i = new NInt(atoi($2->c_str())); 
+                                                                NInt *i = new NInt(atol($2->c_str())); 
                                                                 i->type = *(new Type(TTINT)); 
                                                                 delete $2; 
                                                                 $$ = new NBinaryOperator(*zero, $1, *i); } 
