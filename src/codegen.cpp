@@ -308,7 +308,6 @@ llvm::Value * NLoopStatement::codeGen(CodeGenContext & context)
     NVariableDeclaration * loopVar = new NVariableDeclaration(*(new Type(loop->type, false)), asVar, NULL);
     NVariableDeclaration * itNum = new NVariableDeclaration(*(new Type(TTINT)), *itIdent, new NInt(0));
 
-    
     std::vector<NExpression *> args;
     args.push_back(new NVariableAccess(list));
     NVariableAccess * access = new NVariableAccess(*itIdent);
@@ -360,6 +359,12 @@ llvm::Value * NLoopStatement::codeGen(CodeGenContext & context)
       llvm::BranchInst::Create(loopCondBlock, context.blocks.top());
     }
 
+    while (bodyBlock != context.blocks.top())
+	context.blocks.pop();
+    context.listblocks.pop();
+    context.blocks.pop();
+    context.variables.pop_back();
+
     context.blocks.push(loopCondBlock);
     context.Builder->SetInsertPoint(context.blocks.top());
 
@@ -374,12 +379,6 @@ llvm::Value * NLoopStatement::codeGen(CodeGenContext & context)
     llvm::BranchInst::Create(terminateBlock, bodyBlock, cond, context.blocks.top());
 
     context.blocks.pop();
-
-    while (bodyBlock != context.blocks.top())
-	context.blocks.pop();
-    context.listblocks.pop();
-    context.blocks.pop();
-    context.variables.pop_back();
 
     // Link in the terminate block to the function
     context.blocks.push(terminateBlock);
