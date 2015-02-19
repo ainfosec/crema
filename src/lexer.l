@@ -10,7 +10,34 @@ extern "C" int yywrap() { }
 
 %option debug yylineno nodefault
 
+%x incl
+
 %%
+
+"include"             BEGIN(incl);
+
+<incl>[ \t]*
+<incl>[^ \t\n]+   {
+	yyin = fopen( yytext, "r" );
+
+	if ( ! yyin )
+	{
+		printf("WARNING: Unable to include file %s\n", yytext);
+		yyterminate();
+	}
+	yypush_buffer_state(yy_create_buffer( yyin, YY_BUF_SIZE ));
+
+	BEGIN(INITIAL);
+}
+
+<<EOF>> {
+	yypop_buffer_state();
+
+	if ( !YY_CURRENT_BUFFER )
+	{
+		yyterminate();
+	}
+}
 
 [ \t]			      ;
 \n			      ; // TODO: Keep track of line count to provide more helpful error reporting
