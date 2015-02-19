@@ -260,6 +260,11 @@ void int_list_append(list_t * list, int64_t elem)
   list_append(list, (void *) &elem);
 }
 
+int64_t int_list_length(list_t * list)
+{
+  return (int64_t)list->len;
+}
+
 list_t * double_list_create()
 {
   return list_create(sizeof(double));
@@ -424,6 +429,22 @@ int64_t double_to_int(double val)
 double int_to_double(int64_t val)
 {
   return (double)val;
+}
+
+/**
+   Convert an int (64-bit) value into a string of characters.
+
+   @params val An 64-bit int value
+   @return The given int value cast as a double
+*/
+string_t * int_to_string(int64_t val)
+{
+  char str[20];
+  string_t * stp;
+  
+  snprintf(str, 20, "%ld", val);
+  stp = str_from_cstring(str);
+  return stp;
 }
 
 /**

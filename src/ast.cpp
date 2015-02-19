@@ -99,6 +99,13 @@ void NBlock::createStdlib()
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
 
+    // int_list_length()
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT, true)), *(new NIdentifier("list"))));
+    func = generateFuncDecl(*(new Type(TTINT)), "int_list_length", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
     // double_list_append(l, val)
     args.clear();
     args.push_back(new NVariableDeclaration(*(new Type(TTDOUBLE, true)), *(new NIdentifier("l"))));
@@ -208,6 +215,13 @@ void NBlock::createStdlib()
     args.clear();
     args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("val"))));
     func = generateFuncDecl(*(new Type(TTDOUBLE)), "int_to_double", args);
+    statements.insert(statements.begin(), func);
+    rootCtx.registerFunc(func);
+
+    // int_to_string
+    args.clear();
+    args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("val"))));
+    func = generateFuncDecl(*(new Type(TTCHAR, true)), "int_to_string", args);
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
 
