@@ -67,7 +67,7 @@ void list_delete(list_t * list, unsigned int idx)
     }
   if (idx < list->len)
     {
-      memmove(list->arr + (idx * list->elem_sz), list->arr + ((idx + 1) * list->elem_sz), list->len - idx - 1);
+	memmove(list->arr + (idx * list->elem_sz), list->arr + ((idx + 1) * list->elem_sz), (list->len - idx - 1) * list->elem_sz);
       list->len--;
     }
 }
