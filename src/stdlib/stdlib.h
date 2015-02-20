@@ -49,7 +49,6 @@ list_t * int_list_create();
 void int_list_insert(list_t * list, int64_t idx, int64_t val);
 int64_t int_list_retrieve(list_t * list, int64_t idx);
 void int_list_append(list_t * list, int64_t elem);
-int64_t int_list_length(list_t * list);
 
 list_t * double_list_create();
 void double_list_insert(list_t * list, unsigned int idx, double val);

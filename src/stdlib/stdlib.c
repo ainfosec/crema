@@ -229,11 +229,6 @@ void str_println(string_t * str)
   }
 }
 
-int str_len(string_t * str)
-{
-  return str->len;
-}
-
 list_t * int_list_create()
 {
   return list_create(sizeof(int64_t));
@@ -258,11 +253,6 @@ int64_t int_list_retrieve(list_t * list, int64_t idx)
 void int_list_append(list_t * list, int64_t elem)
 {
   list_append(list, (void *) &elem);
-}
-
-int64_t int_list_length(list_t * list)
-{
-  return (int64_t)list->len;
 }
 
 list_t * double_list_create()

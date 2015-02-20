@@ -72,20 +72,24 @@ void NBlock::createStdlib()
 
     // list_length(list)
     args.push_back(new NVariableDeclaration(*(new Type(TTINT, true)), *(new NIdentifier("l"))));
-    statements.insert(statements.begin(), generateFuncDecl(*(new Type(TTINT)), "list_length", args));
+    func = generateFuncDecl(*(new Type(TTINT)), "list_length", args);
+    statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func); 
     
     // int_list_retrieve(list, idx)
     args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("idx"))));
-    statements.insert(statements.begin(), generateFuncDecl(*(new Type(TTINT)), "int_list_retrieve", args));
+    func = generateFuncDecl(*(new Type(TTINT)), "int_list_retrieve", args);
+    statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
 
     // str_retrieve(list, idx)
-    statements.insert(statements.begin(), generateFuncDecl(*(new Type(TTCHAR)), "str_retrieve", args));
+    func = generateFuncDecl(*(new Type(TTCHAR)), "str_retrieve", args);
+    statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
 
     // double_list_retrieve(list, idx)
-    statements.insert(statements.begin(), generateFuncDecl(*(new Type(TTDOUBLE)), "double_list_retrieve", args));
+    func = generateFuncDecl(*(new Type(TTDOUBLE)), "double_list_retrieve", args);
+    statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
 
     // int_list_append(list, val)
@@ -96,13 +100,6 @@ void NBlock::createStdlib()
     // int_list_insert(list, idx, val)
     args.push_back(new NVariableDeclaration(*(new Type(TTINT)), *(new NIdentifier("val"))));
     func = generateFuncDecl(*(new Type(TTVOID)), "int_list_insert", args);
-    statements.insert(statements.begin(), func);
-    rootCtx.registerFunc(func);
-
-    // int_list_length()
-    args.clear();
-    args.push_back(new NVariableDeclaration(*(new Type(TTINT, true)), *(new NIdentifier("list"))));
-    func = generateFuncDecl(*(new Type(TTINT)), "int_list_length", args);
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
 
