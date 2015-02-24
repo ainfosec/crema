@@ -29,7 +29,7 @@ ast.o: ast.cpp ast.h
 types.o: types.cpp types.h
 	$(CC) -c $(CPP_FLAGS) types.cpp
 
-codegen.o: codegen.cpp parser.h codegen.h
+codegen.o: codegen.cpp parser.h codegen.h ast.h types.h
 	$(CC) -c $(CPP_FLAGS) codegen.cpp
 
 crema.o: crema.cpp
