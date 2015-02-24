@@ -717,7 +717,7 @@ bool NFunctionDeclaration::semanticAnalysis(SemanticContext * ctx)
       fr = (type.typecode == VOID) ? true : ctx->funcReturns.back();
       if (!fr) 
 	{
-	  std::cout << "No return statement in " << type << " " << ident << std::endl;
+	  std::cout << "Semantic ERROR: Control reaches end of non-void (" << type << ") function " << ident << std::endl;
 	}
       ctx->inFunc = false;
     }

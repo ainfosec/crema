@@ -847,10 +847,12 @@ llvm::Value * NFunctionDeclaration::codeGen(CodeGenContext & context)
 	body->codeGen(context);
 
 	if (type.typecode == VOID)
-	  {
+	{
 	    // Add in a void return instruction for void functions
 	    llvm::ReturnInst::Create(llvm::getGlobalContext(), context.blocks.top());
-	  }
+	} else if (!context.blocks.top()->getTerminator()) {
+        std::cout << "Warning: Control may reach end of non-void function: " << ident << std::endl;
+    }
 
 	while (context.blocks.empty() == false && context.blocks.top() != bb) {
 	  context.blocks.pop();
