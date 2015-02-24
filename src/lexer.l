@@ -100,6 +100,6 @@ extern "C" int yywrap() { }
 ","			      return TOK(TCOMMA);
 "\."			      return TOK(TPERIOD);
 \#.*			      ; // Comment, ignore
-.		printf("Unknown token!\n"); yyterminate();
+.		printf("Unknown token on line %d\n", yylineno); yyterminate();
 
 %%
