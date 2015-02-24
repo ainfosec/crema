@@ -593,7 +593,7 @@ std::ostream & NBinaryOperator::print(std::ostream & os) const
 */
 std::ostream & NIdentifier::print(std::ostream & os) const
 {
-  os << "Identifier: " << value;
+  os << value;
   return os;
 }
 

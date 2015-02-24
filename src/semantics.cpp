@@ -619,12 +619,12 @@ bool NFunctionCall::semanticAnalysis(SemanticContext * ctx)
       {
 	  if (args[i]->getType(ctx) > func->variables[i]->type)
 	  {
-	      std::cout << "Type mismatch when calling function: " << ident << std::endl;
+	      std::cout << "Type mismatch when calling function: " << ident << " on line " << lineno << std::endl;
 	      return false;
 	  }
 	  if (args[i]->getType(ctx) != func->variables[i]->type)
 	  {
-	      std::cout << "Warning: Type upcast for argument: " << ident << std::endl;
+	      std::cout << "Warning: Type upcast for argument " << i+1 << " '" << func->variables[i]->ident << "' " << "of function call: '" << ident << "' on line " << lineno << std::endl;
 	  }
       }
       return true;

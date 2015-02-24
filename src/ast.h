@@ -19,10 +19,14 @@
 #include "types.h"
 #include "codegen.h"
 
+extern int yylineno;
+
 /** 
  *  The base class containing all the language constructs. */
 class Node {
  public:
+  int lineno;
+  Node() { lineno = yylineno; }
   virtual ~Node() { }
   virtual llvm::Value * codeGen(CodeGenContext & context) { }
   virtual std::ostream & print(std::ostream & os) const { };
@@ -34,7 +38,7 @@ class Node {
 /**
  *  An expression is something that evaluates to a value. 
  *  (Ex. 45*3 % 20)  */
-class NExpression : public Node {
+class NExpression : virtual public Node {
 public:
     Type & type; /**< Expression type used for type-checking during semantic analysis */
 NExpression() : type(*(new Type())) { }
@@ -46,7 +50,7 @@ NExpression() : type(*(new Type())) { }
  *  A statement is a line of code that does something. In other words,
  *  you can't pass a statement as a parameter. 
  *  (Ex. if (x==1) print("yes") else print("no")) */
-class NStatement : public Node {
+class NStatement : virtual public Node {
 };
 
 /**
