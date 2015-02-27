@@ -20,6 +20,12 @@
 #include "klee/klee.h"
 #endif
 
+/*
+  Re-allocates memory for a list.
+
+  @param list The list to re-allocate memory for
+  @param new_sz The number of bytes to be re-allocated for the list
+*/
 static void list_resize(list_t * list, size_t new_sz)
 {
   if (list == NULL)
@@ -33,6 +39,12 @@ static void list_resize(list_t * list, size_t new_sz)
     }
 }
 
+/*
+  Allocates a new list_t structure, which represents either an array or a string
+  in a Crema program.
+
+  @param es The number of byes each element fo the list takes (i.e. 1 for char, 8 for double, etc)
+*/
 list_t * list_create(int64_t es)
 {
   list_t * l = malloc(sizeof(list_t));
@@ -46,6 +58,11 @@ list_t * list_create(int64_t es)
   return l;
 }
 
+/*
+  Frees memory for the given list_t structure
+
+  @param list The list_t structure to be freed
+*/
 void list_free(list_t * list)
 {
   if (list == NULL)
@@ -59,6 +76,9 @@ void list_free(list_t * list)
   free(list);
 }
 
+/*
+  
+*/
 void list_delete(list_t * list, unsigned int idx)
 {
   if (list == NULL)
@@ -72,17 +92,30 @@ void list_delete(list_t * list, unsigned int idx)
     }
 }
 
+/*
+  Returns the number of elements in a list_t structure (string or array from a Crema program)
+
+  @return The length of the given list
+*/
 int64_t list_length(list_t * list)
 {
   return list->len;
 }
 
+/*
+  
+*/
 void str_delete(string_t * str, unsigned int idx)
 {
   list_delete(str, idx);
   ((char *) str->arr)[str->len] = '\0';
 }
 
+/*
+  Inserts an element into a list_t structure at the given index
+
+  @param list Pointer to a list_t structure
+*/
 void list_insert(list_t * list, unsigned int idx, void * elem)
 {
   if (list == NULL)
@@ -95,6 +128,13 @@ void list_insert(list_t * list, unsigned int idx, void * elem)
     }
 }
 
+/*
+  Returns a pointer to the element of a list_t structure found at the given index
+
+  @param list Pointer to a list_t structure
+  @param idx The index to retrieve from list
+  @return Pointer to the element at the given index
+*/
 void * list_retrieve(list_t * list, unsigned int idx)
 {
   if (list == NULL)
@@ -108,6 +148,12 @@ void * list_retrieve(list_t * list, unsigned int idx)
   return list->arr + (idx * list->elem_sz);
 }
 
+/*
+  Appends a new element onto the given list, increasing the size of the list by one
+
+  @param list Pointer to a list
+  @param elem Pointer to and element to be appended onto the list
+*/
 void list_append(list_t * list, void * elem)
 {
   if (list == NULL)
@@ -229,16 +275,35 @@ void str_println(string_t * str)
   }
 }
 
+/*
+  Creates an empty list of type int
+
+  @return Pointer to the intialized list
+*/
 list_t * int_list_create()
 {
   return list_create(sizeof(int64_t));
 }
 
+/*
+  Inserts a value into a list of type int at the given index
+
+  @param list The list to insert into
+  @param idx The index in the list to insert the value
+  @param val The int value to be inserted
+*/
 void int_list_insert(list_t * list, int64_t idx, int64_t val)
 {
   list_insert(list, idx, (void *) &val);
 }
 
+/*
+  Retrieves the element from a list of type int at the given index
+
+  @param list The list to search
+  @param idx The index of the element to be retrieved
+  @return The element (int value) at the given index
+*/
 int64_t int_list_retrieve(list_t * list, int64_t idx)
 {
   int64_t *p = list_retrieve(list, idx);
@@ -250,6 +315,12 @@ int64_t int_list_retrieve(list_t * list, int64_t idx)
   return (int64_t) *p;
 }
 
+/*
+  Appends a new element of type int onto the given list, increasing the size of the list by one
+
+  @param list A list to append an int to
+  @param elem The int to be appended
+*/
 void int_list_append(list_t * list, int64_t elem)
 {
   list_append(list, (void *) &elem);
