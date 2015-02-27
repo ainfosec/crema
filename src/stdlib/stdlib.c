@@ -77,7 +77,10 @@ void list_free(list_t * list)
 }
 
 /*
-  
+  Removes an element from a list at a given index
+
+  @param list The list to be operated on
+  @param idx The index of the element to be removed from the list
 */
 void list_delete(list_t * list, unsigned int idx)
 {
@@ -103,7 +106,10 @@ int64_t list_length(list_t * list)
 }
 
 /*
-  
+  Removes a character from a string at a given index
+
+  @param str The string to be operated on
+  @param idx The index of the character to be removed from the string
 */
 void str_delete(string_t * str, unsigned int idx)
 {
@@ -169,6 +175,12 @@ void list_append(list_t * list, void * elem)
   list_insert(list, list->len - 1, elem);
 }
 
+/*
+  Concatenates two lists together (string or array)
+
+  @param list1 The first list
+  @param list2 The second list to be concatenated onto the first list
+*/
 void list_concat(list_t * list1, list_t * list2)
 {
   int i;
@@ -183,11 +195,23 @@ void list_concat(list_t * list1, list_t * list2)
     }
 }
 
+/*
+  Creates a list of characters (a string)
+
+  @return list A new empty list of characters
+*/
 string_t * str_create()
 {
   return list_create(sizeof(char));
 }
 
+/*
+  Converts a null-termiated C style string into a 
+  list of characters (a Crema string)
+
+  @param s Pointer to a C character array
+  @return Returns the list_t equivalent of the given C string
+*/
 string_t * str_from_cstring(char * s)
 {
   string_t * str = list_create(sizeof(char));
@@ -198,6 +222,15 @@ string_t * str_from_cstring(char * s)
   return str;
 }
 
+/*
+  Returns a sub-string of a given string, given by a start index within the
+  string, and a length of the substring.
+
+  @param str The string to be operated on
+  @param start The starting index of the substring
+  @param len The number of characters after 'start' to be included in the substring
+  @return The substring
+*/
 string_t * str_substr(string_t * str, unsigned int start, unsigned int len)
 {
   string_t * nstr = list_create(sizeof(char));
@@ -221,16 +254,29 @@ string_t * str_substr(string_t * str, unsigned int start, unsigned int len)
   return nstr;
 }
 
+/*
+  Alias for list_free()
+*/
 void str_free(string_t * str)
 {
   list_free(str);
 }
 
+/*
+  Alias for list_insert()
+*/
 void str_insert(string_t * str, unsigned int idx, char elem)
 {
   list_insert(str, idx, (void *) &elem);
 }
 
+/*
+  Retrieves the character in the given string at the given index
+
+  @param str The string to be operated on
+  @param idx The index of the character to be returned
+  @return The character found in string str at index idx
+*/
 char str_retrieve(string_t * str, unsigned int idx)
 {
   char * p = list_retrieve(str, idx);
@@ -242,18 +288,37 @@ char str_retrieve(string_t * str, unsigned int idx)
   return (char) *p;
 }
 
+/*
+  Appends a new character onto the given string, increasing the size of the,
+  list by one, and appends a null-terminating character ('\0') at the end of the string
+
+  @param list Pointer to a list
+  @param elem Pointer to and element to be appended onto the list
+*/
 void str_append(string_t * str, char elem)
 {
   list_append(str, (void *) &elem);
   ((char*)str->arr)[str->len] = '\0';
 }
 
+/*
+  Concatenates two strings together, and then appends a null-termiating 
+  character ('\0') to the result
+
+  @param str1 The first string
+  @param str2 The second string to be concatenated onto the first list
+*/
 void str_concat(string_t * str1, string_t * str2)
 {
   list_concat(str1, str2);
   ((char*)str1->arr)[str1->len] = '\0';
 }
 
+/*
+  Prints a string without a new line character
+
+  @param str The string to be printed
+*/
 void str_print(string_t * str)
 {
   if(str->arr == NULL)
@@ -263,6 +328,11 @@ void str_print(string_t * str)
   printf("%s", (char *) str->arr);
 }
 
+/*
+  Prints a string with a new line character
+
+  @param str The string to be printed
+*/
 void str_println(string_t * str)
 {
   if(str->arr == NULL)
@@ -326,16 +396,35 @@ void int_list_append(list_t * list, int64_t elem)
   list_append(list, (void *) &elem);
 }
 
+/*
+  Creates an empty list of type int
+
+  @return Pointer to the intialized list
+*/
 list_t * double_list_create()
 {
   return list_create(sizeof(double));
 }
 
+/*
+  Inserts a value into a list of type double at the given index
+
+  @param list The list to insert into
+  @param idx The index in the list to insert the value
+  @param val The double value to be inserted
+*/
 void double_list_insert(list_t * list, unsigned int idx, double val)
 {
   list_insert(list, idx, (void *) &val);
 }
 
+/*
+  Retrieves the element from a list of type double at the given index
+
+  @param list The list to search
+  @param idx The index of the element to be retrieved
+  @return The element (double value) at the given index
+*/
 double double_list_retrieve(list_t * list, unsigned int idx)
 {
   double *p = list_retrieve(list, idx);
@@ -347,11 +436,24 @@ double double_list_retrieve(list_t * list, unsigned int idx)
   return (double) *p;
 }
 
+/*
+  Appends a new element of type double onto the given list, increasing the size of the list by one
+
+  @param list A list to append an double to
+  @param elem The double to be appended
+*/
 void double_list_append(list_t * list, double elem)
 {
   list_append(list, (void *) &elem);
 }
 
+/*
+  Generates a linear sequence of int values in the range of start to end,
+  and returns them as an array
+
+  @param start An integer number to begin a sequence at
+  @param end An integer number to end the sequence at
+*/
 list_t * crema_seq(int64_t start, int64_t end)
 {
   list_t * l;
