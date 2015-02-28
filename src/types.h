@@ -1,7 +1,7 @@
 /**
    @file types.h
    @brief Header file for type classes used to perform type-checking during the semantic analysis checks
-   @copyright 2014 Assured Information Security, Inc.
+   @copyright 2015 Assured Information Security, Inc.
    @author Jacob Torrey <torreyj@ainfosec.com>
 
    The Type family of classes are used to store type information about various expressions and

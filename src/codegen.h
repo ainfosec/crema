@@ -1,7 +1,7 @@
 /**
    @file codegen.h
    @brief Header file for code generation routines
-   @copyright 2014 Assured Information Security, Inc.
+   @copyright 2015 Assured Information Security, Inc.
    @author Jacob Torrey <torreyj@ainfosec.com>
 
    A header containing definitions and declarations for functionality

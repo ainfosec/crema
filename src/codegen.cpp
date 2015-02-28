@@ -1,7 +1,7 @@
 /**
    @file codegen.cpp
    @brief Contains routines for generating LLVM bytecode from an AST
-   @copyright 2014 Assured Information Security, Inc.
+   @copyright 2015 Assured Information Security, Inc.
    @author Jacob Torrey <torreyj@ainfosec.com>
 
    This file contains all the routines and logic to take a properly

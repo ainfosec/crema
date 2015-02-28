@@ -1,7 +1,7 @@
 /**
    @file semantics.h
    @brief Header file for classes and routines related to semantic checking
-   @copyright 2014 Assured Information Security, Inc.
+   @copyright 2015 Assured Information Security, Inc.
    @author Jacob Torrey <torreyj@ainfosec.com>
 
    Contains the definitions of classes and functionality needed to perform

@@ -1,7 +1,7 @@
 /**
    @file stdlib.h
    @brief Header for standard C routines that support Crema programs
-   @copyright 2014 Assured Information Security, Inc.
+   @copyright 2015 Assured Information Security, Inc.
    @author Jacob Torrey <torreyj@ainfosec.com>
 
    A header defining functions and other structures needed to support

@@ -1,7 +1,7 @@
 /**
    @file crema.cpp
    @brief Main cremacc file and main() function
-   @copyright 2014 Assured Information Security, Inc.
+   @copyright 2015 Assured Information Security, Inc.
    @author Jacob Torrey <torreyj@ainfosec.com>
 
    A main function to read in an input. It will parse and perform semantic
