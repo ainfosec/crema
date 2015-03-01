@@ -136,7 +136,7 @@ void NBlock::createStdlib()
 
     // str_print(list) & str_println(list)
     args.clear();
-    args.push_back(new NVariableDeclaration(*(new Type(TTINT, true)), *(new NIdentifier("l"))));
+    args.push_back(new NVariableDeclaration(*(new Type(TTCHAR, true)), *(new NIdentifier("l"))));
     func = generateFuncDecl(*(new Type(TTVOID)), "str_print", args);
     statements.insert(statements.begin(), func);
     rootCtx.registerFunc(func);
