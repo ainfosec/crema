@@ -430,7 +430,7 @@ llvm::Value * NIfStatement::codeGen(CodeGenContext & context)
 	    exit(-1);
 	}
 	if (typeid(condition) != typeid(NBinaryOperator)) {
-	  cond = llvm::CmpInst::Create(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(8, 0, false)), cond, "", context.blocks.top());
+	  cond = llvm::CmpInst::Create(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(1, 0, false)), cond, "", context.blocks.top());
 	}
 	break;
     default:
@@ -1110,5 +1110,5 @@ llvm::Value * NChar::codeGen(CodeGenContext & context)
 llvm::Value * NBool::codeGen(CodeGenContext & context)
 {
     char v = value ? 1 : 0;
-    return llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(8, v, true));
+    return llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(1, v, true));
 }

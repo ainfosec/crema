@@ -243,6 +243,8 @@ llvm::Type * Type::toLlvmType()
     	t = llvm::Type::getVoidTy(llvm::getGlobalContext());
     	break;
     case BOOL:
+    	t = llvm::Type::getInt1Ty(llvm::getGlobalContext());
+	break;
     case CHAR:
     	t = llvm::Type::getInt8Ty(llvm::getGlobalContext());
     	break;
