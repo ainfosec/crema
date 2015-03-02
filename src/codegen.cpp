@@ -422,9 +422,16 @@ llvm::Value * NIfStatement::codeGen(CodeGenContext & context)
 	    break;
     case UINT:
     case INT:
-	cond = llvm::CmpInst::Create(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(8, 0, false)), cond, "", context.blocks.top());
+	cond = llvm::CmpInst::Create(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, 0, false)), cond, "", context.blocks.top());
 	break;
     case BOOL:
+        if (cond == NULL) {
+            std::cout << "Failed to generate boolean conditional" << std::endl;
+	    exit(-1);
+	}
+	if (typeid(condition) != typeid(NBinaryOperator)) {
+	  cond = llvm::CmpInst::Create(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(8, 0, false)), cond, "", context.blocks.top());
+	}
 	break;
     default:
 	    cond = NULL;
@@ -591,7 +598,7 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
     case TCEQ:
       if (tc == DOUBLE)
 	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_OEQ, context, lhs, rhs);
-      if ((tc == INT || tc == CHAR) && rhs.type == lhs.type)
+      if ((tc == INT || tc == CHAR || tc == BOOL) && rhs.type == lhs.type)
 	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_EQ, context, lhs, rhs);
       return NULL;
     break;
@@ -599,7 +606,7 @@ llvm::Value * NBinaryOperator::codeGen(CodeGenContext & context)
     case TCNEQ:
 	  if (tc == DOUBLE)
 	    return cmpOpInstCreate(llvm::Instruction::FCmp, llvm::CmpInst::FCMP_ONE, context, lhs, rhs);
-	  if (tc == INT || tc == CHAR)
+	  if (tc == INT || tc == CHAR || tc == BOOL)
 	    return cmpOpInstCreate(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, context, lhs, rhs);
 	  return NULL;
 	  break;
