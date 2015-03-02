@@ -422,7 +422,7 @@ llvm::Value * NIfStatement::codeGen(CodeGenContext & context)
 	    break;
     case UINT:
     case INT:
-	cond = llvm::CmpInst::Create(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, 0, false)), cond, "", context.blocks.top());
+	cond = llvm::CmpInst::Create(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLT, llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(64, 0, false)), cond, "", context.blocks.top());
 	break;
     case BOOL:
         if (cond == NULL) {
