@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Crema : Crema: A Sub-Turing Programming Language">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Crema</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/ainfosec/crema">View on GitHub</a>
+
+          <h1 id="project_title">Crema</h1>
+          <h2 id="project_tagline">Crema: A Sub-Turing Programming Language</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/ainfosec/crema/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/ainfosec/crema/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a id="crema" class="anchor" href="#crema" aria-hidden="true"><span class="octicon octicon-link"></span></a>Crema</h1>
+
+<p>(C) 2014-2015 Assured Information Security, Inc.</p>
+
+<h2>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>Crema is a LLVM front-end that aims to specifically execute in sub-Turing Complete space.
+Designed to be simple to learn, and practical for the majority of programming tasks needed,
+Crema can restrict the computational complexity of the program to the minimum needed to improve
+security.</p>
+
+<h2>
+<a id="technical-details" class="anchor" href="#technical-details" aria-hidden="true"><span class="octicon octicon-link"></span></a>Technical Details</h2>
+
+<p>Crema is developed in C++ in order to natively utilize the LLVM tool-chain and integrate with
+flex/bison to simplify parser generation.</p>
+
+<h2>
+<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting started</h2>
+
+<p>Start off by cloning the latest version of Crema from this git repository</p>
+
+<h3>
+<a id="building-the-crema-tool" class="anchor" href="#building-the-crema-tool" aria-hidden="true"><span class="octicon octicon-link"></span></a>Building the Crema Tool</h3>
+
+<p>Before building the Crema tool, make sure that you have the following dependencies installed on your environment:</p>
+
+<ol>
+<li>g++</li>
+<li>bison:       <a href="http://www.gnu.org/software/bison/">http://www.gnu.org/software/bison/</a>
+</li>
+<li>llvm-dev</li>
+<li>flex:        <a href="http://flex.sourceforge.net/">http://flex.sourceforge.net/</a>
+</li>
+</ol>
+
+<p>Build the Crema tool by running <code>make</code> in the src directory. This will create the "cremacc" program. You can clean the src directory by running <code>make clean</code></p>
+
+<h3>
+<a id="compiling-your-crema-programs-with-cremacc" class="anchor" href="#compiling-your-crema-programs-with-cremacc" aria-hidden="true"><span class="octicon octicon-link"></span></a>Compiling your Crema programs with cremacc</h3>
+
+<p>To compile a Crema program into LLVM IR for JIT execution, simply use the "cremacc" program.</p>
+
+<p>Crema files use the extention ".crema". To build a crema file into an executable named "program.exe", use the command:</p>
+
+<pre><code>./cremacc -f &lt;path-to-a-crema-file&gt; -o program
+</code></pre>
+
+<p>To print LLVM assembly to a file, use the -S option:
+<code>./cremacc -f &lt;path-to-a-crema-file&gt; -S &lt;output-file-name&gt;.ll</code></p>
+
+<p>For help with all of the other command line options available for cremacc, simply run:
+<code>./cremacc -h</code></p>
+
+<h2>
+<a id="learning-crema" class="anchor" href="#learning-crema" aria-hidden="true"><span class="octicon octicon-link"></span></a>Learning Crema</h2>
+
+<p>Use this repository's Wiki page to get started with code examples, reference information, and other general topics about the Crema language.</p>
+
+<p>Distribution Statement "A" (Approved for Public Release, Distribution Unlimited)</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Crema maintained by <a href="https://github.com/ainfosec">ainfosec</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
