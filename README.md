@@ -1,6 +1,5 @@
-![Crema-rado.png](https://bitbucket.org/repo/arMj8M/images/192944102-Crema-rado.png)
 # Crema
-(C) 2014 Assured Information Security, Inc.
+(C) 2014-2015 Assured Information Security, Inc.
 
 ## Introduction
 Crema is a LLVM front-end that aims to specifically execute in sub-Turing Complete space.
@@ -40,4 +39,6 @@ For help with all of the other command line options available for cremacc, simpl
 ```./cremacc -h```
 
 ## Learning Crema
-Use this repository's Wiki page to get started with code examples, reference information, and other general topics about the Crema language: https://bitbucket.org/aistorreyj/crema/wiki/Home
+Use this repository's Wiki page to get started with code examples, reference information, and other general topics about the Crema language.
+
+Distribution Statement "A" (Approved for Public Release, Distribution Unlimited)
